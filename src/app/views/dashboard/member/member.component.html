@@ -1,0 +1,700 @@
+<div class="container-fluid animated fadeIn f-14 member-dashboard" *ngIf="member_data">
+   <div id="fade-video" (click)="lightbox_close()"></div>
+   <div class="outer-heading " style="padding:10px 0;">Dashboard : Member<span
+         class="float-right">{{previous_month_full}} {{current_year}}</span> <button class="btn btn-primary"
+         (click)="ccda_data = true;member_data = false">Get your visit details</button></div>
+   <!-- Member profile and provider details -->
+   <div class="row">
+      <div class="member-provider-bg">
+         <div class="member-detail-bx">
+            <div
+               style="clear:both;padding:0px 10px; overflow:hidden; width:100%;font-size: 16px;cursor: pointer; font-weight: bold;">
+               Member details
+            </div>
+            <div class="col-sm-6 col-md-2 pd-0">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right mb-1"><span class="bg-i-orange round-50"><img
+                              src="assets/img/member-profile/name.png"></span></div>
+                     <div class="h4 mb-0">Name</div>
+                     <small class="text-muted text-uppercase font-weight-bold">{{member_details?.LastName}},
+                        {{member_details?.FirstName}}</small>
+                     <div class="progress progress-xs mt-3 mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar bg-info"
+                           role="progressbar" style="width: 25%"></div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-6 col-md-2 pd-0">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right mb-1"><span class="bg-i-yellow round-50"><img
+                              src="assets/img/member-profile/mobile.png"></span></div>
+                     <div class="h4 mb-0">Mobile</div>
+                     <small class="text-muted text-uppercase font-weight-bold">{{member_details?.PhoneNumber}}</small>
+                     <div class="progress progress-xs mt-3 mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar bg-info"
+                           role="progressbar" style="width: 25%"></div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-6 col-md-2 pd-0">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right mb-1"><span class="bg-i-voilet round-50"><img
+                              src="assets/img/member-profile/gender.png"></span></div>
+                     <div class="h4 mb-0">Gender</div>
+                     <small class="text-muted text-uppercase font-weight-bold">{{member_details?.Gender}}</small>
+                     <div class="progress progress-xs mt-3 mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar bg-info"
+                           role="progressbar" style="width: 25%"></div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-6 col-md-2 pd-0">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right mb-1"><span class="bg-i-green round-50"><img
+                              src="assets/img/member-profile/dob.png"></span></div>
+                     <div class="h4 mb-0">DOB</div>
+                     <small
+                        class="text-muted text-uppercase font-weight-bold">{{member_details?.DateofBirth | date}}</small>
+                     <div class="progress progress-xs mt-3 mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar bg-info"
+                           role="progressbar" style="width: 25%"></div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-6 col-md-2 pd-0">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right mb-1"><span class="bg-i-black round-50"><img
+                              src="assets/img/member-profile/address.png"></span></div>
+                     <div class="h4 mb-0">Address</div>
+                     <small class="text-muted text-uppercase font-weight-bold">{{member_details?.AddressLine1}},
+                        {{member_details?.State}}, {{member_details?.City}}, {{member_details?.Country}}</small>
+                     <div class="progress progress-xs mt-3 mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar bg-info"
+                           role="progressbar" style="width: 25%"></div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="provider-detail-bx">
+            <div
+               style="clear:both;padding:0px 10px; overflow:hidden; width:100%;font-size: 16px;cursor: pointer; font-weight: bold;">
+               Provider details
+            </div>
+            <div class="">
+               <div class="card">
+                  <div class="card-body p-3 clearfix">
+                     <span class="round-50 shadow mr-3 float-left"><img
+                           src="assets/img/provider-information/name.png"></span>
+                     <div class="h5 text-primary mb-0 mt-2">Name</div>
+                     <div class="text-muted text-uppercase font-weight-bold font-xs">{{provider_details?.providername}}
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="">
+               <div class="card">
+                  <div class="card-body p-3 clearfix">
+                     <span class="round-50 shadow mr-3 float-left"><img
+                           src="assets/img/provider-information/email.png"></span>
+                     <div class="h5 text-primary mb-0 mt-2">Email</div>
+                     <div class="text-muted text-uppercase font-weight-bold font-xs">{{provider_details?.provideremail}}
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!-- row end here -->
+   <!-- <div class="row">
+      ffdsaf
+   </div>
+   row end here -->
+   <!-- Member gaps and provider messages and notifications -->
+   <div class="row">
+      <div class="member-gap-area">
+         <!-- Member gaps -->
+         <div class="col-lg-3">
+            <div class="card member-gaps">
+               <div class="card-header">
+                  Member gaps
+               </div>
+               <div class="card-body">
+                  <p *ngIf="member_details?.member_gap?.length == 0">There area no gaps present for current month</p>
+                  <ul class="list-group list-group-flush" *ngIf="member_details?.member_gap?.length > 0">
+                     <li *ngFor="let gap of member_details?.member_gap" class="list-group-item">{{gap.gapsname}}</li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+         <!-- provider messages -->
+         <div class="col-lg-6">
+            <div class="card provider-messages">
+               <div class="card-header">
+                  Provider messages
+                  <span class="float-right"><span class="download-text" (click)="createMessage()"><small
+                           class="text-success">Compose message</small></span></span>
+               </div>
+               <div class="card-body">
+                  <p *ngIf="arr1.length == 0 ">No recent provider messages received</p>
+                  <ul class="list-group list-group-flush message" *ngIf="messageList?.length > 0 && arr1.length > 0">
+                     <li class="list-group-item" *ngFor="let msg of messageList | slice:0:num; let i='index'">
+                        <div class="p-image">
+                           <span class="bg-i-orange round-50">
+                              <img src="assets/img/member-profile/name.png">
+                           </span>
+                        </div>
+                        <div class="d-inline-block align-middle ml-2 p-details">
+                           <div>
+                              <div class="title">Provider Name: </div>
+                              <span>Abdel Karim Jibawi</span>
+                           </div>
+                           <div>
+                              <div class="title">Subject: </div>
+                              <span>{{msg.Subject}}</span>
+                           </div>
+                           <div>
+                              <div class="title">Message:</div>
+                              <span *ngIf="i == 0 ">{{arr1[arr1.length - 1].MsgBody}}</span><span
+                                 *ngIf="i == 1 ">{{arr2[arr2.length - 1].MsgBody}}</span><span
+                                 *ngIf="i == 2 ">{{arr3[arr3.length - 1].MsgBody}}</span>
+                           </div>
+                           <div class="text-muted f-12 mt-2" *ngIf="i == 0 ">
+                              {{arr1[arr1.length - 1].modifieddate | date :'medium'}}</div>
+                           <div class="text-muted f-12 mt-2" *ngIf="i == 1 ">
+                              {{arr2[arr2.length - 1].modifieddate | date :'medium'}}</div>
+                           <div class="text-muted f-12 mt-2" *ngIf="i == 2 ">
+                              {{arr3[arr3.length - 1].modifieddate | date :'medium'}}</div>
+                        </div>
+                     </li>
+                     <!-- <li class="list-group-item">Dapibus ac facilisis in</li>
+                     <li class="list-group-item">Morbi leo risus</li> -->
+                  </ul>
+                  <div class="text-center mt-4" *ngIf="messageList?.length > 0">
+                     <button [routerLink]="['/message']" class="btn btn-primary btn-sm ml-2 mr-1" type="submit">View all
+                        messages</button>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <!-- notifications -->
+         <div class="col-lg-3">
+            <div class="card member-notifications">
+               <div class="card-header">
+                  notifications
+               </div>
+               <div class="card-body notifications">
+                  <accordion [closeOthers]="true" class="table-bg">
+                     <accordion-group *ngFor="let notication of notification_list">
+                        <div accordion-heading class="clearfix">
+                           <strong>{{notication?.Notification_Name}}</strong>
+                           <div class="venue"><b>Venue: </b>{{notication?.venuedetails}} |
+                              <b>{{notication?.eventdate | date}}</b></div>
+                           <span class="float-right pull-right"><i
+                                 class="icon-arrow-down icons font-1xl d-block mt-1"></i></span>
+                        </div>
+                        <div>
+                           <div class="desc"><b>Description: </b>{{notication?.Notification_Description}}</div>
+                           <div *ngIf="notication?.NotificationDocuments?.length">
+                              <div style="text-decoration: underline;"><b>Attachments</b></div>
+                              <ul class="files">
+                                 <!-- <li *ngFor="let d of n?.NotificationDocument; let i = 'index';"><small class="text-muted ">{{d.Filename}} </small><a target="_blank" [href]="CONTENT_BASE+d.Filepath+'/'+d.Filename"><i class="fa fa-file-pdf-o text-danger pl-2"></i></a></li> -->
+                                 <li class="my-1" *ngFor="let d of notication?.NotificationDocuments; let i = 'index';">
+                                    <div class="text-muted d-inline-block">{{d.Filename}}</div>
+                                    <a target="_blank" [href]="CONTENT_BASE+d.Filepath+'/'+d.Filename"><i
+                                          class="fa fa-file-pdf-o text-danger pl-3"></i></a>
+                                 </li>
+                              </ul>
+                           </div>
+                        </div>
+                     </accordion-group>
+                     <!-- <accordion-group >
+                        <div accordion-heading class="clearfix">
+                                 <strong>Notification 2</strong>
+                                 <span class="float-right pull-right"><i class="icon-arrow-down icons font-1xl d-block mt-1"></i></span>
+                        </div>
+                        
+                     </accordion-group> -->
+                  </accordion>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!-- Education Section -->
+   <div class="education-section">
+      <div class="card w-100">
+         <div class="card-header f-16">
+            Education Section
+         </div>
+         <div class="card-body ">
+            <div class="row">
+               <div class="col-sm-12 col-lg-9" *ngIf="videoList">
+                  <div class="f-14">{{videoList[0]?.title}}</div>
+                  <div>
+                     <div class="row">
+                        <!-- <div class="row" dragScroll scrollbar-hidden="true"> -->
+                        <div class="videos m-3" *ngFor="let video of videoList[0]?.guidelinevideo; let j= 'index'">
+                           <video [id]="'VisaChipCardVideo'+j" width="295" (click)="lightbox_open(video,j,$event)">
+                              <source [src]="this.CONTENT_BASE+video.videopath+'/'+video.videoname  | safe: 'url'"
+                                 type="video/mp4">
+                           </video>
+                           <div class="light-container">
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col-sm-12 col-lg-3" *ngIf="videoList">
+                  <div class="f-14">Documents List</div>
+                  <ul style="margin-left:0;padding-left:0;">
+                     <li *ngFor="let doc of videoList[0]?.guidelineodoc"
+                        style="margin:5px;margin-left:0;padding:0;border:0;list-style: none;display: inline-block;">
+                        <a target="_blank" [href]="CONTENT_BASE+doc.documentpath+'/'+doc.documentname"><i
+                              class="fa fa-file-o text-success pr-2" style="font-size: 30px !important;"
+                              placement="bottom" [tooltip]=doc.documentname></i></a>
+                     </li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<div *ngIf="ccda_data" class="animated fadeIn p-3 ccda_section">
+   <div class="outer-heading " style="padding:10px 0;">CCDA Data <button class="btn btn-primary"
+         (click)="member_data = true;ccda_data = false">Click for Member Data</button></div>
+   <!-- <div class="outer-heading">Vital Signs</div> -->
+   <div class="row vital_section" *ngIf="vital_signs">
+      <div class="col">
+         <div class="card">
+            <div class="card-body">
+               <div class="h1 text-muted text-right mb-4">
+                  <i class="icon-people"></i>
+               </div>
+               <div class="ccda-blockheading"> Body Mass Index </div>
+               <div class="progress progress-xs mt-3 mb-0">
+                  <div class="progress-bar bg-info" role="progressbar" style="width: 25%" aria-valuenow="25"
+                     aria-valuemin="0" aria-valuemax="100"></div>
+               </div>
+               <small class="text-muted text-uppercase font-weight-bold">
+                  <div class="ccda-scroll-block">
+                     <table class="table">
+                        <thead>
+                           <tr>
+                              <th>Month</th>
+                              <th>Value</th>
+
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let item of vital_signs?.BodyMassIndex">
+                              <td>{{item.Date}}</td>
+                              <td>{{item.value}} {{item.unit}}</td>
+                              <!-- <td>Member</td>
+                           <td><span class="badge badge-success">Active</span></td> -->
+                           </tr>
+
+                        </tbody>
+                     </table>
+                  </div>
+               </small>
+            </div>
+         </div>
+      </div>
+      <div class="col">
+         <div class="card">
+            <div class="card-body">
+               <div class="h1 text-muted text-right mb-4">
+                  <i class="fa fa-heartbeat"></i>
+               </div>
+               <div class="ccda-blockheading"> Bp Diastolic </div>
+               <div class="progress progress-xs mt-3 mb-0">
+                  <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25"
+                     aria-valuemin="0" aria-valuemax="100"></div>
+               </div>
+               <small class="text-muted text-uppercase font-weight-bold">
+                  <div class="ccda-scroll-block">
+                     <table class="table">
+                        <thead>
+                           <tr>
+                              <th>Month</th>
+                              <th>Value</th>
+
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let item of vital_signs?.BpDiastolic">
+                              <td>{{item.Date}}</td>
+                              <td>{{item.value}} {{item.unit}}</td>
+                              <!-- <td>Member</td>
+                           <td><span class="badge badge-success">Active</span></td> -->
+                           </tr>
+
+                        </tbody>
+                     </table>
+                  </div>
+               </small>
+            </div>
+         </div>
+      </div>
+      <div class="col">
+         <div class="card">
+            <div class="card-body">
+               <div class="h1 text-muted text-right mb-4">
+                  <i class="fa fa-heartbeat"></i>
+               </div>
+               <div class="ccda-blockheading"> Bp Systolic </div>
+               <div class="progress progress-xs mt-3 mb-0">
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: 25%" aria-valuenow="25"
+                     aria-valuemin="0" aria-valuemax="100"></div>
+               </div>
+               <small class="text-muted text-uppercase font-weight-bold">
+                  <div class="ccda-scroll-block">
+                     <table class="table">
+                        <thead>
+                           <tr>
+                              <th>Month</th>
+                              <th>Value</th>
+
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let item of vital_signs?.BpSystolic">
+                              <td>{{item.Date}}</td>
+                              <td>{{item.value}} {{item.unit}}</td>
+                              <!-- <td>Member</td>
+                           <td><span class="badge badge-success">Active</span></td> -->
+                           </tr>
+
+                        </tbody>
+                     </table>
+                  </div>
+               </small>
+            </div>
+         </div>
+      </div>
+      <div class="col">
+
+         <div class="card">
+            <div class="card-body">
+               <div class="h1 text-muted text-right mb-4">
+                  <i class="fa fa-i-cursor"></i>
+               </div>
+               <div class="ccda-blockheading"> Height </div>
+               <div class="progress progress-xs mt-3 mb-0">
+                  <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0"
+                     aria-valuemax="100"></div>
+               </div>
+               <small class="text-muted text-uppercase font-weight-bold">
+                  <div class="ccda-scroll-block">
+                     <table class="table">
+                        <thead>
+                           <tr>
+                              <th>Month</th>
+                              <th>Value</th>
+
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let item of vital_signs?.Height">
+                              <td>{{item.Date}}</td>
+                              <td>{{item.value}} {{item.unit}}</td>
+                              <!-- <td>Member</td>
+                           <td><span class="badge badge-success">Active</span></td> -->
+                           </tr>
+
+                        </tbody>
+                     </table>
+                  </div>
+               </small>
+            </div>
+         </div>
+      </div>
+      <div class="col">
+
+         <div class="card">
+            <div class="card-body">
+               <div class="h1 text-muted text-right mb-4">
+                  <i class="icon-user-follow"></i>
+               </div>
+               <div class="ccda-blockheading"> Weight </div>
+               <div class="progress progress-xs mt-3 mb-0">
+                  <div class="progress-bar bg-danger" role="progressbar" style="width: 25%" aria-valuenow="25"
+                     aria-valuemin="0" aria-valuemax="100"></div>
+               </div>
+               <small class="text-muted text-uppercase font-weight-bold">
+                  <div class="ccda-scroll-block">
+                     <table class="table">
+                        <thead>
+                           <tr>
+                              <th>Month</th>
+                              <th>Value</th>
+
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let item of vital_signs?.Weight">
+                              <td>{{item.Date}}</td>
+                              <td>{{item.value}} {{item.unit}}</td>
+                              <!-- <td>Member</td>
+                           <td><span class="badge badge-success">Active</span></td> -->
+                           </tr>
+
+                        </tbody>
+                     </table>
+                  </div>
+               </small>
+            </div>
+         </div>
+      </div>
+
+   </div>
+   <div class="row" *ngIf="procedure_list?.length>0">
+      <div class="col-lg-12">
+         <div class="card">
+            <div class="card-header bg-custom"><i class="fa fa-th-list"></i> Procedure List</div>
+            <div class="card-body">
+               <div class="ccda-scroll-block">
+                  <table class="table table-bordered  table-sm">
+                     <thead>
+                        <tr>
+                           <th>S.No.</th>
+                           <th>Code Sytem</th>
+                           <th>PatientId</th>
+                           <th>Procedure Code</th>
+                           <th>Procedure Description</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr *ngFor="let item of procedure_list; let i = 'index'">
+                           <td>{{i+1}}</td>
+                           <td>{{item.CodeSytem}}</td>
+                           <td>{{item.PatientId}}</td>
+                           <td>{{item.ProcedureCode}}</td>
+                           <td>{{item.ProcedureDescription}}</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row" *ngIf="encounterdiagnosis?.length>0">
+      <div class="col-lg-12">
+         <div class="card">
+            <div class="card-header  bg-custom"><i class="fa fa-stethoscope"></i> Encounter Diagnosis</div>
+            <div class="card-body">
+               <div class="ccda-scroll-block">
+                  <table class="table table-bordered  table-sm">
+                     <thead>
+                        <tr>
+                           <th>S.No.</th>
+                           <th>Code</th>
+                           <th>Date</th>
+                           <th>PatientID</th>
+                           <th>Diagnosis Code</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr *ngFor="let item of encounterdiagnosis; let i = 'index'">
+                           <td>{{i+1}}</td>
+                           <td>{{item.Code}}</td>
+                           <td>{{item.Date}}</td>
+                           <td>{{item.PatientID}}</td>
+                           <td>{{item.DiagnosisCode}}</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row" *ngIf="medication_list?.length>0">
+      <div class="col-lg-12">
+         <div class="card">
+            <div class="card-header  bg-custom"><i class="fa fa-medkit"></i>Medication List</div>
+            <div class="card-body">
+               <div class="ccda-scroll-block">
+                  <table class="table table-bordered  table-sm">
+                     <thead>
+                        <tr>
+                           <th>S.No.</th>
+                           <th>Name</th>
+                           <th>Date</th>
+                           <th>PatientID</th>
+                           <th>RXCode</th>
+                           <th>Signature</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr *ngFor="let item of medication_list; let i = 'index'">
+                           <td>{{i+1}}</td>
+                           <td>{{item.Name}}</td>
+                           <td>{{item.Date}}</td>
+                           <td>{{item.PatientID}}</td>
+                           <td>{{item.RXCode}}</td>
+                           <td>{{item.Signature}}</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row" *ngIf="problem_list?.length>0">
+      <div class="col-lg-12">
+         <div class="card">
+            <div class="card-header  bg-custom"><i class="fa fa-question-circle"></i>Problem List</div>
+            <div class="card-body">
+               <div class="ccda-scroll-block">
+                  <table class="table table-bordered  table-sm">
+                     <thead>
+                        <tr>
+                           <th>S.No.</th>
+                           <th>Date</th>
+                           <th>PatientID</th>
+                           <th>Snomed_CTCode</th>
+                           <th>DxDescription</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr *ngFor="let item of problem_list; let i = 'index'">
+                           <td>{{i+1}}</td>
+                           <td>{{item.Date}}</td>
+                           <td>{{item.PatientID}}</td>
+                           <td>{{item.Snomed_CTCode}}</td>
+                           <td>{{item.DxDescription}}</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<div bsModal #userModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog"
+   [config]="{backdrop: 'static'}" aria-labelledby="userModalLabel" aria-hidden="true">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h4 class="modal-title">Compose Message</h4>
+            <button type="button" class="close" aria-label="Close">
+               <span aria-hidden="true" (click)="userModal.hide()">&times;</span>
+            </button>
+         </div>
+         <div class="modal-body">
+            <form action="" class="form-horizontal" autocomplete="off" #memberMessage="ngForm">
+               <!--             <div class="form-group row">
+                  <div class="col-md-12">
+                           <select class="form-control" id="select" name="select" [(ngModel)]="user_role.type">
+                                    <option [selected]="true" value="Internal">Internal</option>
+                                    <option value="External">External</option>
+                           </select>
+                  </div>
+               </div> -->
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>Provider Name</label>
+                     <input *ngIf="provider_details" [(ngModel)]="provider_details.providername" class="form-control"
+                        name="provider" disabled="true">
+                     <!-- <label>Search Provider</label> -->
+                     <!-- <input [(ngModel)]="provider_name" (keyup)="searchProvider()" class="form-control text-capitalize" name="provider_name" placeholder="Search Provider" type="text"> -->
+                     <!-- <div *ngIf="members??.length>0 && showPanel" class="dropdown-menu show" style="left: auto;width:98%;">
+                        <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div>
+                        <div *ngFor="let member of members">
+                                 <a href="javascript:void(0)" *ngIf="member.FirstName" class="dropdown-item" (click)="getMember(member.email)">
+                                          <span class="text-capitalize">{{member.FirstName}} {{member.MidName}} {{member.LastName}}</span> <span *ngIf="member.email"> | {{member.email}} </span>
+                                 </a></div>
+                        </div> -->
+                     <!-- <div *ngIf="email.errors" [hidden]="email.valid || (email.pristine && !UserList.submitted)">
+                           <small *ngIf="fSubmitted" class="text-danger" *ngIf="email.errors.required">Email is required</small>
+                           <small *ngIf="fSubmitted" class="text-danger" *ngIf="email.errors.pattern">Email format is not valid</small>
+                        </div> -->
+                     <!-- <small *ngIf="fSubmitted" class="text-danger" *ngIf="email_exist">Email already exist</small> -->
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>Subject</label>
+                     <input [(ngModel)]="message.Subject" class="form-control" name="MsgSubject" type="text"
+                        placeholder="Subject" required>
+                     <!-- <div *ngIf="name.errors" [hidden]="name.valid || (name.pristine && !UserRole.submitted)">
+                           <small class="text-danger" *ngIf="name.errors.required && fSubmitted">Role Name is required</small>
+                           <small class="text-danger" *ngIf="name.errors.pattern && fSubmitted">Role Name format is not valid</small>
+                        </div>
+                        <small class="text-danger"  *ngIf="role_name_exist">Name already exist</small> -->
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>Message</label>
+                     <textarea [(ngModel)]="message.MsgBody" class="form-control" name="MsgBody" placeholder="Message"
+                        rows="9" style="margin-top: 0px; margin-bottom: 0px; height: 104px;" type="text"
+                        required></textarea>
+                     <!-- <div *ngIf="description.errors" [hidden]="description.valid || (description.pristine && !UserRole.submitted)">
+                           <small class="text-danger" *ngIf="description.errors.required">Description is required</small>
+                           <small class="text-danger" *ngIf="description.errors.minlength">The minimum length should be 5 characters</small>
+                        </div> -->
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <div class="col upload-doc">
+                        <label>Upload Docs</label>
+                        <div>
+                           <label class="upload-button">
+                              <input type="file" id="upload-file" ngFileSelect [options]="options"
+                                 (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple>
+                           </label>
+                           <div class="upload-items">
+                              <div class="upload-item" *ngFor="let f of files; let i = 'index';">
+                                 <span class="filename">
+                                    <span>{{ f.name }} - {{ f.progress?.data?.percentage }}%</span>
+                                    <span>uploading with {{ f.progress?.data?.speedHuman }}</span>
+                                    <span class="fa fa-close" (click)="removeFile(f.id)"></span>
+                                 </span>
+                                 <div class="progress progress mb-0">
+                                    <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25"
+                                       class="progress-bar bg-success progress-bar-animated progress" role="progressbar"
+                                       [style.width]="f?.progress?.data?.percentage + '%'"></div>
+                                 </div>
+                              </div>
+                           </div>
+                           <!-- <div class="py-3" *ngIf="errorFiles?.length">
+                                 <div *ngFor="let item of errorFiles" class="text-danger">{{item.name}} donot have a valid file format and is not uploaded.</div>
+                              </div> -->
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <button [disabled]="memberMessage.invalid" (click)="postMessage()" type="submit"
+                        class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+                  </div>
+               </div>
+            </form>
+         </div>
+         <div class="modal-footer">
+         </div>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

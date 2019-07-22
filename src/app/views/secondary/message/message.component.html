@@ -1,0 +1,78 @@
+<app-help class="d-none"></app-help>
+<div class="custom-container">
+	<!-- 	<div class="outer-heading">
+			Communication
+	</div>-->
+	<div class="row message-h" *ngIf="!singleConvo?.mpMessages.length">
+		You don't have any new messages.
+	</div>
+	<div class="row" *ngIf="singleConvo?.mpMessages.length > 0">
+		
+		<div class="col-sm-9" style="padding-right: 0px;">
+			<div class="message-description p-3">
+				<div class="conversation"  id="chat-container">
+					<div *ngFor="let memberConvo of singleConvo?.mpMessages" class="chat-box">
+						<div *ngIf=" memberConvo?.MsgSender == 'm'" style="overflow:hidden;margin-right:10px;width: 32px;height: 32px;float: left;"><img style="max-width: 100%;" src="assets/img/chat-icon-left.png"></div>
+						
+						<div class="bubble"  [ngClass]="{'you': memberConvo?.MsgSender == 'm', 'me': memberConvo?.MsgSender == 'p'}">
+							<p class="msg-body">{{memberConvo.MsgBody}}</p>
+							<p class="chat-time">{{memberConvo.modifieddate | date :'medium'}}</p>
+							
+							<div class="documents mt-2" *ngIf="memberConvo?.convodoc?.length > 0">
+								<a target="_blank" *ngFor="let d of memberConvo?.convodoc" [href]="CONTENT_BASE+d.Filepath+'/'+d.FileName"><i class="fa fa-file-pdf-o pr-2" [ngClass]="{'text-danger': memberConvo?.MsgSender == 'm', 'text-light': memberConvo?.MsgSender == 'p'}"></i></a>
+							</div>
+						</div>
+						<div *ngIf=" memberConvo?.MsgSender == 'p'" style="overflow:hidden;margin-right:10px;width: 32px;height: 32px;float: right;"><img style="max-width: 100%;" src="assets/img/chat-icon-right.png"></div>
+						<!-- [href]="CONTENT_BASE+d.fileaddress" -->
+					</div>
+					
+					</div><div style="clear:both;"></div>
+					<form (ngSubmit)="postMessage(singleConvo)" #replyForm="ngForm" autocomplete="off">
+						<div class="msg-reply">
+							<div class="write">
+								
+								<textarea required rows="4" cols="50"  [(ngModel)]="replyMsg" name="replymsg" required placeholder="Type Message Here">
+								</textarea>
+								<span style="float:left;"><label for="file-upload"><input class="d-none" type="file" id="file-upload" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple><i class="fa fa-paperclip"></i></label></span>
+								<span style="float:right;"><button class="btn send" type="submit" [disabled]="replyForm.invalid">Submit</button><!--<i class="fa fa-send"></i>--></span>
+							</div>
+						</div>
+						<div class="upload-items">
+							<div class="upload-item" *ngFor="let f of files; let i = 'index';">
+								<span class="filename">
+									<span>{{ f.name }} - {{ f.progress?.data?.percentage }}%</span>
+									<!-- <span>uploading with {{ f.progress?.data?.speedHuman }}</span> -->
+									<span class="fa fa-close" (click)="removeFile(f.id)"></span>
+								</span>
+								<div  class="progress progress mb-0">
+									<div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" [style.width]="f?.progress?.data?.percentage + '%'"></div>
+								</div>
+							</div>
+						</div>
+					</form>
+					
+				</div>
+			</div>
+			
+			<div class="col-sm-3" style="padding-left: 0px;">
+				<div class="message-items">
+					<ul class="list-group list-group-flush">
+						<p class="msg-listing-bg">Message <span style="margin-right:10px;width: 32px;height: 32px;border-radius: 50%;display: block;float: left;">
+							<img style="max-width: 100%;" src="assets/img/message.png">
+						</span></p><span>
+						<li [ngClass]="{'active': selectedItem == msg}" style="cursor:pointer;" (click)="getSingleConvo(msg.RootId);listClick($event, msg);msg.unreadcount =0" *ngFor="let msg of messageList" class="list-group-item">
+							<span class="alert-unread" *ngIf="msg.unreadcount > 0">{{msg.unreadcount}}</span>
+							<div style="font-size: 17px;font-weight:800;" *ngIf="userType == 'provider'">{{msg.MemberName}}</div>
+							<div style="color: #222;font-size: 14px;"><!-- <span style="margin-right:10px;width: 32px;height: 32px;border-radius: 50%;display: block;float: left;overflow: hidden;"><img style="max-width: 100%;" src="assets/img/chat-avatar.png"></span> -->{{msg.Subject}} </div>
+						</li>
+					</span>
+				</ul>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 	<div *ngFor="let msg of message">
+			<p *ngFor="let memberMsg of msg.mpMessages"><span *ngIf="memberMsg.MsgSender == 'm'">Member msg:{{memberMsg.MsgBody}} </span></p>
+			<p *ngFor="let providerMsg of msg.mpMessages"><span *ngIf="providerMsg.MsgSender == 'p'">Provider msg:{{providerMsg.MsgBody}} </span></p>
+	</div> -->
+</div>

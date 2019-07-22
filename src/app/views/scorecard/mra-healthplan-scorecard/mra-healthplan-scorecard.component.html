@@ -1,0 +1,152 @@
+<app-help class="d-none"></app-help>
+<div class="u-heading">
+   <h2 *ngIf="rolename != 'provider'">MRA Healthplan Scorecard</h2>
+   <h2 *ngIf="rolename == 'provider'">MRA Provider Scorecard</h2>
+</div>
+<div class="p-s-search">
+   <!-- <div class="download-option">
+   <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Download Pdf</span></span>
+   <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span  class="download-text">Download Excel Sheet</span></span>
+</div> -->
+   <form autocomplete="off" class="form-inline" #healthplanScorecard="ngForm">
+      <select *ngIf="rolename !='healthplan'" [(ngModel)]="provider.healthplanid"
+         class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2" name="insurance"
+         (change)="healthplanName=$event.target.selectedOptions[0].label" required>
+         <option value="0">Select Healthplan</option>
+         <option [value]="1" label="COVENTRY">COVENTRY</option>
+         <option [value]="2" label="FREEDOM HEALTH PLAN">FREEDOM HEALTH PLAN</option>
+         <option [value]="3" label="HUMANA">HUMANA</option>
+         <option [value]="4" label="OPTIMUM HEALTHCARE INC">OPTIMUM HEALTHCARE INC</option>
+         <option [value]="5" label="ULTIMATE HEALTH PLANS">ULTIMATE HEALTH PLANS</option>
+         <option [value]="6" label="WELLCARE HEALTH PLANS">WELLCARE HEALTH PLANS</option>
+         <!--                   <option value="0">All</option> -->
+      </select>
+      <select [(ngModel)]="provider.year" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2" name="year" required>
+         <option [selected]="true" value="">Select year</option>
+         <option *ngFor="let year of years" [value]="year">{{year}}</option>
+      </select>
+      <!--    <select  [(ngModel)]="provider.month"   class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2"  name="month" (change)="formatDate()" required>
+      <option [selected]="true" value="">Select Month</option>
+      <option *ngFor="let month of months" [value]="month.value" >
+         {{ month.full }}
+      </option>
+   </select> -->
+      <button type="submit" class="btn btn-primary btn-sm" (click)="getMraScorecard()"
+         [disabled]="healthplanScorecard.form.invalid"><span><i class="fa fa-file"></i></span>View Report</button>
+   </form>
+</div>
+<div class="custom-container">
+   <div class="row mx-0">
+      <div class="col-sm-6 col-md-4 p-0">
+         <div class="info-box">
+            <span class="info-box-icon silver-bg"><i class="fa fa-medkit"></i></span>
+            <div class="info-box-content">
+               <span class="info-box-text">Insurance</span>
+               <span class="info-box-number" *ngIf="scorecard">{{healthplanName}}</span>
+            </div>
+            <!-- /.info-box-content -->
+         </div>
+      </div>
+
+      <div class="col-sm-6 col-md-4 p-0">
+         <div class="info-box">
+            <span class="info-box-icon green-bg"><i class="fa fa-address-card"></i></span>
+            <div class="info-box-content">
+               <span class="info-box-text">Total Membership </span>
+               <span class="info-box-number" *ngIf="scorecard?.totalmember"><a href="javascript:void(0)" target="_blank"
+                     [routerLink]="['/reports/mra/members']"
+                     (click)="storeMraHpScorecard('totalmembership')">{{scorecard?.totalmember}}</a></span>
+
+               <!-- <span class="info-box-number" *ngIf="scorecard?.totalmember">{{scorecard?.totalmember}}</span> -->
+
+               <span class="info-box-number" *ngIf="scorecard && !scorecard?.totalmember">0</span>
+            </div>
+            <!-- /.info-box-content -->
+         </div>
+      </div>
+
+      <!-- <div class="col-sm-6 col-md-4 p-0">
+      <div class="info-box">
+         <span class="info-box-icon darker-blue-bg"><i class="fa fa-calendar"></i></span>
+         <div class="info-box-content">
+            <span class="info-box-text">HEDIS Year</span>
+            <span class="info-box-number" *ngIf="scorecard">{{provider.year}} <small>Date of Service</small></span>
+         </div>
+      </div>
+   </div> -->
+
+      <div class="col-sm-6 col-md-4 p-0">
+         <div class="info-box">
+            <span class="info-box-icon darker-blue-bg"><i class="fa fa-calendar"></i></span>
+            <div class="info-box-content">
+               <span class="info-box-text">Current Missing Conditions</span>
+               <!--     
+            <span class="info-box-number" *ngIf="scorecard" [routerLink]="['/reports/mra/gaps']" (click)="storeMraHpGaps('CurrentMissingCondition')">{{scorecard?.CurrentMissingConditions}}</span> -->
+
+               <span class="info-box-number" *ngIf="scorecard?.CurrentMissingConditions"><a href="javascript:void(0)"
+                     target="_blank" [routerLink]="['/reports/mra/gaps']"
+                     (click)="storeMraHpGaps('CurrentMissingConditions')">{{scorecard?.CurrentMissingConditions}}</a></span>
+
+            </div>
+         </div>
+      </div>
+
+   </div>
+
+   <div class="row mx-0">
+      <div class="col-sm-6 col-md-4 p-0">
+         <div class="info-box">
+            <span class="info-box-icon light-blue-bg"><i class="fa fa-refresh"></i></span>
+            <div class="info-box-content">
+               <span class="info-box-text">Current Score </span>
+
+               <span class="info-box-number" *ngIf="scorecard?.CurrentScore == 0">0</span>
+
+               <span class="info-box-number" *ngIf="scorecard?.CurrentScore"><a href="javascript:void(0)"
+                     target="_blank" [routerLink]="['/reports/mra/members']"
+                     (click)="storeMraHpScorecard('currentscore')">{{scorecard?.CurrentScore | round}}</a></span>
+            </div>
+            <!-- /.info-box-content -->
+         </div>
+      </div>
+      <div class="col-sm-6 col-md-4 p-0">
+         <div class="info-box">
+            <span class="info-box-icon light-ornage-bg"><i class="fa fa-refresh"></i></span>
+            <div class="info-box-content">
+               <span class="info-box-text">Projected Score </span>
+               <!-- <span class="info-box-number" *ngIf="scorecard">{{scorecard?.ProjectedScore | round}}</span> -->
+
+               <span class="info-box-number" *ngIf="scorecard?.ProjectedScore == 0">0</span>
+
+               <span class="info-box-number" *ngIf="scorecard?.ProjectedScore"><a href="javascript:void(0)"
+                     target="_blank" [routerLink]="['/reports/mra/members']"
+                     (click)="storeMraHpScorecard('projectedscore')">{{scorecard?.ProjectedScore | round}}</a></span>
+            </div>
+            <!-- /.info-box-content -->
+         </div>
+      </div>
+      <div class="col-sm-6 col-md-4 p-0">
+         <div class="info-box">
+            <span class="info-box-icon dark-silver-bg"><i class="fa fa-refresh"></i></span>
+            <div class="info-box-content">
+               <span class="info-box-text">Projected Missing Conditions</span>
+               <!--  
+            <span class="info-box-number" *ngIf="scorecard" [routerLink]="['/reports/mra/gaps']" (click)="storeMraHpGaps('ProjectedMissingCondition')">{{scorecard?.ProjectedMissingConditions}}</span> -->
+
+
+               <span class="info-box-number" *ngIf="scorecard?.ProjectedMissingConditions == 0">0</span>
+
+
+               <span class="info-box-number" *ngIf="scorecard?.ProjectedMissingConditions"><a href="javascript:void(0)"
+                     target="_blank" [routerLink]="['/reports/mra/gaps']"
+                     (click)="storeMraHpGaps('ProjectedMissingCondition')">{{scorecard?.ProjectedMissingConditions}}</a></span>
+
+
+            </div>
+            <!-- /.info-box-content -->
+         </div>
+      </div>
+
+   </div>
+
+</div>

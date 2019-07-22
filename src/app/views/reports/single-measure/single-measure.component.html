@@ -1,0 +1,143 @@
+<app-help class="d-none"></app-help>
+<div class="u-heading">
+   <h2 style="top:8px">Single Measure Report</h2>
+   <div class="pull-right" style="margin-top:0px;">
+      <form action="" class="form-inline" autocomplete="off">
+         <i class="material-icons">search</i><label class="f-14 mx-1">Search By PCP Name</label>
+         <!-- <div class="form-group p-1 ">
+            <label class="sr-only" for="if-password">Category</label>
+            <select [(ngModel)]="search_category"  class="form-control col-12" id="select" name="gender">
+            <option [selected]="true" value="">Select category</option>
+            <option value="name">Member Name</option>
+            <option value="id">Subscriber Id</option>
+            </select>
+         </div> -->
+         <div class="form-group p-1">
+            <label class="sr-only" for="if-password">Search</label>
+            <input type="text" name="search" class="form-control col-12" type="text" (keyup)="search(term.value)"
+               placeholder="Search.." #term>
+         </div>
+      </form>
+      <!-- <div class="u-search">
+         <input type="text" class="form-control" [(ngModel)]="params.membername" type="text" (keyup)="search()" placeholder="Search..">
+           <i class="fa fa-search"></i>
+         </div> -->
+      <!-- <input [(ngModel)]="search_text" type="text" (keyup)="search()"> -->
+   </div>
+</div>
+<div class="filter-bar">
+   <form action="" class="form-inline" autocomplete="off">
+      <select [(ngModel)]="params.measureid" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2" id="select"
+         name="measure">
+         <option value="">Select Measure</option>
+         <option *ngFor="let measure of measures" [selected]="measure.Measure_ID == '1'" [value]="measure.Measure_ID">
+            {{ measure.Measure_Name }}</option>
+
+      </select>
+      <select [(ngModel)]="date.year" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2" name="year"
+         (change)="checkMonth(date.year)">
+         <option value="">Select year</option>
+         <option [selected]="year == current_year" *ngFor="let year of years" [value]="year">{{year}}</option>
+      </select>
+      <select [(ngModel)]="date.month" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2" name="month"
+         (change)="formatDate()">
+         <option value="">Select Month</option>
+         <option *ngFor="let month of months" [value]="month.value">
+            {{ month.full }}
+         </option>
+      </select>
+      <div class="form-group">
+         <button type="submit" class="btn btn-primary btn-sm ml-2 mr-1" (click)="getAllMembers(true)"><span><i
+                  class="fa fa-user"></i></span>View members</button>
+
+      </div>
+   </form>
+</div>
+
+<div class="custom-container">
+   <div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+   <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white">
+      <thead>
+         <tr>
+
+            <th>S.No.</th>
+            <th>PCP Name</th>
+            <!-- <th>Billing Provider Address</th> -->
+            <th>Member Name</th>
+            <th>Member DOB</th>
+            <th>Member ID (Insurance)</th>
+            <th>Gender</th>
+            <th>Age</th>
+            <th>Date Needed By</th>
+            <th>Last Office Visit</th>
+            <th>PCP Phone</th>
+            <th>PCP Fax</th>
+            <th>PCP County</th>
+         </tr>
+      </thead>
+      <tbody>
+
+         <tr *ngFor="let member of member_list; let i = 'index'">
+
+            <td data-label="S.No." *ngIf="page == 1">{{i+1}}</td>
+            <td data-label="S.No." *ngIf="page > 1">{{(i+1)+(page-1)*params.pageSize}}</td>
+            <td data-label="PCP Name">{{member.pcpfirstname?.toLowerCase()}} {{member.pcpmidname?.toLowerCase()}}
+               {{member.pcplastname?.toLowerCase()}}</td>
+            <!-- <td data-label="Billing Provider Address" width="200"
+            >
+               <div class="" *ngIf="member?.address">
+                  <select  (change)="selectFacility(select.value,i)" class="form-control" name="user-address" required #select>
+                                <option [selected]="true" value="">Billing Provider Address</option>
+                                <option *ngFor="let add of member?.address" [value]="add.facilityid" >
+                                    {{ add.address }}
+                                </option>
+                            </select>
+                    <div class="col-md-12">
+                        
+                        <ul class="facility-list">
+                            <li [ngClass]="{'border-primary': selectedItem == add.FacilityID}" *ngFor="let add of member?.address" (click)="selectFacility(add,i)">{{add.address}}</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </td> -->
+            <td data-label="Member Name">{{member.subscriberFirstname?.toLowerCase()}}
+               {{member.subscribermidname?.toLowerCase()}} {{member.subscribelastname?.toLowerCase()}}</td>
+            <td data-label="Member DOB">{{member.dob | date}}</td>
+            <td data-label="Member ID (Insurance)">{{member.subscriberid}}</td>
+            <td data-label="Gender">{{member.gender}}</td>
+            <td data-label="Age">{{calculateAge(member.dob)}}</td>
+            <!-- <td data-label="Measure Needed">{{member.Measure_Name?.toLowerCase()}}</td> -->
+            <td data-label="Date Needed By"></td>
+
+            <td data-label="Last Office Visit">{{member.lastofficevisit | date}}</td>
+
+            <td data-label="PCP Phone">{{member?.phoneno}}</td>
+            <td data-label="PCP Fax">{{member?.fax}}</td>
+            <td data-label="PCP County">{{member?.county?.toLowerCase()}}</td>
+         </tr>
+      </tbody>
+   </table>
+   <nav *ngIf="total_pages > 15" aria-label="Page navigation example" style="    margin-top: 25px;">
+      <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+         <li class="page-item">
+            <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1"
+               (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+               <span aria-hidden="true">&laquo;</span>
+               <span class="sr-only">Previous</span>
+            </a>
+         </li>
+         <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item">
+            <a href="javascript:void(0)" (click)="loadByPage(p)" class="page-link">{{p}}</a>
+         </li>
+         <li class="page-item">
+            <a class="page-link" href="javascript:void(0)" [class.disabled]="page === total_pages"
+               (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+               <span aria-hidden="true">&raquo;</span>
+               <span class="sr-only">Next</span>
+            </a>
+         </li>
+      </ul>
+   </nav>
+   <!--   <button type="submit" class="btn btn-primary btn-sm" (click)="getProviderMembers()" >View members</button> -->
+</div>

@@ -1,0 +1,815 @@
+<div  [ngSwitch]="gapSubmit.measureid" class="gap-templates">
+   <!-- ADULT BMI -->
+   <div class="form-group row" *ngSwitchCase="1">
+      
+      <div class="col">
+         <label>Date of service</label>
+         <div >
+            <!-- <input [(ngModel)]="add_user.User_DOB" class="form-control" name="dob" placeholder="Date of Birth" type="text"  #dob="ngModel" bsDatepicker [(bsValue)]="bsValue"> -->
+            <input  class="form-control" [(ngModel)]="gapSubmit.dateofservice"  bsDatepicker [(bsValue)]="bsValue"  name ="dateofservice" [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY' }">
+         </div>
+      </div>
+      <div class="col">
+         <label>BMI value<span class="text-danger">*</span></label>
+         <div >
+            <select [(ngModel)]="gapSubmit.procedurecode" class="form-control"  name="bmi" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               
+               <option  value="Z68.1">
+                  19.9 or less
+               </option>
+               <option  value="Z68.20">
+                  20.0-20.9
+               </option>
+               <option  value="Z68.21">
+                  21.0-21.9
+               </option>
+               <option  value="Z68.22">
+                  22.0-22.9
+               </option>
+               <option  value="Z68.23">
+                  23.0-23.9
+               </option>
+               <option  value="Z68.24">
+                  24.0-24.9
+               </option>
+               <option  value="Z68.25">
+                  25.0-25.9
+               </option>
+               <option  value="Z68.26">
+                  26.0-26.9
+               </option>
+               <option  value="Z68.27">
+                  27.0-27.9
+               </option>
+               <option  value="Z68.28">
+                  28.0-28.9
+               </option>
+               <option  value="Z68.29">
+                  29.0-29.9
+               </option>
+               <option  value="Z68.30">
+                  30.0-30.9
+               </option>
+               <option  value="Z68.31">
+                  31.0-31.9
+               </option>
+               <option  value="Z68.32">
+                  32.0-32.9
+               </option>
+               <option  value="Z68.33">
+                  33.0-33.9
+               </option>
+               <option  value="Z68.34">
+                  34.0-34.9
+               </option>
+               <option  value="Z68.35">
+                  35.0-35.9
+               </option>
+               <option  value="Z68.36">
+                  36.0-36.9
+               </option>
+               <option  value="Z68.37">
+                  37.0-37.9
+               </option>
+               <option  value="Z68.38">
+                  38.0-38.9
+               </option>
+               <option  value="Z68.39">
+                  39.0-39.9
+               </option>
+               <option  value="Z68.40">
+                  40.0-44.9
+               </option>
+               <option  value="Z68.41">
+                  40.0-44.9
+               </option>
+               <option  value="Z68.42">
+                  45.0-49.9
+               </option>
+               <option  value="Z68.43">
+                  50.0-59.9
+               </option>
+               <option  value="Z68.44">
+                  60.0-69.9
+               </option>
+               <option  value="Z68.45">
+                  70.0 or greater
+               </option>
+
+            </select>
+            <!-- <input  [(ngModel)]="gapSubmit.bmi" class="form-control" name="bmi" type="number"  > -->
+         </div>
+      </div>
+      
+   </div>
+   <!-- BREAST CANCER -->
+   <div class="form-group row" *ngSwitchCase="2">
+      <div class="col">
+         <label>Date Of Service</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.dateofservice" class="form-control" bsDatepicker [(bsValue)]="bsValue"  name ="dateofservice" type="text" [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY' }" >
+         </div>
+      </div>
+      <div class="col">
+         <label>Type of test</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.typeoftest" class="form-control"  name="typeoftest" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               
+               <option  value="Unilateral mammogram">
+                  Unilateral Mammogram
+               </option>
+               <option  value="Bilateral Mammogram">
+                  Bilateral Mammogram
+               </option>
+            </select>
+         </div>
+      </div>
+      <div class="col">
+         <label>Exclusion</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.exclusion" class="form-control"  name="exclusion" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="Double Mastectomy">
+                  Double Mastectomy
+               </option>
+               <option  value="Unilateral Mastectomy – Left">
+                  Unilateral Mastectomy – Left
+               </option>
+               <option  value="Unilateral Mastectomy – Right">
+                  Unilateral Mastectomy – Right
+               </option>
+            </select>
+         </div>
+      </div>
+   </div>
+   <!-- COLORECTAL CANCER SCREENING -->
+   <div class="form-group row" *ngSwitchCase="3">
+      <div class="col">
+         <label>Date Of Service</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.dateofservice" class="form-control" bsDatepicker [(bsValue)]="bsValue" name ="dateofservice" [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY' }" >
+         </div>
+      </div>
+      <div class="col">
+         <label>Type of test</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.typeoftest" class="form-control"  name="typeoftest" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="Colonoscopy">
+                  Colonoscopy
+               </option>
+               
+               <option  value="CT Colonography">
+                  CT Colonography
+               </option>
+               <option  value="Flexible Sigmoidoscopy">
+                  Flexible Sigmoidoscopy
+               </option>
+               <option  value="Fit-DNA">
+                  Fit-DNA
+               </option>
+               <option  value="IFOBT">
+                  IFOBT
+               </option>
+               <option  value="FOBT">
+                  FOBT
+               </option>
+            </select>
+         </div>
+      </div>
+      <div class="col">
+         <label>Result<span class="text-danger">*</span></label>
+         <div >
+            <select [(ngModel)]="gapSubmit.ccc_result" class="form-control"  name="ccc_result" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="Positive">
+                  Positive
+               </option>
+               <option  value="Negative">
+                  Negative
+               </option>
+
+               <option  value="Not Indicated">
+                  Not Indicated
+               </option>
+            </select>
+         </div>
+      </div>
+   </div>
+<!-- Diabetes Eye Exam -->
+   <div class="form-group row" *ngSwitchCase="4">
+      <div class="col">
+         <label>Date Of Service</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.dateofservice" class="form-control" bsDatepicker name ="dateofservice" type="text"  [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY' }" (ngModelChange)="checkEyeExamDate(gapSubmit.dateofservice)">
+         </div>
+      </div>
+      <div class="col">
+         <label>Type of exam</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.typeoftest" class="form-control"  name="typeofexam" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="Dilated Eye Exam">
+                  Dilated Eye Exam
+               </option>
+               <option  value="Fundus Photography Screening">
+                  Fundus Photography Screening
+               </option>
+               <option  value="Retinal Camera Screening">
+                  Retinal Camera Screening
+               </option>
+
+               <option  value="Telescreening">
+                  Telescreening
+               </option>
+            </select>
+         </div>
+      </div>
+      <!-- <div class="col">
+         <label>Positive for Retinopathy</label>
+         <div class="gap-checkbox">
+            <input [(ngModel)]="gapSubmit.positiveretinopathy" name="positiveretinopathy" type="checkbox" value="option1">
+         </div>
+      </div>
+      <div class="col">
+         <label>Negative for Retinopathy</label>
+         <div class="gap-checkbox">
+            <input [(ngModel)]="gapSubmit.negativeretinopathy" name="negativeretinopathy" type="checkbox" value="option2">
+         </div>
+      </div> -->
+      <div class="col">
+         <label>Result<span class="text-danger">*</span></label>
+         <div >
+            <select [(ngModel)]="gapSubmit.dee_result" class="form-control"  name="dee_result" required [disabled]="disableRetinopathy">
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="Positive for Retinopathy">
+                  Positive for Retinopathy
+               </option>
+               <option  value="Negative for Retinopathy">
+                  Negative for Retinopathy
+               </option>
+
+               <option  value="Result Not Indicated">
+                  Result Not Indicated
+               </option>
+               
+            </select>
+         </div>
+      </div>
+      <!-- <div class="col">
+         <label>Exclusion</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.exclusion" class="form-control"  name="exclusion" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="t1">
+                  t1
+               </option>
+               <option  value="t2">
+                  t2
+               </option>
+            </select>
+         </div>
+      </div> -->
+   </div>
+   <!-- Diabetes HbA1c <9 -->
+   <div class="form-group row" *ngSwitchCase="5">
+      <div class="col">
+         <label>Date Of Service</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.dateofservice" class="form-control" bsDatepicker [(bsValue)]="bsValue" name ="dateofservice" type="text" [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY' }" >
+         </div>
+      </div>
+      <div class="col">
+         <label>Result<span class="text-danger">*</span></label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.resultvalue" class="form-control" name="provider-title" type="number" min="0" max="20" required>
+         </div>
+      </div>
+      <!--  <div class="col">
+         <label>Exclusion</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.exclusion" class="form-control"  name="exclusion" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="t1">
+                  t1
+               </option>
+               <option  value="t2">
+                  t2
+               </option>
+            </select>
+         </div>
+      </div> -->
+   </div>
+   <!-- Diabetes Nephropathy Screening -->
+   <div class="form-group row" *ngSwitchCase="6">
+      <div class="col">
+         <label>Date Of Service</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.dateofservice" class="form-control" bsDatepicker [(bsValue)]="bsValue" name ="dateofservice" type="text" [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY' }"  >
+         </div>
+      </div>
+      <div class="col">
+         <label>Type of test</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.typeoftest" class="form-control"  name="typeoftest" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="Nephropathy Screening or monitoring test">
+                  Nephropathy Screening or monitoring test
+               </option>
+               <!-- <option  value="CT Colonography">
+                  CT Colonography
+               </option> -->
+               <option  value="treatment for nephropathy/Ace or ARB therapy">
+                  Treatment for nephropathy/Ace or ARB therapy
+               </option>
+               <option  value="Stage 4 CKD">
+                  Stage 4 CKD
+               </option>
+               <option  value="ESRD">
+                  ESRD
+               </option>
+               <option  value="Kidney Transplant">
+                  Kidney Transplant
+               </option>
+               <option  value="Visit with a nephrologist">
+                  Visit with a nephrologist
+               </option>
+            </select>
+         </div>
+      </div>
+      <!-- <div class="col">
+         <label>Exclusion</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.exclusion" class="form-control"  name="exclusion" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="CKD4">
+                  CKD4
+               </option>
+               <option  value="ERD">
+                  ERD
+               </option>
+            </select>
+         </div>
+      </div> -->
+   </div>
+   <!-- COA - Pain Assessment -->
+   <div class="form-group row" *ngSwitchCase="10">
+      <div class="col">
+         <label>Date Of Service</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.dateofservice" class="form-control" bsDatepicker [(bsValue)]="bsValue" name ="dateofservice" type="text" [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY' }"  >
+         </div>
+      </div>
+      <!-- <div class="col">
+         <label>Comprehensive Pain Assessment Completed - With Pain</label>
+         <div class="gap-checkbox">
+            <input [(ngModel)]="gapSubmit.pacwithpain" name="pacwithpain" type="checkbox" value="option2">
+         </div>
+      </div>
+      <div class="col">
+         <label>Comprehensive Pain Assessment Completed - Without Pain</label>
+         <div class="gap-checkbox">
+            <input [(ngModel)]="gapSubmit.pacwithoutpain" name="pacwithoutpain" type="checkbox" value="option2">
+         </div>
+      </div> -->
+      <div class="col">
+         <label>Comprehensive Pain Assessment Completed</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.pac" class="form-control"  name="pac" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="With Pain">
+                  With Pain
+               </option>
+               <option  value="Without Pain">
+                  Without Pain
+               </option>
+
+               <option  value="Result Not Indicated">
+                  Result Not Indicated
+               </option>
+               
+            </select>
+         </div>
+      </div>
+   </div>
+   <!-- COA - Medication Review -->
+   <div class="form-group row" *ngSwitchCase="11">
+      <div class="col">
+         <label>Date Of Service</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.dateofservice" class="form-control" bsDatepicker [(bsValue)]="bsValue" name ="dateofservice" type="text" [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY' }" >
+         </div>
+      </div>
+      <!-- <div class="col">
+         <label>Medication list - Present in record</label>
+         <div class="gap-checkbox">
+            <input [(ngModel)]="gapSubmit.medicationlistpresent" name="medicationlistpresent" type="checkbox" value="option2">
+         </div>
+      </div> -->
+      <!-- <div class="col">
+         <label>Medication Review - Completed</label>
+         <div class="gap-checkbox">
+            <input [(ngModel)]="gapSubmit.medicationreviewcompleted" name="medicationreviewcompleted" type="checkbox" value="option2">
+         </div>
+      </div> -->
+      <!-- <div class="col">
+         <label>Medication list - Present in record</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.medicationlistpresent" class="form-control"  name="medicationlistpresent" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="true">
+                  Yes
+               </option>
+               <option  value="false">
+                  No
+               </option>
+               
+            </select>
+         </div>
+      </div> -->
+      <!-- <div class="col">
+         <label>Medication Review - Completed</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.medicationreviewcompleted" class="form-control"  name="medicationreviewcompleted" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="true">
+                  Yes
+               </option>
+               <option  value="false">
+                  No
+               </option>
+               
+            </select>
+         </div>
+      </div> -->
+   </div>
+   <!-- Rheumatoid Arthritis -->
+   <div class="form-group row" *ngSwitchCase="7">
+      <div class="col">
+         <label>Date RX was filled</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.dateofrx" class="form-control" bsDatepicker [(bsValue)]="bsValue" name ="dateofrx" type="text"  >
+         </div>
+      </div>
+      <div class="col">
+         <label>Dose</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.dose" class="form-control" name="dose" type="text"  >
+         </div>
+      </div>
+      <div class="col">
+         <label>NDC code</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.ndc_code" class="form-control" name="ndc_code" type="text"  >
+         </div>
+      </div>
+      <div class="col">
+         <label>Route</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.route" class="form-control"  name="typeoftest" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="oral">
+                  Oral
+               </option>
+               <option  value="intravenous">
+                  Intravenous
+               </option>
+               <option  value="subcutaneous">
+                  Subcutaneous
+               </option>
+               <option  value="injectable">
+                  Injectable
+               </option>
+            </select>
+         </div>
+      </div>
+      <div class="col ndc">
+         <label>Select Brand Name</label>
+         <angular2-multiselect *ngIf="brandNames?.length > 0" [data]="brandNames"
+            [(ngModel)]="selectedItems"
+            [settings]="settings"
+            (onSelect)="onItemSelect($event)"
+            (onDeSelect)="OnItemDeSelect($event)"
+            (onSelectAll)="onSelectAll($event)"
+            (onDeSelectAll)="onDeSelectAll($event)">
+         </angular2-multiselect>
+      </div>
+      <!-- <div class="col">
+         <label>Brand Name</label>
+         <div class="f-14">
+            {{this.brand_name}}
+            
+         </div>
+      </div>
+      <div class="col">
+         <label>Route</label>
+         <div class="f-14">
+            {{this.route}}
+            
+         </div>
+      </div> -->
+   </div>
+   <!-- Osteoporosis Management in Women -->
+   <div class="form-group row" *ngSwitchCase="8">
+
+      <!-- <div class="col">
+         <label>Fracture Date</label>
+         // was completed
+         <div >
+            //fracture date
+            <input  [(ngModel)]="gapSubmit.fracturedate" class="form-control" bsDatepicker [(bsValue)]="bsValue2" name ="fracturedate" type="text"  >
+         </div>
+      </div> -->
+
+      <!-- <div class="col">
+         <label>Treatment Needed By</label>
+         // was completed
+         <div >
+            treatmnt date
+            <input  [(ngModel)]="gapSubmit.fracturedate" class="form-control" bsDatepicker [(bsValue)]="bsValue2" name ="fracturedate" type="text"  >
+         </div>
+      </div> -->
+
+
+      <div class="col">
+         <label>Date of DEXA/Medication is needed by</label>
+         <div *ngIf="!dexa_date">
+            <input  [(ngModel)]="gapSubmit.dateofdexaneeded" class="form-control" bsDatepicker [(bsValue)]="bsValue" name ="dateofdexaneeded" type="text" >
+         </div>
+
+        
+         <div *ngIf="dexa_date">
+            
+            {{gapSubmit.dateofdexaneeded | date}}
+         </div>
+      </div>
+      <div class="col">
+         <label>Date of DEXA Completed</label>
+         
+         <div >
+            <input  [(ngModel)]="gapSubmit.dateofdexacompleted" class="form-control" bsDatepicker [(bsValue)]="bsValue1" name ="dateofdexacompleted" type="text"  >
+         </div>
+      </div>
+      
+      <div class="col">
+         <label>DEXA within 6 months/ Medication to treat Osteoporosis</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.dexamedication" class="form-control"  name="typeoftest" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="DEXA within 6 months">
+                  DEXA within 6 months
+               </option>
+               <option  value="Medication to treat Osteoporosis">
+                  Medication to treat Osteoporosis
+               </option>
+            </select>
+         </div>
+      </div>
+      <div class="col">
+         <label>NDC code</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.ndc_code" class="form-control" name="ndc_code" type="text"  >
+         </div>
+      </div>
+      <div class="col">
+         <label>Exclusion</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.exclusion" class="form-control"  name="exclusion" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="DEXA within 730 days of fracture">
+                  DEXA within 730 days of fracture
+               </option>
+               <option  value="Medication to treat osteoporosis within 1 year of the fracture">
+                  Medication to treat osteoporosis within 1 year of the fracture
+               </option>
+            </select>
+         </div>
+      </div>
+   </div>
+   <!-- Medication Reconciliation Post Discharge -->
+   <div class="form-group row" *ngSwitchCase="9">
+      <div class="col">
+         <label>Discharge Date</label>
+         <div *ngIf="!discharge_date" >
+             <input  [(ngModel)]="gapSubmit.dateofdischarge" class="form-control" bsDatepicker [(bsValue)]="bsValue" name ="dateofdischarge" type="text" >
+         </div>
+         <div *ngIf="discharge_date" >    
+           {{gapSubmit.dateofdischarge | date}}
+         </div>
+      </div>
+      <div class="col">
+         <label>Medication Reconciliation Due By:</label>
+
+         <div *ngIf="!reconcilation_date" >
+            <input  [(ngModel)]="gapSubmit.dateofmedicalreconcilation" class="form-control" bsDatepicker [(bsValue)]="bsValue1" name ="dateofmedicalreconcilation" type="text" >
+         </div>
+         <div *ngIf="reconcilation_date">
+            
+            {{gapSubmit.dateofmedicalreconcilation | date}}
+         </div>
+
+      </div>
+
+      <div class="col">
+         <label>Medication Reconciliation Performed</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.dateofservice" class="form-control" bsDatepicker [(bsValue)]="bsValue2" name ="Actualdateofmedicalreconcilation" type="text"  >
+         </div>
+      </div>
+      <!-- <div class="col">
+         <label>Medication Reconciled within 30 Days or not completed with Time-frame(1111F)</label>
+         <div  class="gap-checkbox">
+            <input [(ngModel)]="gapSubmit.medicalreconcilationcompleted" name="inline-checkbox1" type="checkbox" value="option2">
+         </div>
+      </div> -->
+   </div>
+   <!-- COA - Functional Status Assessment -->
+   <div class="form-group row" *ngSwitchCase="12">
+      <div class="col">
+         <label>Date of Service</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.dateofservice" class="form-control" bsDatepicker [(bsValue)]="bsValue" name ="dateofservice" type="text" [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY' }" >
+         </div>
+      </div>
+      <!-- <div class="col">
+         <label>Functional Status Assessment Completed</label>
+         <div class="gap-checkbox">
+            <input [(ngModel)]="gapSubmit.functionalstatuscompleted" name="functionalstatuscompleted" type="checkbox" value="option2">
+         </div>
+      </div> -->
+      <div class="col">
+         <label>Functional Status Assessment Completed(1170F)</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.functionalstatuscompleted" class="form-control"  name="functionalstatuscompleted" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="true">
+                  Yes
+               </option>
+               <option  value="false">
+                  No
+               </option>
+               
+            </select>
+         </div>
+      </div>
+   </div>
+   <!-- PSA -->
+   <div class="form-group row" *ngSwitchCase="18">
+      <div class="col">
+         <label>Date of Service</label>
+         <div >
+            <input  [(ngModel)]="gapSubmit.dateofservice" class="form-control" bsDatepicker [(bsValue)]="bsValue" name ="dateofservice" type="text" [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY' }"  >
+         </div>
+      </div>
+      
+      <div class="col">
+         <label>Test Completed</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.psa_result" class="form-control"  name="ccc_result" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="Yes">
+                  Yes
+               </option>
+               <option  value="No">
+                  No
+               </option>
+               
+            </select>
+         </div>
+      </div>
+      <div class="col">
+         <label>Exclusion</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.exclusion" class="form-control"  name="exclusion" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="5ARI">
+                  5ARI
+               </option>
+               <option  value="CA">
+                  CA
+               </option>
+               <option  value="HX">
+                  HX
+               </option>
+            </select>
+         </div>
+      </div>
+   </div>
+   <!-- Controlling Blood Pressure -->
+   <div class="form-group row" *ngSwitchCase="19">
+      <div class="col">
+         <label>Date of service</label>
+         <div >
+            <input  class="form-control" [(ngModel)]="gapSubmit.dateofservice"  bsDatepicker [(bsValue)]="bsValue"  name ="dateofservice" [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY' }">
+         </div>
+      </div>
+      <div class="col">
+         <label>Date of Hypertension DX</label>
+         <!-- // was completed -->
+         <div >
+            <input  [(ngModel)]="gapSubmit.dateofhypertension" class="form-control" bsDatepicker [(bsValue)]="bsValue1" name ="dateofhypertension" type="text"  >
+         </div>
+      </div>
+      <div class="col">
+         <label>Value Of BP</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.bpvalue" class="form-control"  name="bpvalue" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="diastolic">
+                  Diastolic
+               </option>
+               <option  value="systolic">
+                  Systolic
+               </option>
+            </select>
+         </div>
+      </div>
+      <div class="col">
+         <label>Exclusion</label>
+         <div >
+            <select [(ngModel)]="gapSubmit.exclusion" class="form-control"  name="exclusion" required >
+               <option [selected]="true" value="undefined" >Select</option>
+               <option  value="t1">
+                  t1
+               </option>
+               <option  value="t2">
+                  t2
+               </option>
+            </select>
+         </div>
+      </div>
+   </div>
+   <div class="form-group row">
+      <div class="col-md-6" *ngIf="currentUser.rolename == 'Quality Audit'">
+         <div class="col">
+            <label>Select Rejection Reason</label>
+            <div >
+               <select #reason_err="ngModel" [(ngModel)]="gapSubmit.reasonid" class="form-control"  name="rejectionreason"  style="pointer-events: visible;">
+                  <option [selected]="true" value="0" >Select</option>
+                  <option *ngFor="let reason of rejectedReasons" [selected]="true" [value]="reason.id" >{{reason.name}}</option>
+                  
+               </select>
+               <small *ngIf="gapSubmit.reasonid != 0"><a href="javascript:void(0)"  (click)="removereason()"  >Remove</a></small>
+            </div>
+            <div>
+                  <small  class="text-danger" [hidden]="reason_err.valid || (reason_err.pristine)">
+                  Please enter your current password
+                  </small>
+                </div>
+         </div>
+      </div>
+      <div class="col-md-6" *ngIf="currentUser.rolename == 'Quality Audit'">
+         <div class="">
+            <label>Comment</label>
+            <div>
+               <input #comment_err="ngModel"  [(ngModel)]="gapSubmit.comment" class="form-control" name="comment" type="text"  style="pointer-events: visible;">
+            </div>
+            
+         </div>
+      </div>
+      
+      
+      <div class="col-md-12" *ngIf="currentUser.rolename !== 'Quality Audit'">
+            <div class="">
+               <label>Comment</label>
+               <div>
+                  <textarea  [(ngModel)]="gapSubmit.comment" class="form-control" name="comment" type="text"  ></textarea>
+               </div>
+            </div>
+         </div>
+         <div class="col-md-12 mt-3" *ngIf="currentUser.rolename == 'Quality Assurance' && gapSubmit?.status == 'rejected'">
+               <div class="">
+                  <label>Rejection Reason: </label>
+                  <span *ngIf="gapSubmit?.reason" class="text-danger f-14" style="font-weight: bold">
+                     {{gapSubmit?.reason}}
+                  </span>
+                  <span *ngIf="!gapSubmit?.reason" class="f-14" style="font-weight: bold">
+                        No rejected reason has been submitted by Quality Audit
+                  </span>
+                  
+               </div>
+            </div>
+      
+      <div class="col-md-12" *ngIf="gapSubmit?.gapcommentlist?.length">
+         <div class="comment-list">
+            <label>Comment List</label>
+            <ol>
+               <li *ngFor="let c of gapSubmit?.gapcommentlist; let i = 'index';" class="f-14">
+                  <b>{{c.username}} <span class="badge badge-warning">{{c.rolename}}</span><span  class="float-right">{{c.createdate | date}}</span></b> {{c.comment}}
+               </li>
+            </ol>
+         </div>
+      </div>
+      
+   </div>
+   <!-- <div class="form-group row">
+      <div class="col-md-12">
+         
+         <div class="gap-checkbox d-inline-block">
+            <input [(ngModel)]="gapSubmit.functionalstatuscompleted" name="functionalstatuscompleted" type="checkbox" value="option2">
+         </div>
+         <label>Functional Status Assessment Completed</label>
+      </div>
+   </div> -->

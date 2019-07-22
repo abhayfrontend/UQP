@@ -1,0 +1,52 @@
+.dropdown-menu{
+	min-width:380px;
+	max-width: 380px;
+	max-height: 350px;
+	overflow-y:auto;
+	a.dropdown-item{
+		white-space: initial;
+		.message{
+			text-align: justify;
+			i{
+				margin-top: -3px;
+			}
+			.notif-desc{
+				width:90%;
+				text-align: justify;
+			}
+			.notif-title{
+				width: 85%;
+			}
+			.extra-details{
+				border-top: 1px solid #efb818;
+    			margin-top: 10px;
+    			.attachment-list{
+    				margin-top:10px;
+    				ul{
+    					text-decoration: none;
+    					padding: 0;
+    					margin-top:5px;
+    					> li {
+    						margin-right: 10px;
+    						display: inline-block;
+    						i{
+    							font-size: 14px!important;
+    margin-left: -5px;
+    						}
+    					}
+    				}
+    			}
+			}
+		}
+		&:hover{
+			background: none;
+		}
+	}
+}
+
+.refresh-date{
+	    display: inline-block;
+    padding: 0px 15px;
+    color: #fff;
+    font-size: 14px;
+}

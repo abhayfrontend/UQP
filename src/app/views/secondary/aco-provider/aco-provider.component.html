@@ -1,0 +1,183 @@
+<app-help class="d-none"></app-help>
+<div class="u-heading">
+  <h2 style="top:8px">ACO Provider</h2>
+
+  <div class="pull-right">
+    <div class="u-search">
+      <div style="position:relative !important;padding-right: 50px;">
+        <input type="number" class="form-control" [(ngModel)]="search_text" onkeypress="return event.charCode != 45"
+          min="1" placeholder="Search by NPI number.." style="padding-left:10px;">
+        <div class="search_icon" style="    position: absolute;
+    right: 60px;">
+          <div>
+            <i class="material-icons" (click)="search()">search</i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+</div>
+<div class="filter-bar" style="z-index:0;">
+  <div class="download-option mt-0" *ngIf="member_list?.length">
+    <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span
+        class="download-text">Download Pdf</span></span>
+    <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span
+        class="download-text">Download Excel Sheet</span></span>
+  </div>
+  <form action="" class="form-inline" autocomplete="off">
+    <!--   <div class="form-group   p-0 mr-sm-2 col-md-2" style="position: relative;padding: 0;" *ngIf="rolename!='provider'">
+    <input  [(ngModel)]="provider_name" (keyup)="searchProvider()" class="form-control col-12" name="provider_name" placeholder="Search Provider" type="text" required style="width:100%" >
+    <div  *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%">
+
+      <div *ngFor="let member of members">
+        <a *ngIf="member.FirstName" href="javascript:void(0)"  (click)="getInsurance(member)"  class="dropdown-item" >
+          {{member.FirstName}} {{member.LastName}}
+        </a>
+      </div>
+    </div>
+    <div  *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+
+      <div >
+        <a  href="javascript:void(0)"   class="dropdown-item" >
+          No provider found
+        </a>
+      </div>
+    </div>
+  </div> -->
+    <!-- <div class="form-group col-2  p-0 mr-sm-2" *ngIf="insurance_list?.length >0" (change)="getAllIPA()"> -->
+    <!--   <div class="form-group  p-0 mr-sm-2" *ngIf="insurance_list?.length >0 && rolename!='healthplan'">
+    <label class="sr-only" for="if-password">Healthplan</label>
+    <select [(ngModel)]="params.healthplanid"    class="form-control col-12"  name="insurance" (change)="healthplanName=$event.target.selectedOptions[0].label">
+      <option [selected]="true" value="">Healthplan</option>
+      <option *ngFor="let insurance of insurance_list" [value]="insurance.healthplan_id" [label]="insurance.health_Name" >
+        {{ insurance.health_Name }}
+      </option>
+      <option value="0">All</option>
+    </select>
+  </div> -->
+    <!--   <div class="form-group col-2 mx-1 p-0" *ngIf="ipa_list?.length >0">
+    <label class="sr-only" for="if-password">ipa</label>
+    
+    <select  [(ngModel)]="params.IPA_ID"   class="form-control col-12"  name="ipa" (change)="showDates = true">
+      <option [selected]="true" value="">Select IPA</option>
+      <option *ngFor="let ipa of ipa_list" [value]="ipa.IPA_ID">
+        {{ ipa.IPA_Name }}
+      </option>
+    </select>
+  </div> -->
+    <select [(ngModel)]="params.groupid" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2" name="groupid">
+      <option value="0">Select group</option>
+      <option *ngFor="let group of ACO_groups" [value]="group.GroupID">
+        {{ group.GroupName }}
+      </option>
+    </select>
+
+
+    <!--   <select  [(ngModel)]="params.year" class="form-control mb-2 mr-sm-2 mb-sm-0 "  name="year" >
+    <option  [selected]="true" value="">Select year</option>
+    <option *ngFor="let year of years" [value]="year">{{year}}</option>
+  </select>
+
+      <select [(ngModel)]="params.status" class="form-control mb-2 mr-sm-2 mb-sm-0" id="select" name="gender">
+         <option [selected]="true" value="" >Status</option>
+         <option value="active">Active</option>
+         <option value="inactive">Inactive</option>
+         <option value="">All</option>
+      </select> -->
+
+
+    <!--   <select  *ngIf="type!='totalmembership'" (change)="addHccDesc($event.target.selectedOptions[0].label)" [(ngModel)]="params.hcccategory" class="form-control col-md-2"  name="hcc" >
+    <option  value="">Select HCC Category</option>
+    <option  *ngFor="let item of hcc_list" [value]="item.hccCategory" [label]="item.Description">{{item.hccCategory}} | {{item.Description}}</option>
+  </select> -->
+
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary btn-sm ml-2 mr-1" (click)="getAllMembers(true)"><span><i
+            class="fa fa-user"></i></span>View members</button>
+      <button type="button" class="btn btn-reset btn-sm ml-1 mr-2" (click)="resetFilters()"><span><i
+            class="fa fa-refresh"></i>
+        </span>Reset</button>
+    </div>
+  </form>
+</div>
+<nav *ngIf="total_pages>15" aria-label="Page navigation example" class="top-paging">
+  <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+    <li class="page-item  mr-2">
+      <a class="page-link" href="javascript:void(0)" *ngIf="page !== 1" [class.disabled]="page === 1"
+        (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+        <!-- <i class="fa fa-arrow-circle-left" aria-hidden="true"></i> -->
+        <i class="fa fa-angle-left" aria-hidden="true"></i>
+      </a>
+    </li>
+
+    <li class="page-item">
+      <a class="page-link" href="javascript:void(0)" *ngIf="pager.currentPage !== pager.total_pages"
+        [class.disabled]="next_page === 'total_pages'" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+        <i class="fa fa-angle-right" aria-hidden="true"></i>
+      </a>
+    </li>
+  </ul>
+</nav>
+<div class="custom-container">
+  <div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob report-table blur">
+    <thead>
+      <tr>
+        <th>S.No.</th>
+        <th>Provider Name</th>
+        <th>Address</th>
+        <th>Group Name</th>
+        <th>NPI number</th>
+        <th>Phone number</th>
+
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr *ngFor="let member of member_list; let i = 'index'">
+        <td data-label="S.No." *ngIf="page == 1">{{i+1}}</td>
+        <td data-label="S.No." *ngIf="page > 1">{{(i+1)+(page-1)*params.pageSize}}</td>
+
+
+        <td data-label="Member Name">{{member?.lastname?.toLowerCase()}}, {{member?.firstname?.toLowerCase()}}</td>
+        <td data-label="Gender">{{member?.addresslist[0]?.Address}}{{member?.addresslist[0]?.city}}</td>
+        <!-- <td data-label="Age">{{member.Age || calculateAge(member.dob)}}</td> -->
+        <td data-label="DOB">{{member?.GROUP_TIN }}</td>
+        <td data-label="Group Name">{{member?.C_IND_NPI}}</td>
+        <td data-label="PCP">{{member?.addresslist[0]?.phone}}</td>
+
+
+
+
+      </tr>
+    </tbody>
+  </table>
+  <nav *ngIf="total_pages > 15" aria-label="Page navigation example" style="    margin-top: 25px;">
+    <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+      <li class="page-item">
+        <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1"
+          (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+          <span class="sr-only">Previous</span>
+        </a>
+      </li>
+      <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item">
+        <a href="javascript:void(0)" (click)="loadByPage(p)" class="page-link">{{p}}</a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="javascript:void(0)" [class.disabled]="page === total_pages"
+          (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+          <span class="sr-only">Next</span>
+        </a>
+      </li>
+      <li class="custom_page"><input type="number" onkeypress="return event.charCode != 45" min="1" #pgno>
+        <button class="btn  btn-primary" (click)="loadByPage(pgno.value)">goto page</button>
+      </li>
+    </ul>
+  </nav>
+  <!--   <button type="submit" class="btn btn-primary btn-sm" (click)="getProviderMembers()" >View members</button> -->
+</div>

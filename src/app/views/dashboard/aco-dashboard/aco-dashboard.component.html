@@ -1,0 +1,280 @@
+<div class="dash btn-group btn-group-toggle mt-3 w-100" >
+   <label  class="btn btn-outline-primary " *ngIf="userRolePerm_HEDIS?.view" [routerLink]="['/dashboard']">HEDIS Dashboard</label>
+   <label  class="btn btn-outline-primary "  *ngIf="userRolePerm?.view" [routerLink]="['/dashboard/mra']">MRA Dashboard</label>
+   <label  class="btn btn-outline-primary active"  *ngIf="userRolePerm_ACO?.view" [routerLink]="['/dashboard/aco']">ACO Dashboard</label>
+</div>
+<app-help class="d-none"></app-help>
+<div class="dashboard" id="dashboard">
+   <!-- <div class="download-option">
+      <span class="pdf-icon d-block" (click)="GeneratePDF()"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Export Pdf</span></span>
+   </div> -->
+   <div class="outer-heading ">ACO Dashboard :{{currentUser.rolename}}</div>
+   <div class="d-container emd-area"  >
+      <div class="row">
+         <div class="col p-1" >
+            <div class="card"  >
+               <div class="card-body" [routerLink]="['/reports/aco/members']">
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons group-bg">group</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">Total Membership</div>
+                  <div class="numData" >{{acodatacard?.MemberCount}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color:#ed5724;width:17%; " class="progress-bar"  role="progressbar"  aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">h</div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="col p-1">
+            <div class="card">
+               <div class="card-body" [routerLink]="['/aco-provider/list']" (click)="providerDash()" >
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons person-bg">person</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">Providers</div>
+                  <div class="numData" >{{acodatacard?.ProviderCount}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color:#59669d;width:17%; " class="progress-bar"  role="progressbar"  aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         
+         <div class="col p-1"  >
+            <div class="card"  [routerLink]="['/reports/aco-group']" (click)="groupDash()">
+               <div class="card-body" >
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons security-bg">security</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">Groups</div>
+                  <div class="numData">{{acodatacard?.GroupCount}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color:#61a967;width:17%; " class="progress-bar"  role="progressbar"  aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+       
+         <div class="col p-1" >
+            <div class="card" [routerLink]="['/reports/aco/gaps']" (click)="storeACODetails(0,'all', 'Gaps')"  >
+               <div class="card-body"  >
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons security-bg">security</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">Open Gaps</div>
+                  <div class="numData">{{total_gaps}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color:#61a967;width:17%; " class="progress-bar"  role="progressbar"  aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+
+<div class="d-container bg-white ipa-scoredcard-area">
+   <div class="row">
+      <div class="col-sm-12 col-lg-6">
+         <div class="outer-heading pb-0 d-inline-block"  >Membership By county (Top 5)</div>
+         <div class="card-body">
+            <div class="chart-wrapper">
+               <!-- [colors]="pieChartColor" -->
+               <canvas baseChart class="chart" *ngIf="aco_showPiegraph"
+               [options]="pieChartOptions"    
+          [data]="aco_pie_scores"
+          [labels]="aco_pie_labels"
+          [chartType]="pieChartType"
+          (chartHover)="chartHovered($event)"
+         
+               ></canvas>
+            </div>
+         </div>
+      </div>
+      <div class="col-sm-12 col-lg-6">
+         <div class="outer-heading pb-0 d-inline-block"  >Gap totals by group</div>
+         <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+            <thead>
+               <tr>
+               	<th>S.No</th>
+                  <th>Name</th>
+                  <th>Gap Count  </th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr *ngFor="let x of acogapdata; let i = 'index'">
+            <td data-label="S.No." >{{i+1}}</td>
+                  <td>{{x.keyname}}</td>
+                  <td>{{x.value}}</td>
+               </tr>
+              
+              
+            </tbody>
+         </table>
+      </div>
+   </div>
+</div>
+
+
+<div class="d-container bg-white ipa-scoredcard-area">
+   <div class="row">
+   	<div class="col-sm-12 col-lg-6">
+   		 <div class="outer-heading pb-0 d-inline-block">Provider with most gaps</div>
+   		 <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+            <thead>
+               <tr>
+               	<th>S.No</th>
+                  <th>Name</th>
+                  <th>Gap Count </th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr *ngFor="let x of acoproviderdata; let i = 'index'">
+            <td data-label="S.No." >{{i+1}}</td>
+                  <td>{{x.keyname}}</td>
+                  <td>{{x.value}}</td>
+               </tr>
+              
+              
+            </tbody>
+         </table>
+   	</div>
+   	<div class="col-sm-12 col-lg-6">
+   		 <div class="outer-heading pb-0 d-inline-block"  >Measures with lowest compliance %</div>
+   		 <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+            <thead>
+               <tr>
+               	<th>S.No</th>
+                  <th>Measures</th>
+                  <th>Percentage</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr *ngFor="let x of lowestcompliancedata; let i = 'index'">
+            <td data-label="S.No." >{{i+1}}</td>
+                  <td>{{x.measurename}}</td>
+                  <td>{{x.completed | round }}</td>
+               </tr>
+              
+              
+            </tbody>
+         </table>
+   	</div>
+   	</div>
+   </div>
+
+
+   <div class="d-container  my-2 gaps-block">
+   <div class="row">
+      <div class="col-sm-12 col-lg-12 bg-white">
+         <div class="outer-heading pb-0">ACO Summary</div>
+        <form autocomplete="off" class="form-inline" >
+            <div class=" mb-2 mr-sm-2 mb-sm-0" style="position: relative;padding: 0;">
+               <input   [(ngModel)]="provider_name" (keyup)="searchProvider()" class="form-control " name="provider_name" placeholder="Search Provider" type="text" required style="width:100%" >
+               <img *ngIf="searching"  class="input-loading-img" src="assets/img/input-spinner.gif">
+               <div  *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="min-width:100%">
+                  <div *ngFor="let member of members"><a *ngIf="member.FirstName" href="javascript:void(0)"   class="dropdown-item" (click)="getInsurance(member)">
+                     {{member.FirstName}} {{member.LastName}}  <span *ngIf="member.email"> | {{member.email}} </span>
+                     </a>
+                  </div>
+               </div>
+               <div  *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+                  <div ><a  href="javascript:void(0)"   class="dropdown-item" >
+                     No provider found
+                     </a>
+                  </div>
+               </div>
+            </div>
+            
+            <select  [(ngModel)]="date.year" class="form-control mb-2 mr-sm-2 mb-sm-0 "  name="pyear" (change)="checkMonth(date.year)" required>
+            <option  value="">Select year</option>
+            <option *ngFor="let year of years" [value]="year">{{year}}</option>
+            </select>
+            <select  [(ngModel)]="date.month"   class="form-control mb-2 mr-sm-2 mb-sm-0 "  name="pmonth" (change)="formatDate()" required>
+            <option  value="">Select Month</option>
+            <option *ngFor="let month of months" [value]="month.value" >
+            {{ month.full }}
+            </option>
+            </select>
+            <i (click)="getAcoSummary()" class="material-icons r-g-search" style="vertical-align:middle;cursor:pointer;">search</i>
+         </form>
+         
+         <div class="row summary" >
+
+            <a class="col p-0" [routerLink]="['/reports/aco/gaps']">
+               <div class="col p-1" (click)="storeACODetails(0,'all', 'Denominator')" >
+                  <div class="card">
+                  <div class="card-body" >
+                     <div class="h5 mb-0 f-size">Total Denominator</div>
+                     <div class="numData text-primary" >{{total_denominator}}</div>
+                  </div> 
+                  </div>  
+               </div>
+            </a>   
+            
+            <a  class="col p-0" [routerLink]="['/reports/aco/gaps']">
+               <div class="col p-1" (click)="storeACODetails(0,'all', 'Numerator')" >
+                  <div class="card">
+                     <div class="card-body" >
+                        <div class="h5 mb-0 f-size">Total Numerator</div>
+                        <div class="numData text-warning" >{{total_numerator}}</div>
+                     </div>
+                  </div>
+               </div>
+            </a>
+            <a  class="col p-0" [routerLink]="['/reports/aco/gaps']">
+            <div class="col p-1" (click)="storeACODetails(0,'all', 'Gaps')"  >
+               <div class="card">
+                  <div class="card-body" >
+                     <div class="h5 mb-0 f-size">Total Gaps</div>
+                     <div class="numData text-danger" >{{total_gaps}}</div>
+                  </div>
+               </div>
+            </div>
+            </a>
+            <a  class="col p-0" >
+            <div class="col p-1"   >
+               <div class="card">
+                  <div class="card-body"  >
+                     <div class="h5 mb-0 f-size">Total Pending</div>
+                     <div class="numData text-secondary" >{{total_pending}}</div>
+                  </div>
+               </div>
+            </div>
+         </a>
+            
+         </div>
+         
+         <div class="gaps-table">
+            <table  class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+               <thead>
+                  <tr>
+                     <th>Measure Name</th>
+                     <th>Total Denominator</th>
+                     <th>Total Numerator</th>
+                     <th>Total Gaps</th>
+                     <th>Total Pending</th>
+                     <th>Compliance %</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr *ngFor="let gap of measurecompliance">
+                     <td data-label="Measure Name">{{gap?.measurename?.toLowerCase()}}</td>
+                     <td data-label="Total Denominator" *ngIf="gap?.den" ><a href="javascript:void(0)" target="_blank"   [routerLink]="['/reports/aco/gaps']" (click)="storeACODetails(gap.measureid, gap.measurename,'Denominator')"  >{{gap?.den}}</a></td>
+                     <td data-label="Total Denominator" *ngIf="!gap?.den">0</td>
+                     <td data-label="Total Numerator" *ngIf="gap?.num"><a href="javascript:void(0)" target="_blank" [routerLink]="['/reports/aco/gaps']" (click)="storeACODetails(gap.measureid, gap.measurename,'Numerator')" >{{gap?.num}}</a></td>
+                     <td data-label="Total Numerator" *ngIf="!gap?.num">0</td>
+                    
+                     <td data-label="Total Gaps" *ngIf="gap?.gaps"><a href="javascript:void(0)" target="_blank"  [routerLink]="['/reports/aco/gaps']" (click)="storeACODetails(gap.measureid, gap.measurename,'Gaps')"  >{{gap?.gaps}}</a></td>
+                     <td data-label="Total Gaps" *ngIf="!gap?.gaps">0</td>
+                     <td data-label="Total Pending">
+                        <span class="">{{gap?.totalpending}}</span>
+                     </td>
+                     <td data-label="% Completed">{{gap?.completed | round }} %</td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+      </div>
+     </div>
+</div>
+</div>

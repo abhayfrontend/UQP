@@ -1,0 +1,155 @@
+.aco_gaps{
+	.history_active{
+		border:3px solid #333;
+		
+	}
+	.source{
+		margin:0 15px;
+		font-weight: bold;
+		float:right;
+	}
+	.pure-checkbox label{
+		padding-left: 7px !important;
+	}
+	.filter-bar{
+	.pure-checkbox input[type="checkbox"] + label {
+	 padding-left: 26px !important;
+	 
+	}
+	}
+	
+	.row{
+		padding-top:15px;
+	}
+	.txt{
+		width:inherit;
+	}
+	.active {
+		background-color: #fff;
+	}
+	.square{
+		width: 15px;
+		height: 15px;
+		
+	}
+	.a{
+		background:bg-i-green;
+	}
+	.b{
+		background:bg-i-yellow;
+	}
+	.c{
+		background:bg-i-orange;
+	}
+	.d{
+		background:den_tab;
+	}
+	.square{
+	
+	width: 12px;
+	height: 11px;
+	display:inline-block;
+	}
+	.square_text{
+		display:inline-block;
+		padding-left:5px;
+	}
+	
+	.aco-patient-info{
+		padding:0px;
+		text-align:left;
+		li{
+			display: inline-block;
+			text-decoration: none;
+			margin:0px 20px;
+		}
+	}
+	
+	.ACO_docs{
+		padding: 1rem;
+		margin-top: -50px;
+		>div{
+			
+			margin:0px;
+		}
+	}
+	
+	div.tab-pane{
+		>div{
+			margin:0px -15px;
+			>div{
+				display: inline-block;
+				width: 49%;
+				vertical-align: middle;
+				margin: 10px 0px;
+			}
+		}
+		.inner-block{
+			display: block!important;
+			width: 100%!important;
+			margin: 10px 0px;
+			>div{
+				display: inline-block;
+				width: 49%;
+				vertical-align: middle;
+			}
+		}
+	}
+	h5{    font-size: 16px;}
+	.restrict_pointer{
+		pointer-events: none;
+	}
+	.restrict_cursor{
+		cursor: not-allowed!important;
+	}
+	.ACO_docs{
+		>div{
+			>div{
+				display: inline-block;
+				width: 49%;
+				vertical-align: middle;
+				margin: 10px 0px;
+			}
+		}
+		textarea{
+			width:100%;
+			padding:5px;
+		}
+	}
+	
+	.ACO_gaps{
+		.tab-content{
+			// border:0;
+			// margin: 0 -35px;
+		}
+		ul.nav{
+			// margin: 0 -35px;
+		}
+		li.nav-item{
+			margin: 0 2px;
+			position: relative;
+			a.nav-link{
+				display: block;
+				padding: 0.5rem;
+				min-width: 64px;
+				text-align: center;
+			}
+		}
+		li.nav-item.den_tab span::after{
+			content: '*';
+    position: relative;
+    top: -4px;
+    right: 0px;
+    color: red;
+    margin-bottom: -21px;
+		}
+		li.nav-item:first-child{
+			margin-left:0px;
+		}
+		.comment-list{
+			max-height: 250px;
+			overflow-y: auto;
+		}
+	
+	}
+}

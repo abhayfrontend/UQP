@@ -1,0 +1,28 @@
+ul.h-plan-list {
+	margin:0; padding: 0px 0 4px; overflow: hidden;
+	
+li {     width: 49.3999%;
+    float: left;
+     margin: 0% 0.3% 0%;
+    list-style-position: inside; list-style-type: none;
+    border-bottom: 1px solid #ccc;padding: 4px 12px;font-weight:bold;}
+	
+	//li::before { content: "\F101";}
+	li:nth-child(1),li:nth-child(2){
+	text-transform: uppercase;font-weight: bold;
+	span{
+		text-transform: uppercase;
+	}
+}
+li:nth-child(n+3){
+	cursor:pointer;
+}
+li:nth-child(n+3):focus{
+	outline:0;
+}
+}
+
+
+
+span.hpc-text {font-size: 11px !important; font-weight: normal; margin: 0 0 0 10px;}
+	

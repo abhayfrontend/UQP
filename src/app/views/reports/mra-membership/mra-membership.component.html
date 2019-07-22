@@ -1,0 +1,241 @@
+<ng-template style="position:static;z-index: 2 !important;" #popTemplate>
+
+<table class="table table-outline " >
+  <thead>
+    <tr>
+      <th width="60">Item</th>
+      <th width="150">Variable</th>
+      <th>Category</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>  
+    <tr>
+      <td>A</td>
+      <td>Initial HCC</td>
+
+		<td *ngIf="tooltip_data?.InitialHCCCcategory">{{tooltip_data?.InitialHCCCcategory}}</td>
+		<td *ngIf="!tooltip_data?.InitialHCCCcategory">-</td>
+
+      <td>-</td>
+    </tr>
+    <tr>
+      <td >B</td>
+      <td>Removed HCC</td>
+
+		<td *ngIf="tooltip_data?.DroppedHCCCcategory">{{tooltip_data?.DroppedHCCCcategory}}</td>
+		<td *ngIf="!tooltip_data?.DroppedHCCCcategory">-</td>
+
+      <td>-</td>
+    </tr>
+    <tr>
+      <td >C</td>
+      <td>Final HCC <b>(A-B)</b></td>
+
+		<td *ngIf="tooltip_data?.FinalHCCCcategory">{{tooltip_data?.FinalHCCCcategory}}</td>
+		<td *ngIf="!tooltip_data?.FinalHCCCcategory">-</td>
+
+      <td *ngIf="tooltip_data?.CodeBreakup">{{tooltip_data?.CodeBreakup}}</td>
+      <td *ngIf="!tooltip_data?.CodeBreakup">-</td>
+    </tr>
+    <tr>
+      <td >D</td>
+      <td>Demographics Score</td>
+		<td>-</td>
+
+      <td  *ngIf="tooltip_data?.DemographicsScore">{{tooltip_data?.DemographicsScore | round}}</td>
+      <td  *ngIf="!tooltip_data?.DemographicsScore">-</td>
+    </tr>
+  </tbody>
+</table>
+<div class="mb-2" *ngIf="type=='projectedscore'"><b>Total(C+D): {{tooltip_data?.ProjectedScore | round}}</b></div>
+<div class="mb-2" *ngIf="type=='currentscore'"><b>Total(C+D): {{tooltip_data?.CurrentScore | round}}</b></div>
+
+
+</ng-template>
+ 
+<app-help class="d-none"></app-help>
+<div class="u-heading">
+<h2 style="top:8px" *ngIf="type == 'currentscore'">MRA Members (Current Score)</h2>
+<h2 style="top:8px" *ngIf="type == 'projectedscore'">MRA Members (Projected Score)</h2>
+<h2 style="top:8px" *ngIf="type == 'totalmembership'">MRA Members (Total Membership)</h2>
+<div class="pull-right member-listing" style="margin-top:0px;">
+  <form action="" class="form-inline" autocomplete="off">
+    <label class="f-14 mx-1" >Search By</label>
+    <div class="form-group p-1 ">
+      <label class="sr-only" for="if-password">Category</label>
+      <select [(ngModel)]="search_category"  class="form-control col-12" id="select" name="gender">
+        <option [selected]="true" value="">Select category</option>
+        <option value="name">Member Name</option>
+        <option value="id">Subscriber Id</option>
+        <option value="dob">DOB</option>
+      </select>
+    </div>
+    <div class="form-group p-1">
+      <label class="sr-only" for="if-password">Search</label>
+      <input type="text" name ="search" [disabled]="!search_category" class="form-control col-12"  type="text" (keyup)="search_value(term.value)" placeholder="Search.." #term>
+    </div><i class="material-icons" (click)="search(term.value)">search</i></form>
+  </div>
+</div>
+<div class="filter-bar" >
+<div class="download-option mt-0"  *ngIf="member_list?.length">
+  <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Download Pdf</span></span>
+  <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span  class="download-text">Download Excel Sheet</span></span>
+</div>
+<form action="" class="form-inline" autocomplete="off">
+  <div class="form-group   p-0 mr-sm-2 col-md-2" style="position: relative;padding: 0;" *ngIf="rolename!='provider'">
+    <input  [(ngModel)]="provider_name" (keyup)="searchProvider()" class="form-control col-12" name="provider_name" placeholder="Search Provider" type="text" required style="width:100%" >
+    <div  *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="left: auto;">
+
+      <div *ngFor="let member of members">
+        <a *ngIf="member.FirstName" href="javascript:void(0)"  (click)="getInsurance(member)"  class="dropdown-item" >
+          {{member.FirstName}} {{member.LastName}}
+          <span *ngIf="member.email"> | {{member.email}} </span>
+        </a>
+      </div>
+    </div>
+    <div  *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+
+      <div >
+        <a  href="javascript:void(0)"   class="dropdown-item" >
+          No provider found
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- <div class="form-group col-2  p-0 mr-sm-2" *ngIf="insurance_list?.length >0" (change)="getAllIPA()"> -->
+  <div class="form-group  p-0 mr-sm-2" *ngIf="insurance_list?.length >0 && rolename!='healthplan'">
+    <label class="sr-only" for="if-password">Healthplan</label>
+    <select [(ngModel)]="params.healthplanid"    class="form-control col-12"  name="insurance" (change)="healthplanName=$event.target.selectedOptions[0].label">
+      <option [selected]="true" value="">Healthplan</option>
+      <option *ngFor="let insurance of insurance_list" [value]="insurance.healthplan_id" [label]="insurance.health_Name" >
+        {{ insurance.health_Name }}
+      </option>
+      <option value="0">All</option>
+    </select>
+  </div>
+  <!--   <div class="form-group col-2 mx-1 p-0" *ngIf="ipa_list?.length >0">
+    <label class="sr-only" for="if-password">ipa</label>
+    
+    <select  [(ngModel)]="params.IPA_ID"   class="form-control col-12"  name="ipa" (change)="showDates = true">
+      <option [selected]="true" value="">Select IPA</option>
+      <option *ngFor="let ipa of ipa_list" [value]="ipa.IPA_ID">
+        {{ ipa.IPA_Name }}
+      </option>
+    </select>
+  </div> -->
+<!--   <select [(ngModel)]="params.month"   class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2"  name="month" >
+    <option  value="">Select Month</option>
+    <option  *ngFor="let month of months" [value]="month.value" >
+      {{ month.full }}
+    </option>
+  </select> -->
+  <select  [(ngModel)]="params.year" class="form-control mb-2 mr-sm-2 mb-sm-0 "  name="year" >
+    <option  [selected]="true" value="">Select year</option>
+    <option *ngFor="let year of years" [value]="year">{{year}}</option>
+  </select>
+
+      <select [(ngModel)]="params.status" class="form-control mb-2 mr-sm-2 mb-sm-0" id="select" name="gender">
+         <option [selected]="true" value="" >Status</option>
+         <option value="active">Active</option>
+         <option value="inactive">Inactive</option>
+         <option value="">All</option>
+      </select>
+
+
+  <select  *ngIf="type!='totalmembership'" (change)="addHccDesc($event.target.selectedOptions[0].label)" [(ngModel)]="params.hcccategory" class="form-control col-md-2"  name="hcc" >
+    <option  value="">Select HCC Category</option>
+    <option  *ngFor="let item of hcc_list" [value]="item.hccCategory" [label]="item.Description">{{item.hccCategory}} | {{item.Description}}</option>
+  </select>
+
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary btn-sm ml-2 mr-1" (click)="getAllMembers(true,type)" ><span><i class="fa fa-user"></i></span>View members</button>
+    <button type="button" class="btn btn-reset btn-sm ml-1 mr-2" (click)="resetFilters()" ><span><i class="fa fa-refresh"></i>
+    </span>Reset</button>
+  </div>
+</form>
+</div>
+<nav *ngIf="total_pages>15" aria-label="Page navigation example" class="top-paging">
+<ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+  <li class="page-item  mr-2">
+    <a class="page-link" href="javascript:void(0)" *ngIf="page !== 1" [class.disabled]="page === 1" (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+      <!-- <i class="fa fa-arrow-circle-left" aria-hidden="true"></i> -->
+      <i class="fa fa-angle-left" aria-hidden="true"></i>
+    </a>
+  </li>
+
+  <li class="page-item">
+    <a class="page-link" href="javascript:void(0)" *ngIf="pager.currentPage !== pager.total_pages" [class.disabled]="next_page === 'total_pages'" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+      <i class="fa fa-angle-right" aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+</nav> 
+<div class="custom-container">
+<div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+<table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob report-table blur">
+  <thead>
+    <tr>
+      <th >S.No.</th>
+      <th>Member Name</th>
+      <th>Provider Name</th>
+      <th *ngIf="type!='totalmembership'">Healthplan Name</th>
+      <th>Subscriber ID</th>
+      <th>Gender</th>
+      <th>DOB</th>  
+      <th *ngIf="type=='currentscore'">Current Score</th>
+      <th *ngIf="type=='projectedscore'">Projected Score</th>
+      <th *ngIf="type!='totalmembership'">Aged/Disabled</th>
+      <th *ngIf="params.hcccategory && show_hcc">Description</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr *ngFor="let member of member_list; let i = 'index'">
+      <td data-label="S.No." *ngIf="page == 1">{{i+1}}</td>
+      <td  data-label="S.No."*ngIf="page > 1">{{(i+1)+(page-1)*params.pageSize}}</td>
+      <td data-label="Member Name"  *ngIf="type!='totalmembership'" ><span style="color: #20a8d8;" (mouseenter) ="tooltip_data= member"  [tooltip]="popTemplate" placement="right">{{member.LastName?.toLowerCase() || member.subscribelastname?.toLowerCase()}}, {{member.FirstName?.toLowerCase() || member.subscriberFirstname?.toLowerCase()}}</span></td>
+
+<td data-label="Member Name" *ngIf="type=='totalmembership'">{{member.subscribelastname?.toLowerCase()}}, {{member.subscriberFirstname?.toLowerCase()}}</td>
+
+<td data-label="Provider Name" *ngIf="member.provfirstname != null || member.pcplastname != null" >Dr. {{member.provlasttname?.toLowerCase() || member.pcplastname?.toLowerCase()}}, {{member.pcpfirstname?.toLowerCase() || member.provfirstname?.toLowerCase()}}</td>
+             <td data-label="Provider Name" *ngIf="member.provfirstname == null && member.pcplastname == null" > {{member.provlasttname?.toLowerCase() || member.pcplastname?.toLowerCase()}} {{member.pcpfirstname?.toLowerCase() || member.provfirstname?.toLowerCase()}}</td>
+
+
+
+      <td data-label="Healthplan Name" *ngIf="type!='totalmembership'" >{{member.HealthPlanName?.toLowerCase()}}</td>
+      <td data-label="Subscriber ID">{{member.SubscriberId || member.subscriberid}}</td>
+      <td data-label="Gender">{{member.Gender || member.gender}}</td>
+      <!-- <td data-label="Age">{{member.Age || calculateAge(member.dob)}}</td> -->
+      <td data-label="DOB">{{member.dob | date:'mediumDate'}}</td>
+     <td data-label="Current Score" *ngIf="type=='currentscore'">{{member.CurrentScore | round}}</td>
+     <td data-label="Projected Score" *ngIf="type=='projectedscore'">{{member.ProjectedScore | round}}</td>
+     <td data-label="Aged/Disabled" *ngIf="type!='totalmembership'">{{member.Enrollment_Status}}</td>
+     <td data-label="Description" *ngIf="params.hcccategory && show_hcc">{{hcc_desc}}</td>
+      <td data-label="Status">{{member?.status?.toLowerCase()}}</td>
+      <!-- <td data-label="PCP County">{{member?.county?.toLowerCase()}}</td> -->
+    </tr>
+  </tbody>
+</table>
+<nav *ngIf="total_pages > 15" aria-label="Page navigation example" style="    margin-top: 25px;">
+  <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+    <li class="page-item">
+      <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1" (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+        <span class="sr-only">Previous</span>
+      </a>
+    </li>
+    <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item">
+      <a href="javascript:void(0)" (click)="loadByPage(p)" class="page-link">{{p}}</a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="javascript:void(0)" [class.disabled]="page === total_pages" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+        <span class="sr-only">Next</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+<!--   <button type="submit" class="btn btn-primary btn-sm" (click)="getProviderMembers()" >View members</button> -->
+</div>

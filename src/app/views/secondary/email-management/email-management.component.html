@@ -1,0 +1,119 @@
+<app-help class="d-none"></app-help>
+
+<div class="u-heading">
+<h2>Email Management</h2>
+<div class="pull-right">
+   
+  
+   <span  class="add-text d-none d-md-inline-block" >Create Group</span>
+   <span  class="add-more" data-toggle="modal" (click)="createGroup()">
+      <a><i class="material-icons">add</i></a>
+   </span>
+</div>
+</div>
+<div class="custom-container">
+<table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+   <thead>
+      <tr>
+         <th >S.No.</th>
+         <th>Group Name</th>
+         <th>Email domain</th>
+         <th >Edit</th>
+         <th>Remove Group</th>
+      </tr>
+   </thead>
+    <tbody>
+      <tr *ngFor="let x of resultgrpnme;let i = 'index';" >
+         <td data-label="S.No.">
+            {{i+1}}
+         </td>
+        <td data-label="Group Name">
+            {{x.groupname}}
+         </td>
+          <td data-label="Email domain">
+            {{x.fromemail}}
+         </td>
+        
+         
+         
+         <td  data-label="Edit">
+            <a  href="javascript:void(0)" (click)="getgroupdetails(x.groupid)"> <i class="fa fa-edit" style= "font-size:24px"></i></a>
+            
+         </td>
+         <td data-label="Remove">
+         	<a href="javascript:void(0)" (click)="removegroup(x.groupid)"><i class="fa fa-trash" aria-hidden="true"  style="font-size:24px"></i></a>
+         </td>
+      </tr>
+   </tbody>
+</table>
+</div>
+
+
+
+
+
+<div bsModal #userModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel" [config]="{backdrop: 'static'}" aria-hidden="true">
+<div class="modal-dialog modal-lg" role="document">
+   <div class="modal-content">
+      <div class="modal-header">
+         
+         <h4 *ngIf="crtgroup" class="modal-title">Add Group</h4>
+         <h4  *ngIf="!crtgroup" class="modal-title">Edit Group</h4>
+        
+         <button type="button" class="close" (click)="userModal.hide()" aria-label="Close">
+         <span aria-hidden="true">&times;</span>
+         </button>
+         
+      </div>
+      <div class="modal-body">
+         <form action="" class="form-horizontal" autocomplete="off" #UserRole="ngForm">
+           <div class="form-group row">
+               <div class="col-md-12">
+                <label>Select providers</label>
+            	<angular2-multiselect  [data]="itemList"
+                        [(ngModel)]="selectedItems"
+                        [settings]="settings"
+                        [ngModelOptions]="{standalone: true}"
+                        (onSelect)="onItemSelect($event)"
+                        (onDeSelect)="OnItemDeSelect($event)"
+                        (onSelectAll)="onSelectAll($event)"
+                        (onDeSelectAll)="onDeSelectAll($event)">
+                </angular2-multiselect>
+
+           </div>
+       </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+               	<label>Group Name </label>
+               	 <input type="text"  name="group-name" [(ngModel)]="grpnme" class="form-control">
+               <label>From </label>
+                    <select class="form-control" [(ngModel)]="fromemail" name="frommail" required  >
+                    <label>Select</label>
+                  
+                      <option  *ngFor="let x of maildoms">  {{x}}                 
+                      </option>
+   
+               </select>
+                  
+                   <label >Mail Subject </label>
+                 <input type="text"  name="emailsubject" [(ngModel)]="emailsubject" class="form-control">
+                  
+
+                       <label>Mail Body</label>
+                     <quill-editor [(ngModel)]="emailbody" [style]="{height:'300px'}"  [ngModelOptions]="{standalone: true}" ></quill-editor>
+               </div>
+            </div>
+           
+             <button type="submit" (click)="postBulkmailDetails()"  *ngIf="!crtgroup" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;update</button>
+             <button type="submit" (click)="savegroup()" *ngIf="crtgroup" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+         </form>
+      </div>
+      <div class="modal-footer">
+      </div>
+   </div>
+     
+</div>
+   
+</div>
+
+

@@ -1,0 +1,361 @@
+<app-help class="d-none"></app-help>
+<!-- <div *ngIf="spinner" class="loading">Loading&#8230;</div> -->
+<!-- <i class="fa fa-file-o text-success pl-2" placement="bottom" [tooltip]=doc.documentname></i> -->
+<div class="u-heading">
+   <h2>Video/Guidelines List</h2>
+   <div class="pull-right">
+      <!-- <div class="u-search">
+         <input type="text" class="form-control" [(ngModel)]="search_text" type="text" (keyup)="search()" placeholder="Search..">
+         <i class="material-icons">search</i>
+      </div> -->
+      <!-- <input [(ngModel)]="search_text" type="text" (keyup)="search()"> -->
+      <span *ngIf="userRolePerm?.add" class="add-text d-none d-md-inline-block">Add Video/Guidelines </span>
+      <span *ngIf="userRolePerm?.add" class="add-more" data-toggle="modal" (click)="createVideo()">
+         <a><i class="material-icons">add</i></a>
+      </span>
+   </div>
+</div>
+<div class="filter-bar" style="z-index: 0">
+   <!-- <div class="download-option mt-0" >
+      <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Download Pdf</span></span>
+      <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span  class="download-text">Download Excel Sheet</span></span>
+   </div> -->
+   <form action="" class="form-inline" autocomplete="off">
+      <div class="form-group">
+         <i class="fa fa-filter"></i>
+         <label for="inputPassword6" class="filter-label">Filter By</label>
+
+      </div>
+      <div class="form-group  p-1 ">
+         <label class="sr-only" for="if-password">Status</label>
+         <select [(ngModel)]="params.status" class="form-control col-12" id="select" name="gender">
+            <option [selected]="true" value="">Status</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+            <option value="">All</option>
+         </select>
+      </div>
+      <div class="form-group  p-1 ">
+         <label class="sr-only" for="if-password">User role</label>
+         <select [(ngModel)]="params.roleid" class="form-control col-12" name="user-role">
+            <option [selected]="true" value="">User Role</option>
+            <option *ngFor="let role of user_role" [value]="role.User_Role_ID" [label]="role.User_Role_Name">
+               {{ role.User_Role_Name }}
+            </option>
+         </select>
+      </div>
+      <div class="form-group p-1 ">
+         <select [(ngModel)]="params.measureid" class="form-control" id="select" name="measure">
+            <option [selected]="true" value="">Select Measure</option>
+            <option *ngFor="let measure of measures" [label]="measure.Measure_Name" [value]="measure.Measure_ID">
+               {{ measure.Measure_Name }}</option>
+         </select></div>
+      <div class="form-group">
+         <button type="submit" class="btn btn-view-provider btn-sm ml-2 mr-1" (click)="getVideos()"><span><i
+                  _ngcontent-c16="" class="fa fa-eye"></i></span>View Videos</button>
+         <button type="button" class="btn btn-reset btn-sm ml-1 mr-2" (click)="resetFilters()"><span><i
+                  class="fa fa-refresh"></i>
+            </span>Reset</button>
+      </div>
+   </form>
+</div>
+<div class="custom-container">
+   <div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+
+   <div id="fade-video" (click)="lightbox_close()"></div>
+
+   <div class="card video" *ngFor="let n of videoList; let i = 'index'">
+
+      <div class="card-body p-4 clearfix  color-box">
+         <div class="row">
+            <div class="col-3 s-1">
+               <div *ngIf="page == 1" class="h5 text-primary round-bx">{{i+1}}</div>
+               <div *ngIf="page > 1" class="h5 text-primary round-bx">{{(i+1)+(page-1)*params.pageSize}}</div>
+               <div class="title">
+                  {{n.title}}
+                  <label class="switch switch-icon switch-pill switch-success">
+                     <input [disabled]="!userRolePerm?.edit" checked="n.status" [(ngModel)]="n.status"
+                        class="switch-input" type="checkbox" (click)="updateVideoStatus(n.assignid, n.status, n.title)">
+                     <span class="switch-label" data-off="" data-on=""></span>
+                     <span class="switch-handle"></span>
+                  </label>
+                  <a *ngIf="userRolePerm?.edit" href="javascript:void(0)" (click)="editVideo(n.assignid)"><i
+                        class="fa fa-edit" style="font-size:24px"></i></a>
+
+               </div>
+               <div>
+                  <b>Measure Name: </b>{{n.measurename}}
+               </div>
+               <div class="desc">
+                  {{n.details}}
+               </div>
+            </div>
+            <div class="col-6 s-2">
+               <div class="nv">
+                  <div class="head">
+                     <img src="assets/img/target.png">
+                     Target Audience
+                  </div>
+                  <ul>
+                     <li *ngFor="let role of n.guidelinerole">{{role.rolename}}
+                     </li>
+                  </ul>
+               </div>
+               <div class="creator-details row">
+                  <div class="col">
+                     <img src="assets/img/creator.png">
+                     <div class="head">Creator Name</div>
+                     <div class="desc">{{n.creatorName}}</div>
+                  </div>
+                  <div class="col">
+                     <img src="assets/img/email.png">
+                     <div class="head">Creator Email</div>
+                     <div class="desc">{{n.creatorEmail}}</div>
+                  </div>
+                  <div class="col">
+                     <img src="assets/img/department.png">
+                     <div class="head">Creator Department</div>
+                     <div class="desc">{{n.createdDepartment}}</div>
+                  </div>
+               </div>
+            </div>
+            <div class="col s-3">
+               <div class="videos-section row">
+                  <div class="head col-4" style="height: 58px;">Uploaded Videos</div>
+                  <div class="col">
+                     <div class="videos" *ngFor="let video of n.guidelinevideo; let j= 'index'">
+                        <img src="assets/img/video.png" placement="bottom" [tooltip]=video.videoname
+                           (click)="lightbox_open(video,j,$event)">
+
+                        <div class="light-container">
+
+                           <!-- <video [id]="'VisaChipCardVideo'+j" width="600" controls>
+                              <source [src]="'http://localhost:8085'+video.videopath+'/'+video.videoname  | safe: 'url'" type="video/mp4">
+                              
+                           </video> -->
+                        </div>
+                     </div>
+
+                  </div>
+
+               </div>
+               <div class="docs-section row">
+                  <div class="head col-4">Uploaded Docs</div>
+                  <div class="col">
+                     <div class="docs" *ngFor="let doc of n.guidelineodoc">
+                        <a target="_blank" [href]="CONTENT_BASE+doc.documentpath+'/'+doc.documentname"><img
+                              src="assets/img/pdf.png" placement="bottom" [tooltip]=doc.documentname></a>
+                     </div>
+
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <!-- <div  class="circle-text">Total Gaps</div> -->
+      </div>
+   </div>
+</div>
+<div bsModal #videoModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog"
+   [config]="{backdrop: 'static'}" aria-labelledby="notifLabel" aria-hidden="true">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+
+            <h4 *ngIf="save_add_form" class="modal-title">Add Video/Guidelines</h4>
+            <h4 *ngIf="!save_add_form" class="modal-title">Edit Video/Guidelines</h4>
+            <button type="button" class="close" (click)="videoModal.hide()" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+
+         </div>
+         <div class="modal-body">
+            <form action="" class="form-horizontal" #videoForm="ngForm" autocomplete="off">
+               <!--             <div class="form-group row">
+                     <div class="col-md-12">
+                        <select class="form-control" id="select" name="select" [(ngModel)]="user_role.type">
+                           <option [selected]="true" value="Internal">Internal</option>
+                           <option value="External">External</option>
+                        </select>
+                     </div>
+                  </div> -->
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>Title</label>
+                     <input class="form-control" name="rolename" placeholder="Video title" type="text"
+                        [(ngModel)]="video.title" required #title="ngModel">
+                     <div *ngIf="title.errors" [hidden]="title.valid || (title.pristine && !videoForm.submitted)">
+                        <small class="text-danger" *ngIf="title.errors.required">Title is required</small>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>Description</label>
+                     <textarea class="form-control" name="textarea-input" placeholder="Video Description" rows="9"
+                        [(ngModel)]="video.details"></textarea>
+                     <!-- <div *ngIf="description.errors" [hidden]="description.valid || (description.pristine && !UserRole.submitted)">
+                           <small class="text-danger" *ngIf="description.errors.required">Description is required</small>
+                           <small class="text-danger" *ngIf="description.errors.minlength">The minimum length should be 5 characters</small>
+                        </div> -->
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>Target Audience</label>
+                     <angular2-multiselect name="items" [data]="dropdownList" [(ngModel)]="selectedItems"
+                        [settings]="dropdownSettings" (onSelect)="onItemSelect($event)"
+                        (onDeSelect)="OnItemDeSelect($event)" (onSelectAll)="onSelectAll($event)"
+                        (onDeSelectAll)="onDeSelectAll($event)">
+                     </angular2-multiselect>
+                     <div *ngIf="selectedItems?.length == 0" style="margin-top:-15px;">
+                        <small class="text-danger" *ngIf="videoForm.submitted">Please assign video</small>
+                     </div>
+                  </div>
+               </div>
+
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>Select Measures</label>
+                     <select [(ngModel)]="video.measureid" class="form-control" id="select" name="measure"
+                        (change)="video.measurename=$event.target.selectedOptions[0].label" required #measure=ngModel>
+                        <option [selected]="true" value="">Select Measure</option>
+                        <option *ngFor="let measure of measures" [label]="measure.Measure_Name"
+                           [value]="measure.Measure_ID">{{ measure.Measure_Name }}</option>
+                     </select>
+                     <div *ngIf="measure.errors" [hidden]="measure.valid || (measure.pristine && !videoForm.submitted)">
+                        <small class="text-danger" *ngIf="measure.errors.required">Please select a measure</small>
+                     </div>
+                  </div>
+               </div>
+
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <div class="col upload-doc">
+                        <label>Upload Videos</label>
+                        <span class="text-danger"> (Upload size limit - 500mb / Upload file type - mp4)</span>
+                        <div>
+                           <label class="upload-button">
+                              <input type="file" id="upload-file" ngFileSelect [options]="options"
+                                 (uploadOutput)="onUploadOutput($event,'doc')" [uploadInput]="uploadInputVideo"
+                                 accept="video/mp4" multiple #fileUpload>
+                           </label>
+                           <div class="upload-items">
+                              <div class="upload-item" *ngFor="let f of files; let i = 'index';">
+                                 <span class="filename">
+                                    <span>{{ f.name }} - {{ f.progress?.data?.percentage }}%</span>
+                                    <span>uploading with {{ f.progress?.data?.speedHuman }}</span>
+                                    <span class="fa fa-close" (click)="removeVideo(f.id)"></span>
+                                 </span>
+                                 <div class="progress progress mb-0">
+                                    <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25"
+                                       class="progress-bar bg-success progress-bar-animated progress" role="progressbar"
+                                       [style.width]="f?.progress?.data?.percentage + '%'"></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <div class="col upload-doc">
+                        <label>Upload Docs</label>
+                        <span class="text-danger"> (Upload size limit - 500mb / Upload file type - pdf)</span>
+                        <div>
+                           <label class="upload-button">
+                              <input type="file" id="upload-file" ngFileSelect [options]="options"
+                                 (uploadOutput)="onUploadOutput($event,'video')" [uploadInput]="uploadInput"
+                                 accept="application/pdf" multiple #videoUpload>
+                           </label>
+                           <div class="upload-items">
+                              <div class="upload-item" *ngFor="let f of videofiles; let i = 'index';">
+                                 <span class="filename">
+                                    <span>{{ f.name }} - {{ f.progress?.data?.percentage }}%</span>
+                                    <span>uploading with {{ f.progress?.data?.speedHuman }}</span>
+                                    <span class="fa fa-close" (click)="removeFile(f.id)"></span>
+                                 </span>
+                                 <div class="progress progress mb-0">
+                                    <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25"
+                                       class="progress-bar bg-success progress-bar-animated progress" role="progressbar"
+                                       [style.width]="f?.progress?.data?.percentage + '%'"></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group row" *ngIf="video?.guidelinevideo?.length">
+                  <div class="col-md-12">
+                     <div class="col upload-doc">
+                        <label>Uploaded Videos List</label>
+                        <ol>
+                           <li *ngFor="let d of video?.guidelinevideo; let i = 'index';" class="f-14">
+                              {{d.videoname}}
+                              <a target="_blank" [href]="CONTENT_BASE+d.videopath+'/'+d.videoname"><i
+                                    class="fa fa-file-video-o text-success pl-2"></i></a>
+                              <a href="javascript:void(0)" (click)="removefile(d,'video')"><i
+                                    class="fa fa-times text-danger pl-2"></i></a>
+                           </li>
+                        </ol>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group row" *ngIf="video?.guidelineodoc?.length">
+                  <div class="col-md-12">
+                     <div class="col upload-doc">
+                        <label>Uploaded Documents List</label>
+                        <ol>
+                           <li *ngFor="let d of video?.guidelineodoc; let i = 'index';" class="f-14">
+                              {{d.documentname}}
+                              <a target="_blank" [href]="CONTENT_BASE+d.documentpath+'/'+d.documentname"><i
+                                    class="fa fa-file-o text-success pl-2"></i></a>
+                              <a href="javascript:void(0)" (click)="removefile(d,'document')"><i
+                                    class="fa fa-times text-danger pl-2"></i></a>
+                           </li>
+                        </ol>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <button *ngIf="!save_add_form" (click)="updateVideo(videoForm.valid,video.assignid,video)"
+                        type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+                     <button *ngIf="save_add_form" (click)="addVideo(videoForm.valid)" type="submit"
+                        class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+
+
+                  </div>
+               </div>
+            </form>
+         </div>
+         <div class="modal-footer">
+         </div>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<nav *ngIf="total_pages>15" aria-label="Page navigation example" style="    margin-top: 25px;">
+   <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+      <li class="page-item">
+         <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1"
+            (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+            <span class="sr-only">Previous</span>
+         </a>
+      </li>
+      <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item"><a href="javascript:void(0)"
+            (click)="loadByPage(p)" class="page-link">{{p}}</a></li>
+      <li class="page-item">
+         <a class="page-link" href="javascript:void(0)" [class.disabled]="next_page === 'total_pages'"
+            (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Next</span>
+         </a>
+      </li>
+   </ul>
+</nav>

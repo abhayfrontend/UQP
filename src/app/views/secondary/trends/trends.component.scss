@@ -1,0 +1,43 @@
+.trend_section{
+	.card{
+		margin:20px;
+		min-height: 650px;
+		&:hover{
+			transform:none;
+		}
+	.chart-wrapper {
+    width: 100%;
+    height:550px
+	}
+	
+		span.pull-right{
+			margin-top: 3px;
+    		margin-right: 10px;
+			b{
+				font-size: 14px
+			}
+		}
+		.card-header{
+			cursor: inherit;
+		}
+		.download-option {
+    float: right;
+    position: relative;
+    top: 6px;
+    font-weight: normal;
+    font-size: 14px;
+    margin-top: -8px;
+    margin-left: 8px;
+}
+	
+}
+#nohcc_trend{
+	.form-inline{
+		label{
+			font-size: 14px;
+			font-weight: normal;
+			margin: 0px 5px;
+		}
+	}
+}
+}

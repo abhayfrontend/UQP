@@ -1,0 +1,2463 @@
+<ng-template #partcOverall>
+   <div>Total Score - Part C / Total Weight - Part C</div>
+</ng-template>
+
+<ng-template #partdOverall>
+   <div>Total Score - Part D / Total Weight - Part D</div>
+</ng-template>
+
+<ng-template #combinedOverall>
+   <div>(Total Score - Part C + Total Score - Part D) / (Total Weight - Part C + Total Weight - Part D)</div>
+</ng-template>
+
+<app-help class="d-none"></app-help>
+<div class="u-heading">
+<h2>Health plan Scorecard</h2>
+</div>
+<div class="p-s-search">
+<div class="download-option"  *ngIf="gapMeasures?.length">
+   <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Download Pdf</span></span>
+   <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span  class="download-text">Download Excel Sheet</span></span>
+</div>
+<form autocomplete="off" class="form-inline" #healthplanScorecard="ngForm" >
+   <select *ngIf="rolename !='healthplan'" [(ngModel)]="provider.healthplanid"  class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2"  name="insurance"  (change)="showDates = true;healthplanName=$event.target.selectedOptions[0].label" required>
+      <option  value="0">Select Healthplan</option>
+      <option  [value]="1" label="COVENTRY">COVENTRY</option>
+      <option [value]="2" label="FREEDOM HEALTH PLAN">FREEDOM HEALTH PLAN</option>
+      <option [value]="3" label="HUMANA">HUMANA</option>
+      <option [value]="4" label="OPTIMUM HEALTHCARE INC">OPTIMUM HEALTHCARE INC</option>
+      <option [value]="5" label="ULTIMATE HEALTH PLANS">ULTIMATE HEALTH PLANS</option>
+      <option [value]="6" label="WELLCARE HEALTH PLANS">WELLCARE HEALTH PLANS</option>
+      <!--                   <option value="0">All</option> -->
+   </select>
+   <select [(ngModel)]="provider.year" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2"  name="year" (change)="checkMonth(provider.year)" required>
+      <option [selected]="true" value="">Select year</option>
+      <option *ngFor="let year of years" [value]="year">{{year}}</option>
+   </select>
+   <select  [(ngModel)]="provider.month"   class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2"  name="month" (change)="formatDate()" required>
+      <option [selected]="true" value="">Select Month</option>
+      <option *ngFor="let month of months" [value]="month.value" >
+         {{ month.full }}
+      </option>
+   </select>
+   <button type="submit" class="btn btn-primary btn-sm" (click)="getScorecard()" [disabled]="healthplanScorecard.form.invalid"><span><i class="fa fa-file"></i></span>View Report</button>
+</form>
+</div>
+<div class="custom-container">
+<div class="row mx-0">
+   <div class="col-sm-6 col-md-3 p-0">
+      <div class="info-box">
+         <span class="info-box-icon silver-bg"><i class="fa fa-medkit"></i></span>
+         <div class="info-box-content">
+            <span class="info-box-text">Insurance</span>
+            <!-- <span class="info-box-number" *ngIf="provider?.healthplanid == 1">COVENTRY</span>
+            <span class="info-box-number" *ngIf="provider?.healthplanid == 2">FREEDOM HEALTH PLANCOVENTRY</span>
+            <span class="info-box-number" *ngIf="provider?.healthplanid == 3">HUMANA</span>
+            <span class="info-box-number" *ngIf="provider?.healthplanid == 4">OPTIMUM HEALTHCARE INC</span>
+            <span class="info-box-number" *ngIf="provider?.healthplanid == 5">ULTIMATE HEALTH PLANS</span>
+            <span class="info-box-number" *ngIf="provider?.healthplanid == 6">WELLCARE HEALTH PLANS</span> -->
+            <span class="info-box-number" *ngIf="scorecard">{{healthplanName}}</span>
+         </div>
+         <!-- /.info-box-content -->
+      </div>
+   </div>
+   <div class="col-sm-6 col-md-3 p-0">
+      <div class="info-box">
+         <span class="info-box-icon gold-bg"><i class="fa fa-balance-scale"></i></span>
+         <div class="info-box-content">
+            <span class="info-box-text">Total Weight - Part C</span>
+            <span class="info-box-number" *ngIf="scorecard">{{total_Weight_C}}</span>
+         </div>
+         <!-- /.info-box-content -->
+      </div>
+   </div>
+   <div class="col-sm-6 col-md-3 p-0">
+      <div class="info-box">
+         <span class="info-box-icon blue-bg"><i class="fa fa-balance-scale"></i></span>
+         <div class="info-box-content">
+            <span class="info-box-text">Total Weight - Part D</span>
+            <span class="info-box-number" *ngIf="scorecard">{{total_Weight_D}}</span>
+         </div>
+         <!-- /.info-box-content -->
+      </div>
+   </div>
+   <div class="col-sm-6 col-md-3 p-0">
+      <div class="info-box">
+         <span class="info-box-icon green-bg"><i class="fa fa-address-card"></i></span>
+         <div class="info-box-content">
+            <span class="info-box-text">Total Membership <i *ngIf="scorecard" class="fa fa-info-circle" data-toggle="modal" (click)="totalMemberModal.show()"></i></span>
+            <span class="info-box-number" *ngIf="scorecard?.totalmember"><a href="javascript:void(0)" target="_blank" [routerLink]="['/members/TotalMembership']" (click)="storeGapDetails(0)">{{scorecard?.totalmember}}</a></span>
+
+            
+            <span class="info-box-number" *ngIf="scorecard && !scorecard?.totalmember">0</span>
+         </div>
+         <!-- /.info-box-content -->
+      </div>
+   </div>
+</div>
+<div class="row mx-0">
+   <div class="col-sm-6 col-md-3 p-0">
+      <div class="info-box">
+         <span class="info-box-icon orange-bg"><i class="fa fa-user-md"></i></span>
+         <div class="info-box-content">
+            <span class="info-box-text">Health Plan Score Card</span>
+            <span class="info-box-number" *ngIf="scorecard">{{healthplanName}}</span>
+         </div>
+         <!-- /.info-box-content -->
+      </div>
+   </div>
+   <div class="col-sm-6 col-md-3 p-0">
+      <div class="info-box">
+         <span class="info-box-icon light-green-bg"><i class="fa fa-list-ol"></i></span>
+         <div class="info-box-content">
+            <span class="info-box-text">Total Score - Part C</span>
+            <span class="info-box-number" *ngIf="scorecard">{{total_Score_C}}</span>
+         </div>
+         <!-- /.info-box-content -->
+      </div>
+   </div>
+   <div class="col-sm-6 col-md-3 p-0">
+      <div class="info-box">
+         <span class="info-box-icon red-bg"><i class="fa fa-list-ol"></i></span>
+         <div class="info-box-content">
+            <span class="info-box-text">Total Score - Part D</span>
+            <span class="info-box-number" *ngIf="scorecard">{{total_Score_D}}</span>
+         </div>
+         <!-- /.info-box-content -->
+      </div>
+   </div>
+   <div class="col-sm-6 col-md-3 p-0">
+      <div class="info-box">
+         <span class="info-box-icon dark-bg"><i class="fa fa-stethoscope"></i></span>
+         <div class="info-box-content">
+            <span class="info-box-text">HEDIS Eligible <i *ngIf="scorecard" class="fa fa-info-circle" data-toggle="modal" (click)="HedisModal.show()"></i></span>
+            <span class="info-box-number" *ngIf="scorecard?.hediseligible"><a href="javascript:void(0)" target="_blank" [routerLink]="['/members/HedisEligible']" (click)="storeGapDetails(0)"> {{scorecard?.hediseligible}}</a></span>
+            <span class="info-box-number" *ngIf="scorecard && !scorecard?.hediseligible">0</span>
+         </div>
+         <!-- /.info-box-content -->
+      </div>
+   </div>
+</div>
+<div class="row mx-0">
+   <div class="col-sm-6 col-md-3 p-0">
+      <div class="info-box">
+         <span class="info-box-icon darker-blue-bg"><i class="fa fa-calendar"></i></span>
+         <div class="info-box-content">
+            <span class="info-box-text">HEDIS Year</span>
+            <span class="info-box-number" *ngIf="scorecard">{{provider.year}} <small>Date of Service</small></span>
+         </div>
+         <!-- /.info-box-content -->
+      </div>
+   </div>
+   <div class="col-sm-6 col-md-3 p-0">
+      <div class="info-box">
+         <span class="info-box-icon light-ornage-bg"><i class="fa fa-refresh"></i></span>
+         <div class="info-box-content" [tooltip]="partcOverall" placement="bottom">
+            <div>
+                <span class="info-box-text">Part C Overall <i *ngIf="scorecard" class="fa fa-info-circle" ></i></span>
+            </div>
+           
+            <span class="info-box-number" *ngIf="scorecard">{{part_C_Overall | round}}</span>
+         </div>
+         <!-- /.info-box-content -->
+      </div>
+   </div>
+   <div class="col-sm-6 col-md-3 p-0">
+      <div class="info-box">
+         <span class="info-box-icon dark-silver-bg"><i class="fa fa-refresh"></i></span>
+         <div class="info-box-content"  [tooltip]="partdOverall" placement="bottom">
+            <span class="info-box-text">Part D Overall <i *ngIf="scorecard" class="fa fa-info-circle"></i></span>
+            <span class="info-box-number" *ngIf="scorecard">{{part_D_Overall | round}}</span>
+         </div>
+         <!-- /.info-box-content -->
+      </div>
+   </div>
+   <div class="col-sm-6 col-md-3 p-0">
+      <div class="info-box">
+         <span class="info-box-icon light-blue-bg"><i class="fa fa-refresh"></i></span>
+         <div class="info-box-content"  [tooltip]="combinedOverall" placement="bottom">
+            <span class="info-box-text">Combined Overall <i *ngIf="scorecard" class="fa fa-info-circle"></i></span>
+            <span class="info-box-number" *ngIf="scorecard">{{combined_Overall | round}}</span>
+         </div>
+         <!-- /.info-box-content -->
+      </div>
+   </div>
+</div>
+<div *ngIf="scorecard">
+   <table class="table table-bordered bg-white healthplan-table mob" *ngIf="scorecard?.measurecalculationsc">
+      <thead class="thead-gray">
+         <tr>
+            <th width="420px">Measures - Part C</th>
+            <th>Denominator </th>
+            <th>Numerator </th>
+            <th>% Completed</th>
+            <th>Remaining Gaps <i class="fa fa-info-circle" data-toggle="modal" (click)="gapModal.show()"></i></th>
+            <th>To Next Score</th>
+            <th>Star Score</th>
+            <th>Weight</th>
+            <th>Total Score</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr *ngFor="let score of scorecard?.measurecalculationsc">
+
+
+            <td data-label="Measures - Part C">{{score.measurename}}</td>
+      <td data-label="Denominator" *ngIf="score.den != 0"><a href="javascript:void(0)" target="_blank" [routerLink]="['/members/Denominator']" (click)="storeGapDetails(score.measureid, score.measurename)">{{score.den}}</a> <i class="fa fa-info-circle" data-toggle="modal" (click)="showDenModal(score.measureid)"></i></td>
+      <td data-label="Denominator" *ngIf="score.den == 0"> {{score.den}} <i class="fa fa-info-circle" data-toggle="modal" (click)="showDenModal(score.measureid)"></i></td>
+      <td data-label="Numerator" *ngIf="score.num != 0"><a href="javascript:void(0)" target="_blank" [routerLink]="['/members/Numerator']" (click)="storeGapDetails(score.measureid, score.measurename)">{{score.num}}</a> <i class="fa fa-info-circle" data-toggle="modal" (click)="showNumModal(score.measureid)"></i></td>
+      <td data-label="Numerator" *ngIf="score.num == 0"> {{score.num}} <i class="fa fa-info-circle" data-toggle="modal" (click)="showNumModal(score.measureid)"></i></td>
+      <!-- <td>{{this.Math.round((score.num/score.den)*100)}} %</td> -->
+      <td data-label="% Completed">{{score.completed | round}} %</td>
+      <td data-label="Remaining Gaps" *ngIf="score.gaps !=0"><a href="javascript:void(0)" target="_blank" [routerLink]="['/members/gaps']" (click)="storeGapDetails(score.measureid, score.measurename)"> {{score.gaps}}</a></td>
+      <td data-label="Remaining Gaps" *ngIf="score.gaps == 0"> {{score.gaps}}</td>
+      <td data-label="To Next Score">{{score.gapupdatescore}}</td>
+      <td data-label="Star Score" >{{score.starscore}}</td>
+      <td data-label="Weight" >{{score.weight}}</td>
+      <td data-label="Total Score">
+         <span class="badge badge-success">{{score.starscore * score.weight}}</span>
+      </td>
+         </tr>
+      </tbody>
+   </table>
+   <table class="table table-bordered bg-white healthplan-table mob" *ngIf="scorecard?.measurecalculationsd">
+      <thead class="thead-gray">
+         <tr>
+            <th width="420px">Measures - Part D</th>
+            <th>Denominator </th>
+            <th>Numerator </th>
+            <th>% Completed</th>
+            <th>Remaining Gaps <i class="fa fa-info-circle" data-toggle="modal" (click)="gapModal.show()"></i></th>
+            <th>To Next Score</th>
+            <th>Star Score</th>
+            <th>Weight</th>
+            <th>Total Score</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr *ngFor="let score of scorecard?.measurecalculationsd">
+            <td data-label="Measures - Part D">{{score.measurename}}</td>
+            <td data-label="Denominator" *ngIf="score.den != 0"><a href="javascript:void(0)" target="_blank" [routerLink]="['/members/Denominator']" (click)="storeGapDetails(score.measureid, score.measurename)">{{score.den}}</a> <i class="fa fa-info-circle" data-toggle="modal" (click)="showDenModal(score.measureid)"></i></td>
+      <td data-label="Denominator" *ngIf="score.den == 0"> {{score.den}} <i class="fa fa-info-circle" data-toggle="modal" (click)="showDenModal(score.measureid)"></i></td>
+      <td data-label="Numerator" *ngIf="score.num != 0"><a href="javascript:void(0)" target="_blank" [routerLink]="['/members/Numerator']" (click)="storeGapDetails(score.measureid, score.measurename)">{{score.num}}</a> <i class="fa fa-info-circle" data-toggle="modal" (click)="showNumModal(score.measureid)"></i></td>
+      <td data-label="Numerator" *ngIf="score.num == 0"> {{score.num}} <i class="fa fa-info-circle" data-toggle="modal" (click)="showNumModal(score.measureid)"></i></td>
+      <!-- <td>{{this.Math.round((score.num/score.den)*100)}} %</td> -->
+      <td data-label="% Completed">{{score.completed | round}} %</td>
+      <td data-label="Remaining Gaps" *ngIf="score.gaps !=0"><a href="javascript:void(0)" target="_blank" [routerLink]="['/members/gaps']" (click)="storeGapDetails(score.measureid, score.measurename)"> {{score.gaps}}</a></td>
+      <td data-label="Remaining Gaps" *ngIf="score.gaps == 0"> {{score.gaps}}</td>
+      <td data-label="To Next Score">{{score.gapupdatescore}}</td>
+      <td data-label="Star Score" >{{score.starscore}}</td>
+      <td data-label="Weight" >{{score.weight}}</td>
+      <td data-label="Total Score">
+         <span class="badge badge-success">{{score.starscore * score.weight}}</span>
+      </td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+</div>
+<!-- /.info-box -->
+<!-- Info modals -->
+<div bsModal #gapModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" [config]="{backdrop: 'static'}" aria-hidden="true">
+<div class="modal-dialog" role="document">
+   <div class="modal-content">
+      <div class="modal-header">
+         <!-- <h4 class="modal-title">Gap details</h4> -->
+         <button type="button" class="close" (click)="gapModal.hide()" aria-label="Close">
+         <span aria-hidden="true">&times;</span>
+         </button>
+      </div>
+      <div class="modal-body">
+         <div class="form-group row">
+            <div class="col-md-12">
+               <b>What is Gap count?</b><br> Members who fulfill denominator conditions but not the numerator ones.
+            </div>
+         </div>
+         <div class="form-group row">
+            <div class="col-md-12">
+               <b>Formulae: Denominator-Numerator</b>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!-- /.modal-content -->
+</div>
+<!-- /.modal-dialog -->
+</div>
+<div bsModal #numModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog" [config]="{backdrop: 'static'}" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-lg" role="document">
+   <div class="modal-content">
+      <div class="modal-header">
+         <h4 class="modal-title">Numerator details</h4>
+         <button type="button" class="close" (click)="numModal.hide()" aria-label="Close">
+         <span aria-hidden="true">&times;</span>
+         </button>
+      </div>
+      <div class="modal-body">
+         <div class="form-group row">
+            <div class="col-md-12">
+               <b>What is Numerator count?</b><br> Count of all the members falling under Numerator condition of a measure with respect to particular Health Plan and month and year of enrollment of a member
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 1">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  1) Had a visit with documented BMI during current year or year prior to the current year (code from Outpatient Value Set or code from BMI Value Set) or.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Documentation in the medical record that includes the weight and BMI value, dated during the current year or the year prior to the current year. Weight & BMI must be from same data source (for less than 20 years only) (BMI Percentile value set only).
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Understanding</b> - Need to consider (BMI Percentile Value Set) for less than 20 Years only
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 2">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  Documentation in the medical record of a screening mammography or a code for a screening mammography (Code from Mammography Value Set).
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS,DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 3">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  1) Code to confirm a FOBT, Flexible Sigmoidoscopy, Colonoscopy, FIT-DNA or CT Colonography was performed.<br>
+                  <b>OR</b><br>
+                  FOBT: January 1st – December 31st of the current year (FOBT Value set) Flexible Sigmoidoscopy: January 31st – December 31st of the current year and four years prior (Flexible Sigmoidoscopy Value Set) Colonoscopy: January 1st – December 31st of the current year and the nine years prior (Colonoscopy Value Set) Computed Tomography Colonography: January 31st – December 31st of the current year and four years prior (CT Colonography Value Set)FIT-DNA: January 31st – December 31st of the current year and the two years prior (FIT-DNA)
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 4">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  Screening or monitoring for diabetic retinal disease as identified by administrative data. This includes diabetics who had one of the following:<br>
+                  1) Bilateral eye enucleation anytime during the member’s history through December 31 of the measurement year Any of the following meet the criteria for the numerator:.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Any code in the Diabetic Retinal Screening with Eye Care Professional Value Set billed by any provider type during the measurement year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Any code in the Diabetic Retinal Screening with Eye Care Professional Value Set billed by any provider type during the year prior to the measurement year, with a negative result (negative for retinopathy).<br>
+                  Any code in the Diabetic Retinal Screening Negative Value Set billed by any provider type during the measurement year
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname, Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC number,foldername
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 5">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  Numerator is compliant if the most recent HbA1c test is above 9.0 or an HbA1c test was not completed during the measurement year. Search Claims Gateway and Service fund files for the following CPT II codes: HbA1c Level Less than 7.0 Value Set, HbA1c Level Less 7.0 – 9.0, HbA1c Level Greater than 9.0 **This measure is inverted, therefor the lower the percentage of completion, the higher the STAR Rating. In order to be compliant for the measure, the member
+                  must have an HbA1c level greater than 9.0 or the result is not in the claim. If the Hba1c result from the claim is less than 7.0 or between 7.0 – 9.0, the member is considered non-compliant. **.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, DRG_CODE, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname, Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC number,foldername
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 6">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  A nephropathy screening or monitoring test or evidence of nephropathy, as documented through administrative data. This includes diabetics who had one of the following during the measurement year: 1. A nephropathy screening or monitoring test (Urine Protein Tests Value Set) <br>2. Evidence of treatment for nephropathy or ACE/ARB therapy (Nephropathy Treatment Value Set) <br>3. Evidence of stage 4 chronic kidney disease (CKD Stage 4 Value Set) <br>4. Evidence of ESRD (ESRD Value Set) <br>5. Evidence of kidney transplant (Kidney Transplant Value Set) <br>6. A visit with a nephrologist, as identified by the organization’s specialty provider codes (no restriction on the diagnosis or procedure code submitted) At least one ACE inhibitor or ARB dispensing event (ACE Inhibitor/ARB Medications List)
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2
+                              ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC number,foldername
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 7">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  At least one pain assessment completed during the current year with a code billed from the Pain Assessment Value Set during the current year or Medical record documentation that the patient was assessed for pain, which may be a positive or negative finding, during the current year..
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 8">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  A medication review (Medication Review Value Set) and a medication list (Medication List Value Set) code billed on the same date of service during the current year. Medical record documentation of a list of medications and a statement stating they were reviewed on the visit date will also meet the measure. (This would be uploaded to the portal)<br><b> **Please note codes 1159F and 1160F need to bill on the same date of service for the measure to be met. **</b>
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, DRG_CODE, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 9">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Two ways to be considered compliant, is not required to have both, only need to meet one of the following to make the measure compliant..
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Claim/Encounter data- DMARD prescription (Attachment AG) during the current year. Pharmacy date- Members that were dispensed a DMARD (Attachment AH) during the current year on an ambulatory basis.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Male & Female members, 18 years and older as of December 31st of the current year who had two of the following with different dates of service on or between January 1st and November 30th of the current year. (Visit type does not need to be the same).
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, DRG_CODE, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4, DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC number,foldername
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 10">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  Female patients 67 – 85 years of age who had appropriate testing or treatment for osteoporosis after the fracture defined by any of the following criteria:<br>
+                  1) A BMD test (Bone Mineral Density Tests Value Set), in any setting, on the IESD or in the 180-day (6-month) period after the IESD.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) If the IESD was an inpatient stay, a BMD test (Bone Mineral Density Tests Value Set) during the inpatient stay.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Osteoporosis therapy (Osteop
+                  lue Set) on the IESD or in the 180-day (6-month) period after the IESD.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) If the IESD was an inpatient stay, long-acting osteoporosis therapy (Long-Acting Osteoporosis Medications Value Set) during the inpatient stay.<br>
+                  A dispensed prescription to treat osteoporosis (Osteoporosis Medications List) on the IESD or in the 180-day (6-month) period after the IESD.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Census_Mart
+                           </td>
+                           <td data-label="Name">
+                              Member_id,admit_date
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 11">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  Medication reconciliation (Medication Reconciliation value set) conducted by a prescribing practitioner, clinical pharmacist, or registered nurse on the date of discharge through 30 days after discharge (31 total days). This measure can be captured through claims or by uploading documentation from the medical record that the medications were reconciled from an inpatient stay..
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, DRG_CODE, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4 ,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Census_Mart
+                           </td>
+                           <td data-label="Name">
+                              Member_id,discharge_date
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 12">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  At least one functional status assessment code billed (Functional Status Assessment Value Set) during the current year or Medical record documentation of a notation that the activities of daily living were assessed or that five of the following were assessed: bathing,dressing, eating, transferring, using toilets, or walking.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 13">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  Prescription fills for 80% of the year. Example – if a patient fills a prescription for a statin in January of 2018, then for the remaining part of the year the patient must fill the medication 80% of the time
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC_Number,folderdate
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 14">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  Prescription fills for 80% of the year. Example – if a patient fills a prescription for a RAS medication in January of 2018, then for the remaining part of the year the patient must fill the medication 80% of the time.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC_Number,folderdate
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 15">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Numerator calculation:</b><br>
+                  Prescription fills for 80% of the year. Example – if a patient fills a prescription for a diabetes medication in January of 2018, then for the remaining part of the year the patient must fill the medication 80% of the time
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC_Number,folderdate
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div class="form-group row">
+            <div class="col-md-12">
+               <b>Numerator Count=Total members count who fulfills above conditions.</b>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!-- /.modal-content -->
+</div>
+<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<div bsModal #denModal="bs-modal" class="modal fade u-modal " tabindex="-1" role="dialog" [config]="{backdrop: 'static'}" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-lg" role="document">
+   <div class="modal-content">
+      <div class="modal-header">
+         <h4 class="modal-title">Denominator details</h4>
+         <button type="button" class="close" (click)="denModal.hide()" aria-label="Close">
+         <span aria-hidden="true">&times;</span>
+         </button>
+      </div>
+      <div class="modal-body">
+         <div class="form-group row">
+            <div class="col-md-12">
+               <b>What is Denominator count?</b><br> Count of all the members falling under denominator
+               condition of a measure with respect to particular Health Plan
+               and month and year of enrollment of a member
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 1">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Member has to be either 'Male' or 'Female' with age group between 18-74 years.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) Male or female with age group between 18 years to 74.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender,IPA
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, Date_From, Birth_Date,Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, Date_From, Birth_Date,Gende
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, Date_From, Birth_Date,Gender
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 2">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days October 1st, two years prior to the current year through December 31st of the current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Member has to be either 'Female' with age group between 52-74 years.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) Female with age group between 52 years to 74 years and has a continuous enrolment.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender,IPA
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, Date_From, Birth_Date,gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, Date_From, Birth_Date,gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, Date_From, Birth_Date,gender
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 3">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days The current year and the year prior to the current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Member has to be either 'Male' or 'Female' with age group between 51-75 years.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) Male or female with age group between 51 years to 75 years.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender,IPA
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, Date_From, Birth_Date,gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, Date_From, Birth_Date,gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, Date_From, Birth_Date,gender
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 4">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Member has to be either 'Male' or 'Female' with age group between 18-75 years.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) Two ways to identify members, by claim/encounter data and pharmacy data. Both methods need to be used to identify members. However, you only need one method to include the member in the measure.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Claims/Encounter Data</b>
+                  <ul>
+                     <li>Members must have at least two visit between outpatient visits (Outpatient value set), or observation visits (Outpatient value set), or ED visits (ED value set), or non-acute inpatient (Non-Acute inpatient value set) encounters with a diabetes code (Diabetes Value Set) on two separate dates of service.</li>
+                     <li>Member has one acute inpatient encounter with a diagnosis of diabetes (Diabetes Value Set).</li>
+                  </ul>
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Pharmacy Data</b>
+                  <ul>
+                     <li>Members who were dispensed insulin or hypoglycaemic/antihyperglycemics on an ambulatory basis during the current year or the year prior.</li>
+                  </ul>
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname, Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC number,foldername
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 5">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days <br>
+                  <b>Measurement Year = 1/1/2018 – 12/31/2018.</b>
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Member has to be either 'Male' or 'Female' with age group between 18-75 years.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) Two ways to identify members, by claim/encounter data and pharmacy data. Both methods need to be used to identify members. However, you only need one method to include the member in the measure.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Claims/Encounter Data</b>
+                  <ul>
+                     <li>Members must have at least two outpatient visits (Outpatient value set), observation visits (Outpatient value set), ED visits (ED value set), or non-acute inpatient (Non-Acute inpatient value set) encounters with a diabetes code (Diabetes Value Set) on two separate dates of service.</li>
+                     <li>Member has one acute inpatient encounter with a diagnosis of diabetes (Diabetes Value Set).</li>
+                  </ul>
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Pharmacy Data</b>
+                  <ul>
+                     <li>Members who were dispensed insulin or hypoglycaemic/antihyperglycemics on an ambulatory basis during the current year or the year prior.</li>
+                  </ul>
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, DRG_CODE, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname, Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC number,foldername
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 6">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2)Continuous Enrollment: Gap<=45 days Measurement Year = Current year & year prior to the current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Member has to be either 'Male' or 'Female' with age group between 18-75 years.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) Two ways to identify members, by claim/encounter data and pharmacy data. Both methods need to be used to identify members. However, you only need one method to include the member in the measure.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Claims/Encounter Data</b>
+                  <ul>
+                     <li>Members must have at least two outpatient visits (Outpatient value set), observation visits (Outpatient value set), ED visits (ED value set), or non-acute inpatient (Non-Acute inpatient value set) encounters with a diabetes code (Diabetes Value Set) on two separate dates of service.</li>
+                     <li>Member has one acute inpatient encounter with a diagnosis of diabetes (Diabetes Value Set).</li>
+                  </ul>
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Pharmacy Data</b>
+                  <ul>
+                     <li>Members who were dispensed insulin or hypoglycaemic/antihyperglycemics on an ambulatory basis during the current year or the year prior.</li>
+                  </ul>
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC number,foldername
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 7">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Males & Females, 66 years or older, the current year (January 1st to December 31st).
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) Medicare SNP (Special Needs Plan), MMP (Medicare-Medicaid Plan) members, Male & Female members, Age 66 years and older (Age 66 years and older as of December 31st of the current year).
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 8">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Males & Females, 66 years or older, the current year (January 1st to December 31st).
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) Medicare SNP (Special Needs Plan), MMP (Medicare-Medicaid Plan) members, Male & Female members, Age 66 years and older (Age 66 years and older as of December 31st of the current year).
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, DRG_CODE, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 9">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Male & Female members, 18 years and older as of December 31st of the current year who had two of the following with different dates of service on or between January 1st and November 30th of the current year. (Visit type does not need to be the same).
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) Outpatient visit (Outpatient Codes, Attachment Z), with any diagnosis of rheumatoid arthritis (Rheumatoid Arthritis Codes, Attachment AA).
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  5) Nonacute inpatient discharge, with any diagnosis of rheumatoid arthritis (Attachment AA). To identify nonacute inpatient discharge.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  6) Identify aa acute and nonacute inpatient stays (Inpatient stay codes) (Attachment AB).
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  7) Confirm the stay was for nonacute care based on the presence of a nonacute code (Nonacute Inpatient Stay Codes) (Attachment AC) on the claim.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  8) Identify the discharge date for the stay.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, DRG_CODE, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4, DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC number,foldername
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 10">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days.<br>
+                  <ul>
+                     <li>12 Months (1 Year) before the IESD through 180 days (6 Months) after the IESD </li>
+                     <li>IESD (Index Episode Start Date) (fracture date)</li>
+                  </ul>
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) <b>Step 1</b><br>
+                  Identify all members who had either of the following during the Intake Period – (Date of Service)<br>
+                  <b>Intake period = July 1st, 2017 through June 30th, 2018</b><br>
+                  An outpatient visit (outpatient value set), observation visit (Observation value set), or an ED visit (ED value set), for a fracture (fractures value set)<br>
+                  <ul>
+                     <li>Do not include ED visits or observation visits that result in an inpatient stay <b>(Inpatient Stay Value Set)</b>. When an ED or observation visit, and an inpatient stay are billed on separate claims, the visit results in an inpatient stay when the admission date for the inpatient stay occurs on the ED/observation date of service or one calendar day after. An ED or observation visit billed on the same claim as an inpatient stay is considered a visit that resulted in an inpatient stay.</li>
+                     <li>An acute or non-acute inpatient discharge for a fracture <b>(Fractures Value Set)</b>.</li>
+                     <br>
+                     To identify acute and non-acute inpatient discharges:
+                     <ol>
+                        <li>Identify all acute and non-acute inpatient stays <b>(Inpatient Stay Value Set)</b>.</li>
+                        <li>Identify the discharge date for the stay.</li>
+                     </ol>
+                  </ul>
+                  If the member had more than one fracture, include only the first fracture.<br>
+                  <b>Step 2</b><br>
+                  Test for Negative Diagnosis History. Exclude members who had either of the following during the 60-day (2 months) period prior to the IESD.
+                  <ul>
+                     <li>An outpatient visit (Outpatient Value Set), an observation visit (Observation Value Set) or an ED visit (ED Value Set) for a fracture (Fractures Value Set).</li>
+                     <li>
+                        Do not include ED visits or observation visits that result in an inpatient stay <b>(Inpatient Stay Value Set)</b>. When an ED or observation visit, and an inpatient stay are billed on separate claims, the visit results in an inpatient stay when the admission date for the inpatient stay occurs on the ED/observation date of service or one calendar day after. An ED or observation visit billed on the same claim as an inpatient stay is considered a visit that resulted in an inpatient stay.
+                     </li>
+                     <li>An acute or nonacute inpatient discharge for a fracture <b>(Fractures Value Set)</b>. To identify acute and nonacute inpatient discharges:</li>
+                     <ol>
+                        <li>Identify all acute and nonacute inpatient stays <b>(Inpatient Stay Value Set)</b>.</li>
+                        <li>Identify the discharge date for the stay.</li>
+                     </ol>
+                  </ul>
+                  <b>For an acute or nonacute inpatient IESD, use the IESD date of admission to determine the 60-day period.</b><br>
+                  For direct transfers, use the first admission to determine the Negative Diagnosis History.<br>
+                  <b>Step 3</b><br>
+                  Calculate continuous enrolment. Members must be continuously enrolled during the 12 months prior to the fracture through 180 days (6 months) post-fracture.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Census_Mart
+                           </td>
+                           <td data-label="Name">
+                              Member_id,admit_date
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 11">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days.<br>
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Male & female, 18 and older as of December 31st of the current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) <b>Continuous Enrolment</b><br>
+                  Data of discharge through 30 days after discharge The member only needs to be continuously enrolled on the date of discharge, through 30 days after discharge to be in the denominator.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  5) An acute or nonacute inpatient discharge on or between January 1 and December 1 of the measurement year. To identify acute and nonacute inpatient discharges:
+                  <ul>
+                     <li>Identify all acute and nonacute inpatient stays (Inpatient Stay Codes)</li>
+                     <li>Identify the discharge date for the stay</li>
+                  </ul>
+                  The denominator is based on discharges, not members. If members have more than one discharge, include all discharges on or between January 1 and December 1 of the measurement year.<br>
+                  <b>Readmission/Direct Transfer:</b><br>
+                  If a discharge is followed by a readmission or direct transfer to an acute or nonacute inpatient care facility on the date of discharge through the 30 days following discharge, count only the last discharge. (Meaning if a patient is transferred from the hospital to a SNF facility, the 30-day window to complete the medication reconciliation doesn’t start until the patient is discharged from the SNF.<br>
+                  <b>Note:</b> If a member remains in an acute or nonacute care setting through December 1 of the measurement year, a discharge is not included in the measure for this member, but the organization must have a method for identifying the member’s status for the remainder of the measurement year and may not assume the member remained admitted based only on the absence of discharge before December 1. If the organization is unable to confirm the member remained in the acute or nonacute care setting through December 1, disregard the readmission or direct transfer and use the initial discharge date
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, DRG_CODE, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4 ,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Census_Mart
+                           </td>
+                           <td data-label="Name">
+                              Member_id,discharge_date
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 12">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Males & Females, 66 years or older, the current year (January 1st to December 31st).
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) Medicare SNP (Special Needs Plan), MMP (Medicare-Medicaid Plan) members, Male & Female members, Age 66 years and older (Age 66 years and older as of December 31st of the current year).
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_A_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, ADMITTING_DIAGNOSIS, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, ADMITTING_DIAGNOSIS, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_B_Mart
+                           </td>
+                           <td data-label="Name">
+                              SubscriberID, PRINCIPAL_DIAGNOSIS, DIAGNOSIS_CODE_LIST, Date_From, Planname,Procedure-1,Procedure-2 ,Procedure-3 ,Procedure-4 ,ProcedureModifier-1,ProcedureModifier-2 ,ProcedureModifier-3,ProcedureModifier-4
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              Gateway_Claims_Mart
+                           </td>
+                           <td data-label="Name">
+                              DateOfServiceFrom, PrincipleDiag, DiagnosisCodeList, RosterSubscriberID, InsuranceCompany
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 13">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days, 1/1/2018 – 12/31/2018.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Male or female with age group more than 18 years.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) 18 Years and Older, with a statin medication fill during the current year. Formula - 12/31/2018 minus Fill Date (DATE_FILLED) multiplied by 80% equals the number of days in the year the prescription has to be filled in order for the patient to be compliant.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC_Number,folderdate
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 14">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days, 1/1/2018 – 12/31/2018.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Male or female with age group more than 18 years.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) 18 Years and Older, with a RAS medication fill during the current year <br>
+                  <b> Formula</b> – 12/31/2018 minus Fill Date multiplied by 80% equals the number of days in the year the prescription has to be filled in order for the patient to be compliant.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC_Number,folderdate
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div *ngIf="modalMeasureId == 15">
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <b>Steps for Denominator calculation:</b><br>
+                  1) Members has to be continuously enrolled for Current year and year prior to current year.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  2) Continuous Enrollment: Gap<=45 days, 1/1/2018 – 12/31/2018.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  3) Male or female with age group more than 18 years.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  4) 18 Years and Older, with a Diabetes medication fill during the current year  <br>
+                  <b> Formula</b> – 12/31/2018 minus Fill Date multiplied by 80% equals the number of days in the year the prescription has to be filled in order for the patient to be compliant.
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                     <thead>
+                        <tr>
+                           <th width="180">Table Considered</th>
+                           <th>Columns Considered</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr >
+                           <td data-label="S.No.">
+                              Member_Mart
+                           </td>
+                           <td data-label="Name">
+                              Timestamp, UniqueProviderId, SubscriberID, InsuranceCompany, Dateofbirth, Gender
+                           </td>
+                        </tr>
+                        <tr>
+                           <td data-label="S.No.">
+                              ServiceFund_Part_D_Mart
+                           </td>
+                           <td data-label="Name">
+                              Subscriber_id,NDC_Number,folderdate
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div class="form-group row">
+            <div class="col-md-12">
+               <b>Denominator Count= Total members count who fulfills above conditions.</b>
+            </div>
+         </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+   </div>
+   <!-- /.modal-content -->
+</div>
+<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<div bsModal #totalMemberModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog" [config]="{backdrop: 'static'}" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog" role="document">
+   <div class="modal-content">
+      <div class="modal-header">
+         <h4 class="modal-title">Total member details</h4>
+         <button type="button" class="close" (click)="totalMemberModal.hide()" aria-label="Close">
+         <span aria-hidden="true">&times;</span>
+         </button>
+      </div>
+      <div class="modal-body">
+         <div class="form-group row">
+            <div class="col-md-12">
+               Count of all the members under a particular Health Plan with
+               respect to the month and year of enrollment of a member
+            </div>
+         </div>
+         <div class="form-group row">
+            <div class="col-md-12">
+               <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                  <thead>
+                     <tr>
+                        <th width="180">Table Considered</th>
+                        <th>Columns Considered</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr >
+                        <td data-label="S.No.">
+                           Member_Mart
+                        </td>
+                        <td data-label="Name">
+                           Timestamp, UniqueProviderId, SubscriberId, InsuranceCompany
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+   </div>
+</div>
+</div>
+<div bsModal #HedisModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog" [config]="{backdrop: 'static'}" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog" role="document">
+   <div class="modal-content">
+      <div class="modal-header">
+         <h4 class="modal-title">HEDIS Eligible details</h4>
+         <button type="button" class="close" (click)="HedisModal.hide()" aria-label="Close">
+         <span aria-hidden="true">&times;</span>
+         </button>
+      </div>
+      <div class="modal-body">
+         <div class="form-group row">
+            <div class="col-md-12">
+               1) Count of all the members under a particular provider with respect to continuous enrollment.
+            </div>
+         </div>
+         <div class="form-group row">
+            <div class="col-md-12">
+               2) Difference between the enrollment dates of member with the help of ‘timestamp’ column is calculated to count the gaps between enrollment dates for last two years.
+            </div>
+         </div>
+         <div class="form-group row">
+            <div class="col-md-12">
+               3) If ,
+               Gap>=45 days, the member is not considered to be continuously enrolled.
+               Gap<45 days, member is considered to be continuously enrolled.
+            </div>
+         </div>
+         <div class="form-group row">
+            <div class="col-md-12">
+               <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                  <thead>
+                     <tr>
+                        <th width="180">Table Considered</th>
+                        <th>Columns Considered</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr >
+                        <td data-label="S.No.">
+                           Member_Mart
+                        </td>
+                        <td data-label="Name">
+                           Timestamp, UniqueProviderId, SubscriberId
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+   </div>
+   <!-- /.modal-content -->
+</div>
+<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

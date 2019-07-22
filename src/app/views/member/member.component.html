@@ -1,0 +1,186 @@
+<app-help class="d-none"></app-help>
+<div class="u-heading">
+<h2 style="top:8px" *ngIf="!subplans">Member Listing</h2>
+<h2 style="top:8px" *ngIf="subplans && plan == 0">Member Listing(SNP)</h2>
+<h2 style="top:8px" *ngIf="subplans && plan == 1">Member Listing(Non SNP)</h2>
+<div class="pull-right member-listing" style="margin-top:0px;">
+  <form action="" class="form-inline" autocomplete="off">
+   <label class="f-14 mx-1" >Search By</label>
+    <div class="form-group p-1 ">
+      <label class="sr-only" for="if-password">Category</label>
+      <select [(ngModel)]="search_category"  class="form-control col-12" id="select" name="gender">
+        <option [selected]="true" value="">Select category</option>
+        <option value="name">Member Name</option>
+        <option value="id">Subscriber Id</option>
+        <option value="dob">DOB</option>
+      </select>
+    </div>
+    <div class="form-group p-1">
+      <label class="sr-only" for="if-password">Search</label>
+      <input type="text" name ="search" [disabled]="!search_category" class="form-control col-12"  type="text" (keyup)="search_value(term.value)"  placeholder="Search.." #term>
+    </div> <i class="material-icons" (click)="search(term.value)">search</i></form>
+    <!-- <div class="u-search">
+      <input type="text" class="form-control" [(ngModel)]="params.membername" type="text" (keyup)="search()" placeholder="Search..">
+      <i class="fa fa-search"></i>
+    </div> -->
+    <!-- <input [(ngModel)]="search_text" type="text" (keyup)="search()"> -->
+  </div>
+</div>
+<!-- If user is coming from master insurance subplans -->
+<div class="filter-bar" *ngIf="subplans">
+  <div class="download-option mt-0"  *ngIf="member_list?.length">
+  <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Download Pdf</span></span>
+  <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span  class="download-text">Download Excel Sheet</span></span>
+</div>
+  <form action="" class="form-inline" autocomplete="off">
+    <select  [(ngModel)]="date.year" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2"  name="year" (change)="checkMonth(date.year)">
+      <option  value="">Select year</option>
+      <option [selected]="year == current_year" *ngFor="let year of years" [value]="year">{{year}}</option>
+      
+    </select>
+    <select [(ngModel)]="date.month"   class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2"  name="month" (change)="formatDate()">
+      <option  value="">Select Month</option>
+      <option  *ngFor="let month of months" [value]="month.value" >
+        {{ month.full }}
+      </option>
+      
+    </select>
+    <div class="form-group">
+      <button type="submit" class="btn btn-view-provider btn-sm ml-2 mr-1" (click)="getAllMembers(true)" ><span><i class="fa fa-eye"></i></span>View members</button>
+      <button *ngIf="!subplans" type="button" class="btn btn-reset btn-sm ml-1 mr-2" (click)="resetFilters()" ><span><i class="fa fa-refresh"></i></span>Reset</button>
+    </div>
+  </form>
+</div>
+<!-- Normal filter functionality -->
+<div class="filter-bar" *ngIf="!subplans">
+  <form action="" class="form-inline" autocomplete="off">
+    <div class="form-group">
+      <i class="fa fa-filter"></i>
+      <label for="inputPassword6" class="filter-label">Filter By</label>
+      
+    </div>
+    <div class="form-group col-1 mx-1 p-0">
+      <label class="sr-only" for="if-email">Age min</label>
+      <input  [(ngModel)]="params.agemin" class="form-control col-12" name="params_from" placeholder="Age min" type="number"  min="0" oninput="validity.valid||(value='');" (focusout)="checkMax(params.agemax)">
+    </div>
+    <div class="form-group col-1 mx-1 p-0">
+      <label class="sr-only" for="if-password">Age max</label>
+      <input  [(ngModel)]="params.agemax" class="form-control col-12" name="params_to" placeholder="Age max" type="number" [min]=params.agemin (focusout)="checkMax(params.agemax)">
+    </div>
+    <div class="form-group col-1 mx-1 p-0 ">
+      <label class="sr-only" for="if-password">Gender</label>
+      <select [(ngModel)]="params.gender" class="form-control col-12" id="select" name="gender">
+        <option [selected]="true" value="">Gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </div>
+    <div class="form-group col-1 mx-1 p-0" style="position: relative;padding: 0;" *ngIf="rolename!='provider'">
+      <input  [(ngModel)]="provider_name" (keyup)="searchProvider()" class="form-control col-12" name="provider_name" placeholder="Search Provider" type="text" required style="width:100%" >
+      <div  *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="left: auto;">
+        <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+        <div *ngFor="let member of members">
+          <a *ngIf="member.FirstName" href="javascript:void(0)"  (click)="getInsurance(member)"  class="dropdown-item" >
+            {{member.FirstName}} {{member.LastName}}
+            <span *ngIf="member.email"> | {{member.email}} </span>
+          </a>
+        </div>
+      </div>
+      <div  *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+        <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+        <div >
+          <a  href="javascript:void(0)"   class="dropdown-item" >
+            No provider found
+          </a>
+        </div>
+      </div>
+      <!-- <p style="color:red;position:absolute" *ngIf="insurance_list?.length ==0 ">No healthplan associated with this provider</p> -->
+    </div>
+    <div class="form-group col-1 mx-1 p-0" *ngIf="insurance_list?.length >0" (change)="getAllIPA()">
+      <label class="sr-only" for="if-password">Healthplan</label>
+      <select [(ngModel)]="params.healthplan_id"    class="form-control col-12"  name="insurance">
+        <option [selected]="true" value="">Healthplan</option>
+        <option *ngFor="let insurance of insurance_list" [value]="insurance.healthplan_id">
+          {{ insurance.health_Name }}
+        </option>
+      </select>
+    </div>
+    <div class="form-group col-2 mx-1 p-0" *ngIf="ipa_list?.length >0 && rolename!='healthplan'">
+      <label class="sr-only" for="if-password">ipa</label>
+      
+      <select  [(ngModel)]="params.IPA_ID"   class="form-control col-12"  name="ipa" (change)="showDates = true">
+        <option [selected]="true" value="">Select IPA</option>
+        <option *ngFor="let ipa of ipa_list" [value]="ipa.IPA_ID">
+          {{ ipa.IPA_Name }}
+        </option>
+      </select>
+    </div>
+    <select  [(ngModel)]="date.year" class="form-control col-1 mx-1"  name="year" (change)="checkMonth(date.year)">
+      <option [selected]="true" value="">Select year</option>
+      <option *ngFor="let year of years" [value]="year">{{year}}</option>
+      
+    </select>
+    <select  [(ngModel)]="date.month"   class="form-control col-1 mx-1"  name="month" (change)="formatDate()">
+      <option [selected]="true" value="">Select Month</option>
+      <option *ngFor="let month of months" [value]="month.value" >
+        {{ month.full }}
+      </option>
+      
+    </select>
+    <div class="form-group">
+      <button type="submit" class="btn btn-view-provider btn-sm ml-2 mr-1" (click)="getAllMembers(true)" ><span><i class="fa fa-eye"></i></span>View members</button>
+      <button type="button" class="btn btn-reset btn-sm ml-1 mr-2" (click)="resetFilters()" ><span><i class="fa fa-refresh"></i></span>Reset</button>
+    </div>
+    
+    
+  </form>
+</div>
+<div class="custom-container">
+  <div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob blur">
+    <thead>
+      <tr>
+        <th >S.No.</th>
+        <th >Member Name</th>
+        <!-- <th >Provider Name</th> -->
+        <th>Subscriber ID</th>
+        <th>Gender</th>
+        <th>Age</th>
+        <th>DOB</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let member of member_list; let i = 'index'">
+        <td data-label="S.No." *ngIf="page == 1">{{i+1}}</td>
+        <td  data-label="S.No."*ngIf="page > 1">{{(i+1)+(page-1)*params.pageSize}}</td>
+        <td data-label="Member Name" class="text-capitalize">{{member.lastname?.toLowerCase()}}, {{member.firstname?.toLowerCase()}}</td>
+         <!-- {{member.midname?.toLowerCase()}}  -->
+        <!-- <td data-label="Provider Name" class="text-capitalize">{{member.providername?.toLowerCase()}}</td> -->
+        <td data-label="Subscriber ID"> {{member.subscriberid}}</td>
+        <td data-label="Gender">{{member.gender?.toLowerCase()}}</td>
+        <td data-label="Age">{{calculateAge(member.dob)}}</td>
+        <td data-label="DOB">{{member.dob | date}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <nav *ngIf="total_pages > 15" aria-label="Page navigation example" style="    margin-top: 25px;">
+    <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+      <li class="page-item">
+        <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1" (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+          <span class="sr-only">Previous</span>
+        </a>
+      </li>
+      <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item">
+        <a href="javascript:void(0)" (click)="loadByPage(p)" class="page-link">{{p}}</a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="javascript:void(0)" [class.disabled]="page === total_pages" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+          <span class="sr-only">Next</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <!--   <button type="submit" class="btn btn-primary btn-sm" (click)="getProviderMembers()" >View members</button> -->
+</div>

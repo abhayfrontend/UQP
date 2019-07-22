@@ -1,0 +1,220 @@
+<!-- <app-help class="d-none"></app-help>
+<div class="u-heading">
+<h2>Select User Role </h2>
+<div class="select-user-role">
+  <select  class="form-control form-control-sm"  name="user-role"  (change)="getFunctions($event.target.value)">
+    <option  value="">User Role</option>
+    <option [selected]="role.User_Role_ID == 1" *ngFor="let role of user_role" [value]="role.User_Role_ID" [label]="role.User_Role_Name">
+      {{ role.User_Role_Name }}
+    </option>
+  </select>
+</div>
+
+</div>
+<div class="custom-container">
+<accordion [closeOthers]="true" class="table-bg">
+  <accordion-group *ngFor="let fn of functions; let i = 'index'" [isOpen]="i==0">
+    <div accordion-heading class="clearfix">
+      <strong>{{fn.categoryname}}</strong>
+      <span class="float-right pull-right"><i class="icon-arrow-down icons font-1xl d-block mt-1"></i></span>
+    </div>
+    <table class="table table-hover bg-white mob acm-table">
+      <thead>
+        <tr>
+          <th >Function Name</th>
+          <th>Add</th>
+          <th >View</th>
+          <th>Edit</th>
+          
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let acl of fn.customeraclfunction;  let j = 'index'">
+          <td data-label="Function Name"> &nbsp;
+            <div class="select-function">{{acl.functionname}} </div><span  *ngIf="acl.functionname == 'Provider Management'" ><span *ngIf="acl.acladd || acl.aclview || acl.acledit"><a href="javascript:void(0)" (click)="getColumns(acl)" >Manage <b>{{acl.functionname}}</b> columns</a></span></span>
+          </td>
+          <td data-label="Add">
+            <div> &nbsp;<input [(ngModel)]="acl.acladd" (click)="toggleTickAdd(acl,i,j)" name="inline-checkbox1" type="checkbox" value="option1"></div>
+
+          </td>
+          <td data-label="View">
+            <div> &nbsp;<input [(ngModel)]="acl.aclview" name="inline-checkbox1" type="checkbox" value="option1"></div>
+          </td>
+          
+          <td data-label="Edit"> &nbsp;
+            <input  [(ngModel)]="acl.acledit" (click)="toggleTickEdit(acl,i,j)" name="inline-checkbox1" type="checkbox" value="option1">
+          </td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </accordion-group>
+</accordion>
+<div *ngIf="functions" class="save-cancel-btn">
+  <button (click)="showPwdModal()" class="btn btn-success" type="button"><i class="fa fa-check"></i>&nbsp; Save</button>
+
+</div></div>-->
+
+
+
+
+
+<div bsModal #pwdModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog" [config]="{backdrop: 'static'}" aria-labelledby="userModalLabel" aria-hidden="true">
+<div class="modal-dialog" role="document">
+   <div class="modal-content">
+      <div class="modal-header">
+         
+        
+         <h4  class="modal-title">Enter Password</h4>
+         <button type="button" class="close" (click)="pwdModal.hide()" aria-label="Close">
+         <span aria-hidden="true">&times;</span>
+         </button>
+         
+      </div>
+      <div class="modal-body">
+         <form action="" class="form-horizontal" #UserRole="ngForm" autocomplete="off">
+
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <label>Are you sure, you want to change the ACL</label>
+                 
+               
+               </div>
+            </div>
+            <div class="form-group row">
+               <div class="col-md-12">
+                 
+                  <button (click)="verifypwd()" type="submit" class="btn btn-success">&nbsp;Yes</button>
+                  <button (click)="close()" type="submit" class="btn btn-danger">No</button>
+               </div>
+            </div>
+         </form>
+      </div>
+      <div class="modal-footer">
+      </div>
+   </div>
+ 
+</div>
+
+</div>
+
+
+
+
+
+
+
+ <app-help class="d-none"></app-help>
+<div class="u-heading">
+<h2>Select User Role </h2>
+<div class="select-user-role">
+  <!-- getFunctions($event.target.selectedOptions[0].label) -->
+  <select  class="form-control form-control-sm"  name="user-role"  (change)="getFunctions($event.target.value)">
+    <option  value="">User Role</option>
+    <option [selected]="role.User_Role_ID == 1" *ngFor="let role of user_role" [value]="role.User_Role_ID" [label]="role.User_Role_Name">
+      {{ role.User_Role_Name }}
+    </option>
+  </select>
+</div>
+<!--       <div class="pull-right">
+  <button class="btn btn-outline-secondary add-new-btn" type="button">Add New User Role<i class="fa fa-plus"></i></button>
+</div>  -->
+</div>
+<div class="custom-container">
+<accordion [closeOthers]="true" class="table-bg">
+  <accordion-group *ngFor="let fn of functions; let i = 'index'" [isOpen]="i==0">
+    <div accordion-heading class="clearfix">
+      <strong>{{fn.categoryname}}</strong>
+      <span class="float-right pull-right"><i class="icon-arrow-down icons font-1xl d-block mt-1"></i></span>
+    </div>
+    <table class="table table-hover bg-white mob acm-table">
+      <thead>
+        <tr>
+          <th >Function Name</th>
+          <th>Add</th>
+          <th >View</th>
+          <th>Edit</th>
+          
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let acl of fn.customeraclfunction;  let j = 'index'">
+          <td data-label="Function Name"> &nbsp;
+            <div class="select-function">{{acl.functionname}} </div><span  *ngIf="acl.functionname == 'Provider Management'" ><span *ngIf="acl.acladd || acl.aclview || acl.acledit"><a href="javascript:void(0)" (click)="getColumns(acl)" >Manage <b>{{acl.functionname}}</b> columns</a></span></span>
+          </td>
+          <td data-label="Add">
+            <div> &nbsp;<input [(ngModel)]="acl.acladd" (click)="toggleTickAdd(acl,i,j,acl)" name="inline-checkbox1" type="checkbox" value="option1"></div>
+            <!-- <div class="small text-muted">
+              <span>New</span> | Registered: Jan 1, 2015
+            </div> -->
+          </td>
+          <td data-label="View">
+            <div> &nbsp;<input [(ngModel)]="acl.aclview" (click)="aclChange(acl)" name="inline-checkbox1" type="checkbox" value="option1"></div>
+          </td>
+          
+          <td data-label="Edit"> &nbsp;
+            <input  [(ngModel)]="acl.acledit" (click)="toggleTickEdit(acl,i,j,acl)" name="inline-checkbox1" type="checkbox" value="option1">
+          </td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </accordion-group>
+</accordion>
+<div *ngIf="functions" class="save-cancel-btn">
+  <button (click)="showPwdModal('savemain')" class="btn btn-success" type="button"><i class="fa fa-check"></i>&nbsp; Save</button>
+  <!-- <button class="btn btn-danger" type="button"><i class="fa fa-close"></i>&nbsp; Cancel</button>
+</div>  -->
+</div></div>
+<!-- <div class="add-funtion-btn">
+<span class="add-icon"><i _ngcontent-c0="" class="fa fa-plus"></i></span>
+<span class="add-icon-text">Add Funtions</span>
+</div>
+-->
+<div bsModal #aclModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog" [config]="{backdrop: 'static'}" aria-labelledby="aclModalLabel" aria-hidden="true">
+<div class="modal-dialog" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      
+      <h4  class="modal-title">{{functionName}}</h4>
+      
+      <button type="button" class="close" (click)="aclModal.hide()" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+      </button>
+      
+    </div>
+    <div class="modal-body">
+      <table class="table table-hover bg-white mob acm-table">
+        <thead>
+          <tr>
+            <th >Function Name</th>
+            
+            <th >View</th>
+            
+            
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let acl of functionColumns;  let j = 'index'">
+            <td data-label="Function Name"> &nbsp;
+              <div class="select-function">{{acl.column_name}} </div>
+            </td>
+            
+            <td data-label="View">
+              <div> &nbsp;<input [(ngModel)]="acl.viewstatus" name="inline-checkbox1" type="checkbox" value="option1"></div>
+            </td>
+            
+            
+          </tr>
+          
+        </tbody>
+      </table>
+      <button (click)="showPwdModal('columns')" class="btn btn-success" type="button"><i class="fa fa-check"></i>&nbsp; Save</button>
+    </div>
+    
+  </div>
+  <!-- /.modal-content -->
+</div>
+<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

@@ -1,0 +1,74 @@
+<header class="app-header navbar">
+  <button class="navbar-toggler d-lg-none" type="button" appMobileSidebarToggler>
+  <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand"  href="#"></a>
+  <button class="navbar-toggler d-md-down-none" type="button" appSidebarMinimizer appBrandMinimizer>
+  <span class="navbar-toggler-icon"></span>
+  </button>
+  <span class="refresh-date">Last Refresh Date : {{refresh_date | date}} </span>
+  <!-- <ul class="nav navbar-nav d-md-down-none">
+        <li class="nav-item px-3">
+      <a class="nav-link" href="#">Dashboard</a>
+    </li>
+    <li class="nav-item px-3">
+      <a class="nav-link" href="#">Users</a>
+    </li>
+    <li class="nav-item px-3">
+      <a class="nav-link" href="#">Settings</a>
+    </li>
+  </ul> -->
+  <ul class="nav navbar-nav ml-auto">
+    <li class="nav-item d-md-down-none"  dropdown >
+      <a id="button-basic" dropdownToggle class="nav-link" aria-controls="dropdown-basic" (click)="getNotification(false)"><i class="icon-bell"></i><span *ngIf="unreadCount > 0" class="badge badge-pill badge-danger">{{unreadCount}}</span></a>
+      <!-- <span *ngIf="unreadCount > 0" class="heartbit"></span> -->
+      <div id="dropdown-basic" *dropdownMenu class="dropdown-menu dropdown-menu-right "
+        role="menu" aria-labelledby="button-basic" >
+        <div *ngIf="notif.length == 0" class="dropdown-header text-center"><strong>You have no notifications</strong></div>
+        <div *ngIf="notif.length > 0" class="dropdown-header text-center"><strong>You have {{unreadCount}} unread notifications</strong></div>
+        <a class="dropdown-item" *ngFor="let n of notif"  [ngClass]="{'unreadNotif' : !n.Notification_Role[0]?.ReadStatus}" >
+          <div class="message">
+            
+            <div class="ml-3 float-right" (click)="readStatus(n.Notification_Role[0])">
+              <i class="material-icons" [ngClass]="{'text-success' : n.Notification_Role[0]?.ReadStatus}" title="Mark as read">
+              done
+              </i>
+            </div>
+            <div class="text-truncate font-weight-bold notif-title">{{n.Notification_Name}}</div>
+            <div *ngIf="n?.venuedetails"><small class="text-muted ">Venue: <b>{{n.venuedetails}}</b> </small><small class="text-muted"> | {{n.eventdate  | date}}</small></div>
+            <div class="small text-muted text-truncate notif-desc">{{n.Notification_Description}}</div>
+            <div class="extra-details hide" *ngIf="n?.NotificationDocuments?.length > 0">
+              <div class="attachment-list">
+                     <div>Attachments</div>
+                     <ul>
+                      <li *ngFor="let d of n?.NotificationDocuments; let i = 'index';"><small class="text-muted ">{{d.Filename}} </small><a target="_blank" [href]="CONTENT_BASE+d.Filepath+'/'+d.Filename"><i class="fa fa-file-pdf-o text-danger pl-2"></i></a></li>
+                      
+                     </ul>
+                  </div>
+            </div>
+          </div>
+        </a>
+        <!-- <a class="dropdown-item text-center" href="#"><strong>View all notifications</strong></a> -->
+      </div>
+    </li>
+    <li class="nav-item d-md-down-none">
+      <a class="nav-link" href="javascript:void(0)" (click)="getRoutes()"><i class="icon-question"></i></a>
+    </li>
+    <!--     <li class="nav-item d-md-down-none">
+      <a class="nav-link" href="#"><i class="icon-list"></i></a>
+    </li> -->
+    <!-- <li class="nav-item d-md-down-none">
+      <a class="nav-link" href="#"><i class="icon-location-pin"></i></a>
+    </li> -->
+    <li class="nav-item dropdown" dropdown placement="bottom right">
+      <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"  (click)="storeAsideName('profile')" appAsideMenuToggler style="padding-left:15px;">
+        <i class="fa fa-user user-icon"></i>
+        <!-- <img src="assets/img/avatars/8.jpg" class="img-avatar" alt="admin@bootstrapmaster.com"/> -->
+        <span *ngIf="user?.name" class="f-14 pr-4 text-capitalize"><b>{{user?.name}}</b></span>
+      </a>
+    </li>
+    <!-- <button class="navbar-toggler d-md-down-none" type="button" appAsideMenuToggler>
+    <span class="navbar-toggler-icon"></span>
+    </button> -->
+  </ul>
+</header>

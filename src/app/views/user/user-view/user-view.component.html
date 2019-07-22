@@ -1,0 +1,317 @@
+<app-help class="d-none"></app-help>
+<div class="u-heading underline-style" *ngIf="user_profile">
+   <h2 class="text-capitalize">{{user_profile?.User_FirstName}} {{user_profile?.User_MiddleName}}
+      {{user_profile?.User_LastName}}</h2>
+   <!--
+   <div class="pull-right"><button class="btn btn-outline-secondary edit-new-btn" type="button">Edit Measure<i class="fa fa-edit"></i></button></div>  -->
+</div>
+<div class="custom-container">
+   <div class="User-Profile" *ngIf="user_profile">
+      <div class="">
+         <div class="row">
+            <div class="col-sm-6 col-md-2 p-1">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right">
+                        <i class="icon-people icon orange-bg"></i>
+                     </div>
+                     <div class="h4 mb-0">User Type</div>
+                     <div class="progress progress-xs mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar"
+                           role="progressbar" style="background-color:#ed5724;width:17%; "></div>
+                     </div>
+                     <div class="perc_change mt-1"> {{user_profile?.User_Type?.User_Type_Name}}</div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-6 col-md-2 p-1">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right">
+                        <i class="icon-user icons gold-bg"></i>
+                     </div>
+                     <div class="h4 mb-0">User Role</div>
+                     <div class="progress progress-xs mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar"
+                           role="progressbar" style="background-color:#efb818;width:17%; "></div>
+                     </div>
+                     <div class="perc_change mt-1">{{user_profile?.User_Role?.User_Role_Name}}</div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-6 col-md-2 p-1">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right">
+                        <i class="icon-people icons blue-bg"></i>
+                     </div>
+                     <div class="h4 mb-0">Name</div>
+                     <div class="progress progress-xs mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar"
+                           role="progressbar" style="background-color:#293b6e;width:17%; "></div>
+                     </div>
+                     <div class="perc_change mt-1">{{user_profile?.User_FirstName}} {{user_profile?.User_MiddleName}}
+                        {{user_profile?.User_LastName}}</div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-6 col-md-2 p-1">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right">
+                        <i class="fa fa-venus-mars icons green-bg"></i>
+                     </div>
+                     <div class="h4 mb-0">Gender</div>
+                     <div class="progress progress-xs mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar"
+                           role="progressbar" style="background-color:#317d3d;width:17%; "></div>
+                     </div>
+                     <div class="perc_change mt-1">{{user_profile?.User_Gender}}</div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-6 col-md-2 p-1">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right">
+                        <i class="fa fa-calendar icons silver-bg"></i>
+
+                     </div>
+                     <div class="h4 mb-0">Date of Birth</div>
+                     <div class="progress progress-xs mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar"
+                           role="progressbar" style="background-color:#b0bec5;width:17%; "></div>
+                     </div>
+                     <div class="perc_change mt-1">{{user_profile?.User_DOB | date}}</div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-6 col-md-2 p-1">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right">
+                        <i class="fa fa-envelope-o icons light-green-bg"></i>
+                     </div>
+                     <div class="h4 mb-0">Email Address</div>
+                     <div class="progress progress-xs mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar"
+                           role="progressbar" style="background-color:#62ad69;width:17%; "></div>
+                     </div>
+                     <div class="perc_change mt-1 text-lowercase">{{user_profile?.User_Email}}</div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-6 col-md-3 p-1">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right">
+                        <i class="icon-briefcase icons red-bg"></i>
+                     </div>
+                     <div class="h4 mb-0">Office Type</div>
+                     <div class="progress progress-xs mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar"
+                           role="progressbar" style="background-color:#b32100;width:17%; "></div>
+                     </div>
+                     <div class="perc_change mt-1">{{user_profile?.OfficeType}}</div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-6 col-md-3 p-1">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right">
+                        <i class="icon-phone icons dark-bg "></i>
+                     </div>
+                     <div class="h4 mb-0">Mobile No.</div>
+                     <div class="progress progress-xs mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar"
+                           role="progressbar" style="background-color:#333;width:17%; "></div>
+                     </div>
+                     <div class="perc_change mt-1"> {{user_profile?.User_MobileNumber}}</div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-sm-6 col-md-3 p-1">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right">
+                        <i class="icon-phone icons light-blue-bg"></i>
+                     </div>
+                     <div class="h4 mb-0">Alternate No.</div>
+                     <div class="progress progress-xs mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar"
+                           role="progressbar" style="background-color:#58659d;width:17%; "></div>
+                     </div>
+                     <div class="perc_change mt-1">{{user_profile?.User_WorkNumber}}</div>
+                  </div>
+               </div>
+            </div>
+
+            <div class="col-sm-6 col-md-3 p-1">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="h1 text-muted text-right">
+                        <i class="icon-location-pin icons light-ornage-bg"></i>
+                     </div>
+                     <div class="h4 mb-0">Address</div>
+                     <div class="progress progress-xs mb-0">
+                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar"
+                           role="progressbar" style="background-color:#ff8951;width:17%; "></div>
+                     </div>
+                     <div class="perc_change mt-1">{{user_profile?.User_Address}}</div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!--User-Profile-->
+   <div class="user-view-provider-bx" *ngIf="user_profile?.ipa?.length">
+      <div class="row">
+         <div class="col-sm-6 col-md-6">
+            <div class="info-box">
+               <span class="info-box-icon bg-danger">
+                  <i class="fa fa-user-md"></i>
+               </span>
+               <div class="info-box-content">
+                  <span class="info-box-text">Provider Level</span>
+                  <span class="info-box-number">bgfbgfb</span>
+               </div>
+               <!-- /.info-box-content -->
+            </div>
+         </div>
+         <div class="col-sm-6 col-md-6">
+            <div class="info-box">
+               <span class="info-box-icon bg-warning">
+                  <i class="fa fa-balance-scale"></i>
+               </span>
+               <div class="info-box-content">
+                  <span class="info-box-text">Additional Info</span>
+                  <span class="info-box-number">12</span>
+               </div>
+               <!-- /.info-box-content -->
+            </div>
+         </div>
+      </div>
+      <div class="user-view-block">
+         <div class="row">
+            <div class="col-sm-6 col-lg-12" *ngIf="user_profile?.ipa?.length">
+               <div class="card pr-block">
+                  <div class="card-body">
+                     <div class="h4 m-0">IPA</div>
+                     <div class="progress progress-xs">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="25"
+                           aria-valuemin="0" aria-valuemax="100"></div>
+                     </div>
+                     <ul>
+                        <li *ngFor="let name of user_profile?.ipa">
+                           <small>{{name.IPA_Name}}</small>
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+            <!--/.col-->
+            <div class="col-sm-6 col-lg-12" *ngIf="user_profile?.group?.length">
+               <div class="card pr-block">
+                  <div class="card-body">
+                     <div class="h4 m-0">Group</div>
+                     <div class="progress progress-xs">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 100%" aria-valuenow="25"
+                           aria-valuemin="0" aria-valuemax="100"></div>
+                     </div>
+                     <ul>
+                        <li *ngFor="let name of user_profile?.group">
+                           <small>{{name.groupname}}</small>
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+            <!--/.col-->
+            <div class="col-sm-6 col-lg-12" *ngIf="user_profile?.insurance?.length">
+               <div class="card pr-block">
+                  <div class="card-body">
+                     <div class="h4 m-0">Insurance</div>
+                     <div class="progress progress-xs">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 100%" aria-valuenow="25"
+                           aria-valuemin="0" aria-valuemax="100"></div>
+                     </div>
+                     <ul>
+                        <li *ngFor="let name of user_profile?.insurance">
+                           <small>{{name.Insurance_Name}}</small>
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+            <!--/.col-->
+            <div class="col-sm-6 col-lg-12" *ngIf="user_profile?.healthplan?.length">
+               <div class="card pr-block">
+                  <div class="card-body">
+                     <div class="h4 m-0">Health Plans</div>
+                     <div class="progress progress-xs">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 100%" aria-valuenow="25"
+                           aria-valuemin="0" aria-valuemax="100"></div>
+                     </div>
+                     <ul>
+                        <li *ngFor="let name of user_profile?.healthplan?.slice(0,6)">
+                           <small>{{name.health_Name}}</small>
+                        </li>
+                     </ul>
+                     <p class="text-center" style="margin-top:10px;margin-bottom:0">
+                        <a href="javascript:void(0)" data-toggle="modal" (click)="userModal.show();test()">View More</a>
+                     </p>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <!--/.col-->
+      </div>
+   </div>
+   <!--provider-bx-->
+   <div *ngIf="user_profile?.AssignedProviders?.length>0">
+      <div>
+         <div class="card pr-block">
+            <div class="card-body" style="min-height:inherit;">
+               <div class="h4 m-0">Assigned Providers</div>
+               <div class="progress progress-xs my-3">
+                  <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="25"
+                     aria-valuemin="0" aria-valuemax="100"></div>
+               </div>
+               <ul class="provider-bx">
+                  <li *ngFor="let name of user_profile.AssignedProviders"><small class="text-muted">{{name.FirstName}}
+                        {{name.MidName}} {{name.LastName}}</small></li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div bsModal #userModal="bs-modal" class="modal fade u-modal " tabindex="-1" role="dialog"
+      aria-labelledby="userModalLabel" [config]="{backdrop: 'static'}" aria-hidden="true">
+      <div class="modal-dialog" role="document" style="max-width: 923px;
+         top: 50px;">
+         <div class="modal-content">
+            <div class="modal-header">
+               <h4 class="modal-title">HEALTH PLANS</h4>
+               <button type="button" class="close" (click)="userModal.hide()" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+               </button>
+               <!-- <button type="button" class="close" (click)="userModal.hide()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+               -->
+            </div>
+            <div class="modal-body">
+               <ul class="provider-bx modal-li">
+                  <li *ngFor="let name of user_profile?.healthplan">
+                     <small class="text-muted">{{name.health_Name}}</small>
+                  </li>
+               </ul>
+               <!--     <button type="button" class="btn btn-danger" (click)="userModal.hide()"><i class="fa fa-times"></i>&nbsp;Close</button> -->
+            </div>
+            <div class="modal-footer"></div>
+         </div>
+         <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+   </div>
+</div>

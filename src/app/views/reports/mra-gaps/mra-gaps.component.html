@@ -1,0 +1,181 @@
+<app-help class="d-none"></app-help>
+<div class="u-heading">
+<h2 style="top:8px">MRA Gaps</h2>
+<div class="pull-right member-listing" style="margin-top:0px;">
+  <form action="" class="form-inline" autocomplete="off">
+    <i class="material-icons">search</i><label class="f-14 mx-1" >Search By</label>
+    <div class="form-group p-1 ">
+      <label class="sr-only" for="if-password">Category</label>
+      <select [(ngModel)]="search_category"  class="form-control col-12" id="select" name="gender">
+        <option [selected]="true" value="">Select category</option>
+        <option value="name">Member Name</option>
+        <option value="id">Subscriber Id</option>
+         <option value="dob">DOB</option>
+      </select>
+    </div>
+    <div class="form-group p-1">
+      <label class="sr-only" for="if-password">Search</label>
+      <input type="text" name ="search" [disabled]="!search_category" class="form-control col-12"  type="text" (keyup)="search(term.value)" placeholder="Search.." #term>
+    </div></form>
+  </div>
+<!-- <div class="pull-right member-listing" style="margin-top:0px;">
+   <form action="" class="form-inline" autocomplete="off">
+      <div class="form-check my-2 mr-sm-2" *ngIf="rolename =='qa'">
+          <input [(ngModel)]="showAllGaps" name="assuranceid" id="inlineFormCheck" type="checkbox" value="assuranceid" (change)="getAllMembers(true)">
+          <label class="form-check-label f-14" for="inlineFormCheck">
+            Submit by all
+          </label>
+      </div>
+
+      <i class="material-icons">search</i><label class="f-14 mx-1" >Search By</label>
+      <div class="form-group p-1 ">
+         <label class="sr-only" for="if-password">Category</label>
+         <select [(ngModel)]="search_category"  class="form-control col-12" id="select" name="gender">
+            <option [selected]="true" value="">Select category</option>
+            <option value="name">Member Name</option>
+            <option value="id">Subscriber Id</option>
+         </select>
+      </div>
+      <div class="form-group p-1">
+         <label class="sr-only" for="if-password">Search</label>
+         <input type="text" name ="search" [disabled]="!search_category" class="form-control col-12"  type="text" (keyup)="search(term.value)" placeholder="Search.." #term>
+      </div>
+   </form>
+   </div> -->
+</div>
+<div class="filter-bar">
+   <div class="download-option mt-0"  *ngIf="member_list?.length">
+      <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Download Pdf</span></span>
+      <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span  class="download-text">Download Excel Sheet</span></span>
+   </div>
+   <form action="" class="form-inline" autocomplete="off">
+      <angular2-multiselect name="items"  [data]="dropdownList" [(ngModel)]="selectedItems"
+         [settings]="dropdownSettings"
+         (onSelect)="onItemSelect($event)"
+         (onDeSelect)="OnItemDeSelect($event)"
+         (onSelectAll)="onSelectAll($event)"
+      (onDeSelectAll)="onDeSelectAll($event)"></angular2-multiselect>
+      <div class="form-group  p-0 mr-sm-2" *ngIf="insurance_list?.length >0">
+         <label class="sr-only" for="if-password">Healthplan</label>
+         <select [(ngModel)]="params.healthplanid"    class="form-control col-12"  name="insurance" (change)="healthplanName=$event.target.selectedOptions[0].label">
+            <option [selected]="true" value="">Healthplan</option>
+            <option *ngFor="let insurance of insurance_list" [value]="insurance.healthplan_id"  [label]="insurance.health_Name">
+               {{ insurance.health_Name }}
+            </option>
+            <option value="0" *ngIf="insurance_list?.length > 1">All</option>
+         </select>
+      </div>
+
+<div class="form-group  p-0 mr-sm-2" style="position: relative;padding: 0;" *ngIf="rolename!='provider'">
+    <input  [(ngModel)]="provider_name" (keyup)="searchProvider()" class="form-control col-12" name="provider_name" placeholder="Search Provider" type="text" required style="width:100%" >
+    <div  *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="left: auto;">
+
+      <div *ngFor="let member of members">
+        <a *ngIf="member.FirstName" href="javascript:void(0)"  (click)="getInsurance(member)"  class="dropdown-item" >
+          {{member.LastName}} {{member.FirstName}} 
+          <span *ngIf="member.email"> | {{member.email}} </span>
+        </a>
+      </div>
+    </div>
+    <div  *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+
+      <div >
+        <a  href="javascript:void(0)"   class="dropdown-item" >
+          No provider found
+        </a>
+      </div>
+    </div>
+  </div>
+
+<!--   <select [(ngModel)]="params.month"   class="form-control mb-2 mr-sm-2 mb-sm-0"  name="month" >
+    <option  value="">Select Month</option>
+    <option  *ngFor="let month of months" [value]="month.value" >
+      {{ month.full }}
+    </option>
+  </select> -->
+
+      <select  [(ngModel)]="params.year" class="form-control mb-2 mr-sm-2 mb-sm-0 "  name="year">
+         <option  value="">Select year</option>
+         <option [selected]="year == current_year" *ngFor="let year of years" [value]="year">{{year}}</option>
+      </select>
+
+
+            <select [(ngModel)]="params.gapstatus" class="form-control mb-2 mr-sm-2 mb-sm-0" id="select" name="status">
+         <option [selected]="true" value="" >Status</option>
+         <option value="true">Active</option>
+         <option value="false">Inactive</option>
+         <option value="">All</option>
+      </select>
+      <div class="form-group">
+         <button type="submit" class="btn btn-primary btn-sm ml-2 mr-1" (click)="getAllMembers(true)" ><span><i class="fa fa-user"></i></span>View members</button>
+         <button type="button" class="btn btn-reset btn-sm ml-1 mr-2" (click)="resetFilters()" ><span><i class="fa fa-refresh"></i>
+         </span>Reset</button>
+      </div>
+   </form>
+</div>
+<nav *ngIf="total_pages>15" aria-label="Page navigation example" class="top-paging">
+<ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+  <li class="page-item  mr-2">
+    <a class="page-link" href="javascript:void(0)" *ngIf="page !== 1" [class.disabled]="page === 1" (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+      <!-- <i class="fa fa-arrow-circle-left" aria-hidden="true"></i> -->
+      <i class="fa fa-angle-left" aria-hidden="true"></i>
+    </a>
+  </li>
+
+  <li class="page-item">
+    <a class="page-link" href="javascript:void(0)" *ngIf="pager.currentPage !== pager.total_pages" [class.disabled]="next_page === 'total_pages'" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+      <i class="fa fa-angle-right" aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+</nav> 
+<div class="custom-container">
+   <div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+   <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob report-table mob blur">
+      <thead>
+         <tr>
+            <th >S.No.</th>
+            <th>Member Name</th>
+            <th>Provider Name</th>
+            <th>Healthplan Name</th>
+            <th>Missing Condition</th>
+            <th>Subscriber ID</th>
+            <th>DOB</th>
+            <th>Status</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr *ngFor="let member of member_list; let i = 'index'">
+            <td data-label="S.No." *ngIf="page == 1">{{i+1}}</td>
+            <td  data-label="S.No." *ngIf="page > 1">{{(i+1)+(page-1)*params.pageSize}}</td>
+            <td data-label="Member Name">{{member.SubscriberLastName?.toLowerCase()}}, {{member.SubscriberFirstName?.toLowerCase()}} </td>
+			<td data-label="Provider Name">Dr. {{member.providerlastname?.toLowerCase()}}, {{member.providerfirstname?.toLowerCase()}} </td>
+            <td data-label="Healthplan Name">{{member.HealthPlanName?.toLowerCase()}}</td>
+			<td data-label="Healthplan Name">{{member.HCCcategoryDescription?.toLowerCase()}}</td>
+            <td data-label="Subscriber ID">{{member.RosterSubscriberid}}</td>
+            <td data-label="Age">{{member.DOB | date:'mediumDate'}}</td>
+			<td data-label="Status" *ngIf="member.Status == true">Active</td>
+			<td data-label="Status" *ngIf="member.Status == false">Inactive</td>
+         </tr>
+      </tbody>
+   </table>
+   <nav *ngIf="total_pages > 15" aria-label="Page navigation example" style="    margin-top: 25px;">
+      <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+         <li class="page-item">
+            <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1" (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+               <span aria-hidden="true">&laquo;</span>
+               <span class="sr-only">Previous</span>
+            </a>
+         </li>
+         <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item">
+            <a href="javascript:void(0)" (click)="loadByPage(p)" class="page-link">{{p}}</a>
+         </li>
+         <li class="page-item">
+            <a class="page-link" href="javascript:void(0)" [class.disabled]="page === total_pages" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+               <span aria-hidden="true">&raquo;</span>
+               <span class="sr-only">Next</span>
+            </a>
+         </li>
+      </ul>
+   </nav>
+</div>

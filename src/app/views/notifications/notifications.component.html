@@ -1,0 +1,356 @@
+<app-help class="d-none"></app-help>
+<!-- <div *ngIf="spinner" class="loading">Loading&#8230;</div> -->
+<div class="u-heading">
+   <h2>Notification List</h2>
+   <div class="pull-right">
+      <!-- <div class="u-search">
+         <input type="text" class="form-control" [(ngModel)]="search_text" type="text" (keyup)="search()" placeholder="Search..">
+         <i class="material-icons">search</i>
+      </div> -->
+      <!-- <input [(ngModel)]="search_text" type="text" (keyup)="search()"> -->
+      <span *ngIf="userRolePerm?.add" class="add-text d-none d-md-inline-block">Add Notification </span>
+      <span *ngIf="userRolePerm?.add" class="add-more" data-toggle="modal" (click)="createNotif()">
+         <a><i class="material-icons">add</i></a>
+      </span>
+   </div>
+</div>
+<div class="filter-bar" >
+   <div class="download-option mt-0" *ngIf="notifList?.length">
+      <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Download Pdf</span></span>
+      <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span  class="download-text">Download Excel Sheet</span></span>
+   </div>
+   <form action="" class="form-inline" autocomplete="off">
+      <div class="form-group">
+         <i class="fa fa-filter"></i>
+         <label for="inputPassword6" class="filter-label">Filter By</label>
+         
+      </div>
+      
+      <div class="form-group col-2 p-1 ">
+         <label class="sr-only" for="if-password">Status</label>
+         <select [(ngModel)]="params.status" class="form-control col-12" id="select" name="gender">
+            <!-- [(ngModel)]="params.gender" -->
+            <option [selected]="true" value="" >Status</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+            <option value="">All</option>
+         </select>
+      </div>
+      <div class="form-group col-2 p-1 ">
+         <label class="sr-only" for="if-password">User role</label>
+         <select  [(ngModel)]="params.roleid" class="form-control col-12" name="user-role" >
+            <option [selected]="true" value="">User Role</option>
+            <option *ngFor="let role of user_role" [value]="role.User_Role_ID" [label]="role.User_Role_Name">
+               {{ role.User_Role_Name }}
+            </option>
+         </select>
+      </div>
+      <div class="form-group col-2 p-1 ">
+         <label class="sr-only" for="if-password">Start Date</label>
+         <input type="text" name="startdate"
+         placeholder="Start Date" [(ngModel)]="params.startdate"
+         class="form-control"
+         bsDatepicker >
+      </div>
+      <div class="form-group col-2 p-1 ">
+         <label class="sr-only" for="if-password">End Date</label>
+         <input type="text" name="enddate"
+         placeholder="End Date" [(ngModel)]="params.enddate"
+         class="form-control"
+         bsDatepicker >
+      </div>
+      
+      <div class="form-group">
+         <!-- (click)="getAllMembers(true)"  -->
+         <button type="submit" class="btn btn-view-provider btn-sm ml-2 mr-1" (click)="getNotifications()"><span><i _ngcontent-c16="" class="fa fa-eye"></i></span>View Notifications</button>
+         <button type="button" class="btn btn-reset btn-sm ml-1 mr-2" (click)="resetFilters()" ><span><i class="fa fa-refresh"></i>
+         </span>Reset</button>
+      </div>
+   </form>
+</div>
+<div class="custom-container">
+   <div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+   <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+      <thead>
+         <tr>
+            <th >S.No.</th>
+            <th width="200">Title</th>
+            <th width="250">Description</th>
+            <th width="250">Assigned Roles</th>
+            <th width="110">Start Date</th>
+            <th width="110">End Date</th>
+            <th>Venue</th>
+            <th width="110">Event Date</th>
+            <th>Creator Name</th>
+            <th>Creator Email</th>
+            <th>Creator Department</th>
+            <th width="90" *ngIf="userRolePerm?.edit" >Edit</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr *ngFor="let n of notifList; let i = 'index'">
+            <td data-label="S.No." *ngIf="page == 1">{{i+1}}</td>
+      <td  data-label="S.No."*ngIf="page > 1">{{(i+1)+(page-1)*params.pageSize}}</td>
+            <td data-label=" Name">
+               {{n.Notification_Name}}
+               
+            </td>
+            <td data-label="Description">
+               {{n.Notification_Description}}
+               
+            </td>
+            <td data-label="Assigned Roles">
+               <span class="assigned-item" *ngFor="let role of n.Notification_Role">
+                  {{role.Role_Name}}
+               </span>
+               
+            </td>
+            <td data-label="Start Date">
+               {{n.startdate | date}}
+               
+            </td>
+            <td data-label="End Date">
+               {{n.enddate | date}}
+               
+            </td>
+
+            <td data-label="Venue Details">
+               {{n.venuedetails}}
+               
+            </td>
+
+            <td data-label="Event Date">
+               {{n.eventdate | date}}
+               
+            </td>
+
+            <td data-label="Creator Name">
+               {{n.creatorname}}
+               
+            </td>
+
+            <td data-label="Creator Email">
+               {{n.creatoremail}}
+               
+            </td>
+
+            <td data-label="Department">
+               {{n.creatordepartment}}
+               
+            </td>
+            
+            <td  data-label="Edit">
+               <label class="switch switch-icon switch-pill switch-success">
+                  <input  [disabled]="!userRolePerm?.edit" checked="n.status" [(ngModel)]="n.status" class="switch-input" type="checkbox" (click)="updateNotifStatus(n.Id, n.status, n.Notification_Name)">
+                  <span class="switch-label" data-off="" data-on=""></span>
+                  <span class="switch-handle"></span>
+               </label>
+               <a  *ngIf="userRolePerm?.edit" href="javascript:void(0)" (click)="editNotif(n.Id)"><i class="fa fa-edit" style="font-size:24px"></i></a>
+               
+            </td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+<div bsModal #notifModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog" aria-labelledby="notifLabel" [config]="{backdrop: 'static'}" aria-hidden="true">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            
+            <h4 *ngIf="save_add_form" class="modal-title">Add Notification</h4>
+            <h4 *ngIf="!save_add_form" class="modal-title">Edit Notification</h4>
+            <button type="button" class="close" (click)="notifModal.hide()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+            
+         </div>
+         <div class="modal-body">
+
+
+
+
+
+            <form action="" class="form-horizontal" #notificationForm="ngForm" autocomplete="off">
+               <!--             <div class="form-group row">
+                  <div class="col-md-12">
+                     <select class="form-control" id="select" name="select" [(ngModel)]="user_role.type">
+                        <option [selected]="true" value="Internal">Internal</option>
+                        <option value="External">External</option>
+                     </select>
+                  </div>
+               </div> -->
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>Title</label>
+                     <input  class="form-control"  name="rolename" placeholder="Notification title" type="text" [(ngModel)]="notif.Notification_Name" required #name="ngModel">
+                     <div *ngIf="name.errors" [hidden]="name.valid || (name.pristine && !notificationForm.submitted)">
+                        <small class="text-danger" *ngIf="name.errors.required"> Name is required</small>
+                     </div>
+                     <!-- <small class="text-danger"  *ngIf="role_name_exist">Name already exist</small> -->
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>Description</label>
+                     <textarea  class="form-control" name="textarea-input" placeholder="Notification Description" rows="9"  [(ngModel)]="notif.Notification_Description"></textarea>
+                     <!-- <div *ngIf="description.errors" [hidden]="description.valid || (description.pristine && !UserRole.submitted)">
+                        <small class="text-danger" *ngIf="description.errors.required">Description is required</small>
+                        <small class="text-danger" *ngIf="description.errors.minlength">The minimum length should be 5 characters</small>
+                     </div> -->
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>Assign Notifications</label>
+                     <angular2-multiselect name="items" (click)="clear()"  [data]="dropdownList" [(ngModel)]="selectedItems"
+                        [settings]="dropdownSettings"
+                        (onSelect)="onItemSelect($event)"
+                        (onDeSelect)="OnItemDeSelect($event)"
+                        (onSelectAll)="onSelectAll($event)"
+                        (onDeSelectAll)="onDeSelectAll($event)">  
+                     </angular2-multiselect>
+                     <div *ngIf="selectedItems?.length == 0" style="margin-top:-15px;">
+                        <small class="text-danger" *ngIf="notificationForm.submitted">Please assign notification</small>
+                     </div>
+                  </div>
+                  
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>Assign users</label>
+                     <angular2-multiselect name="item"   [data]="dropdownData"  [(ngModel)]="selectedusers"
+                        [settings]="dropdownSettingsuser"
+                        (onSelect)="onItemSelectuser($event)"
+                        (onDeSelect)="OnItemDeSelectuser($event)"
+                        (onSelectAll)="onSelectAlluser($event)"
+                        (onDeSelectAll)="onDeSelectAlluser($event)"
+                        (onOpen)="getUserFromRoles()"
+                        >  
+                     </angular2-multiselect>
+                     <div *ngIf="selectedusers?.length == 0" style="margin-top:-15px;">
+                        <small class="text-danger" *ngIf="notificationForm.submitted">Please assign users</small>
+                     </div>
+                  </div>
+                  
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>Start Date</label>
+                     <input type="text" name="startdate"
+                     placeholder="Notification Start Date" [(ngModel)]="notif.startdate"
+                     class="form-control"
+                     bsDatepicker readonly #startdate="ngModel"
+                     [bsConfig]="{ dateInputFormat: 'YYYY/MM/DD' }" required>
+                     <div *ngIf="startdate.errors" [hidden]="startdate.valid || (startdate.pristine && !notificationForm.submitted)">
+                        <small class="text-danger" *ngIf="startdate.errors.required"> Start Date is required</small>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>End Date</label>
+                     <input type="text" name="enddate"
+                     placeholder="Notification End Date" [(ngModel)]="notif.enddate"
+                     class="form-control"
+                     bsDatepicker readonly #enddate="ngModel"
+                     [bsConfig]="{ dateInputFormat: 'YYYY/MM/DD' }" required>
+                     <div *ngIf="enddate.errors" [hidden]="enddate.valid || (enddate.pristine && !notificationForm.submitted)">
+                        <small class="text-danger" *ngIf="enddate.errors.required">End Date is required</small>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group row">
+                     <div class="col-md-12">
+                        <label>Event Date</label>
+                        <input type="text" name="eventdate"
+                        placeholder="Event Date" [(ngModel)]="notif.eventdate"
+                        class="form-control"
+                        bsDatepicker 
+                        [bsConfig]="{ dateInputFormat: 'YYYY/MM/DD' }"
+                        readonly>
+                     </div>
+                  </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>Venue Details</label>
+                     <input  class="form-control"  name="venuedetails" placeholder="Venue Details" type="text" [(ngModel)]="notif.venuedetails"  >
+                     <!-- <div *ngIf="name.errors" [hidden]="name.valid || (name.pristine && !UserRole.submitted)">
+                        <small class="text-danger" *ngIf="name.errors.required && fSubmitted">Role Name is required</small>
+                        <small class="text-danger" *ngIf="name.errors.pattern && fSubmitted">Role Name format is not valid</small>
+                     </div> -->
+                     <!-- <small class="text-danger"  *ngIf="role_name_exist">Name already exist</small> -->
+                  </div>
+               </div>
+               
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <div class="col upload-doc">
+                        <label>Upload Document</label>
+                        <div >
+                           <label class="upload-button">
+                              <input type="file" id="upload-file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)" [uploadInput]="uploadInput" multiple #fileUpload>
+                           </label>
+                           <div class="upload-items">
+                              <div class="upload-item" *ngFor="let f of files; let i = 'index';">
+                                 <span class="filename">
+                                    <span>{{ f.name }} - {{ f.progress?.data?.percentage }}%</span>
+                                    <span>uploading with {{ f.progress?.data?.speedHuman }}</span>
+                                    <span class="fa fa-close" (click)="removeFile(f.id)"></span>
+                                 </span>
+                                 <div  class="progress progress mb-0">
+                                    <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar bg-success progress-bar-animated progress" role="progressbar" [style.width]="f?.progress?.data?.percentage + '%'"></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group row" *ngIf="notif?.NotificationDocuments?.length">
+                  <div class="col-md-12">
+                     <div class="col upload-doc">
+                        <label>Uploaded Documents List</label>
+                        <ol>
+                           <li *ngFor="let d of notif?.NotificationDocuments; let i = 'index';" class="f-14">
+                              {{d.Filename}} <a target="_blank" [href]="CONTENT_BASE+d.Filepath+'/'+d.Filename"><i class="fa fa-file-pdf-o text-danger pl-2"></i></a>
+                              <a href="javascript:void(0)" (click)="removeNotifDoc(d)"><i class="fa fa-times text-danger pl-2"></i></a>
+                           </li>
+                        </ol>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <button *ngIf="!save_add_form" (click)="updateNotif(notificationForm.valid,notif.Id,notif)" type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Update</button>
+                     <button *ngIf="save_add_form" (click)="addNotif(notificationForm.valid);" type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+                     
+                     <!-- <button type="button" class="btn btn-danger" (click)="notifModal.hide()"><i class="fa fa-times"></i>&nbsp;Close</button> -->
+                  </div></div>
+               </form>
+            </div>
+            <div class="modal-footer">
+            </div>
+         </div>
+         <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+   </div>
+   <!-- /.modal -->
+
+   <nav *ngIf="total_pages>15" aria-label="Page navigation example" style="    margin-top: 25px;">
+<ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+  <li class="page-item">
+    <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1" (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+      <span aria-hidden="true">&laquo;</span>
+      <span class="sr-only">Previous</span>
+    </a>
+  </li>
+  <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item"><a href="javascript:void(0)" (click)="loadByPage(p)" class="page-link">{{p}}</a></li>
+  <li class="page-item">
+    <a class="page-link" href="javascript:void(0)" [class.disabled]="next_page === 'total_pages'" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+      <span aria-hidden="true">&raquo;</span>
+      <span class="sr-only">Next</span>
+    </a>
+  </li>
+</ul>
+</nav>

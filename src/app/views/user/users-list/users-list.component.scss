@@ -1,0 +1,27 @@
+table .form-control{
+	padding: 4px;
+	font-size: 11px;
+	height: 27px!important;
+}
+ul.facility-list{
+	padding:0;
+	li{
+		list-style: none;
+	    display: inline-block;
+	    margin: 10px 0;
+	    width: 48.8%;
+	    border: 1px solid #ccc;
+	    padding: 10px;
+	    min-height:58px;
+	    cursor:pointer;
+	    vertical-align:top;
+	}
+	li:nth-child(odd) {
+    	margin-right: 10px;
+	}
+}
+.duplicate{
+    margin-top: -15px;
+    margin-bottom: 5px;
+    color: red;
+}

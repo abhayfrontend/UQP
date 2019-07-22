@@ -1,0 +1,223 @@
+<div class="u-heading">
+  <h2>{{scorecard_type}} Survey Scorecard</h2>
+</div>
+<div class="p-s-search">
+  <!-- <div class="download-option" *ngIf="gapMeasures?.length">
+    <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span
+        class="download-text">Download Pdf</span></span>
+    <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span
+        class="download-text">Download Excel Sheet</span></span>
+  </div> -->
+  <form autocomplete="off" class="form-inline" #healthplanScorecard="ngForm">
+    <!-- (change)="showDates = true;healthplanName=$event.target.selectedOptions[0].label" -->
+    <div class="col-md-3 mb-2 mr-sm-2 mb-sm-0" style="position: relative;padding: 0;" *ngIf="rolename!='provider'">
+      <!-- [ngClass]="{'input-loading': searching}" -->
+      <input [(ngModel)]="provider_name" (keyup)="searchProvider()" (focus)="showPanel = true" (focusout)="hidePanel()"
+        class="form-control " name="provider_name" placeholder="Search Provider" type="text" required
+        style="width:100%">
+      <img *ngIf="searching" class="input-loading-img" src="assets/img/input-spinner.gif">
+
+      <div *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="min-width:100%">
+        <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+        <div *ngFor="let member of members"><a *ngIf="member.FirstName" href="javascript:void(0)" class="dropdown-item"
+            (click)="getInsurance(member)">
+            {{member?.LastName}} {{member?.FirstName}} <span *ngIf="member.email"> | {{member.email}} </span>
+          </a>
+        </div>
+      </div>
+      <div *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+        <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+        <div><a href="javascript:void(0)" class="dropdown-item">
+            No provider found
+          </a>
+        </div>
+      </div>
+      <p class="error-bx" *ngIf="insurance_list?.length ==0 ">No healthplan associated with this provider</p>
+    </div>
+    <!-- (change)="getInsuranceByIpa(provider.ipaid);ipaName=$event.target.selectedOptions[0].label" -->
+    <select [(ngModel)]="provider.ipaid" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2" name="ipa" required>
+      <option [selected]="true" value="0">Select IPA</option>
+      <option [label]="ipa.IPA_Name" *ngFor="let ipa of ipa_list" [value]="ipa.IPA_ID">
+        {{ ipa.IPA_Name }}
+      </option>
+      <option value="">All</option>
+    </select>
+    <select [(ngModel)]="provider.healthplanid" *ngIf="insurance_list?.length >0 && currentRole !== 'healthplan'"
+      class="form-control mb-2 mb-sm-0" name="insurance" required>
+      <option [selected]="true" value="">Select Healthplan</option>
+      <option *ngFor="let insurance of insurance_list" [label]="insurance.health_Name"
+        [value]="insurance.healthplan_id">
+        {{ insurance.health_Name }}
+      </option>
+      <option value="">All</option>
+    </select>
+
+    <button type="submit" class="btn btn-primary btn-sm ml-2 mr-1" (click)="getScorecard()"><span><i
+          class="fa fa-file"></i></span>View Report</button>
+    <button type="button" class="btn btn-reset btn-sm ml-1 mr-2 " (click)="resetFilters()"><span><i
+          class="fa fa-refresh"></i>
+      </span>Reset</button>
+  </form>
+</div>
+<div class="custom-container" *ngIf="showeverything && scorecard_type == 'CAHPS'">
+  <div class="gaps-table" style="margin:12px;">
+    <div class="u-heading">
+      <h2>
+        Category
+      </h2>
+    </div>
+    <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Category</th>
+          <th>Percentage</th>
+          <th>Star Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let x of scorecard?.category; let i = 'index'">
+          <td data-label="S.No.">{{i+1}}</td>
+          <!-- //When normal role users -->
+          <td data-label="Insurance Name">{{x.Name}}</td>
+          <td data-label="Total Score">
+            {{x.percentage | round}}
+          </td>
+          <td>{{x.starscore}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- <div class="gaps-table" style="margin:12px;"> -->
+  <!-- <div class="u-heading">
+      <h2>
+        Breakdown of patients surveyed
+      </h2>
+    </div> -->
+  <div class="row mx-0 gap-section" id="mra">
+
+    <div class="col col1 ">
+      <div class="card border-warning my-1 col3">
+        <div class="card-header border-warning">Age wise</div>
+        <div class="card-body" style="padding-top:10px;">
+          <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Age</th>
+                <th>Percentage</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let x of scorecard?.age; let i = 'index'">
+                <td data-label="S.No.">{{i+1}}</td>
+                <!-- //When normal role users -->
+                <td data-label="Insurance Name">{{x.Name}}</td>
+                <td data-label="Total Score">
+                  {{x.percentage |round}}
+                </td>
+
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card border-warning my-1 col3">
+        <div class="card-header border-warning">Gender wise</div>
+        <div class="card-body" style="padding-top:10px;">
+          <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+            <thead class="thead-gray">
+              <tr>
+                <th>S.No</th>
+                <th>Category name</th>
+                <th>Percentage </th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let x of scorecard?.gender; let i = 'index'">
+                <td data-label="S.No.">{{i+1}}</td>
+                <td data-label="Insurance Name">{{x.Name}}</td>
+                <td data-label="current score"> {{x.percentage |round}} </td>
+
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="col col4 ">
+      <div class="card border-warning my-1 col3">
+        <div class="card-header border-warning">Race</div>
+        <div class="card-body" style="padding-top:10px;">
+          <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+            <thead class="thead-gray">
+              <tr>
+                <th>S.No</th>
+                <th>Race</th>
+                <th>Percentage </th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let x of scorecard?.race; let i = 'index'">
+                <td data-label="S.No.">{{i+1}}</td>
+                <td data-label="Insurance Name">{{x.Name}}</td>
+                <td data-label="current score"> {{x.percentage | round}} </td>
+
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- </div> -->
+</div>
+
+
+
+<div class="custom-container" *ngIf="showeverything && scorecard_type != 'CAHPS'">
+  <div class="gaps-table" style="margin:12px;">
+    <div class="u-heading">
+      <h2>
+        Category
+      </h2>
+    </div>
+    <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Category</th>
+          <th>Percentage</th>
+          <th>Star Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let x of scorecard; let i = 'index'">
+          <td data-label="S.No.">{{i+1}}</td>
+          <!-- //When normal role users -->
+          <td data-label="Insurance Name">{{x.Name}}</td>
+          <td data-label="Total Score">
+            {{x.percentage | round}}
+          </td>
+          <td>{{x.starscore}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+
+</div>

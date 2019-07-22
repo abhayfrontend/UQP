@@ -1,0 +1,377 @@
+<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,600" rel="stylesheet">
+<div class="home-section">
+   <section class="u-banner hidden-sm" >
+<div class="u-logo">
+         <a href="">
+            <img class="img-fluid" src="assets/img/logo-new.png" alt="Mirra Logo" >
+         </a>
+      </div>
+<div *ngIf="currentUser" style="position: absolute;right: 20px;top: 30px;z-index:99;">
+         <div class="col-auto">
+               <button type="submit" class="btn btn-primary" [routerLink]="['/dashboard']">Go to Dashboard</button>
+               
+         </div>
+      </div>
+      <form (ngSubmit)="onLoginUser()" #loginForm="ngForm" autocomplete="off" *ngIf="!currentUser">
+         <div class="form-row align-items-center">
+            <div class="col-sm-5">
+               <label class="sr-only" for="inlineFormInput">Username</label>
+               <input [(ngModel)]="loginUser.email" (focus)="login_error = false" type="text" class="form-control mb-2 mb-sm-0" name="username" placeholder="Username" required>
+               <a *ngIf="login_error"  class="login-error-block">{{error_msg}}</a>
+            </div>
+            <div class="col-sm-5">
+               <label class="sr-only" for="inlineFormInputGroup">Password</label>
+               <input required [(ngModel)]="loginUser.password" type="password" class="form-control mb-2 mb-sm-0" name="password" placeholder="Password">
+               <a data-toggle="modal" class="fp-block" (click)="forgotPassword.show();email_success=false;email_failure=false;forgotPass.email=''">Forgot Password?</a>
+            </div>
+            <div class="col-auto">
+               <button type="submit" class="btn btn-primary"  [disabled]="loginForm.invalid">Login</button>
+               <img  style="position: static;" *ngIf="searching" class="input-loading-img" src="assets/img/input-spinner.gif">
+            </div>
+         </div>
+      </form>
+   <carousel *ngIf="test">
+  <slide>
+    <img src="assets/img/home/slide-2.jpg" alt="first slide" style="display: block; width: 100%;">
+    <div class="carousel-caption d-none d-md-block">
+      <h3>Comprehensive Quality, Superior Health Care</h3>
+      <!-- <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p> -->
+    </div>
+  </slide>
+  <slide>
+    <img src="assets/img/home/slide-1.jpg" alt="second slide" style="display: block; width: 100%;">
+    <div class="carousel-caption d-none d-md-block">
+      <h3>Health Care Data to Health Care Information</h3>
+      <!-- <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p> -->
+    </div>
+  </slide>
+  <slide>
+    <img src="assets/img/home/slide-3.jpg" alt="third slide" style="display: block; width: 100%;">
+    <div class="carousel-caption d-none d-md-block">
+      <h3>Health Care Compliance Management</h3>
+      <!-- <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p> -->
+    </div>
+  </slide>
+</carousel>
+</section>
+
+   <!-- homepage banner -->
+   <section class="u-banner hidden-lg" style="background-image:url('/assets/img/home/slide-2.jpg')">
+      <div class="banner-gradient"></div>
+      <div class="u-logo">
+         <a href="">
+            <img class="img-fluid" src="assets/img/logo-new.png" alt="Mirra Logo" >
+         </a>
+      </div>
+      <div *ngIf="currentUser" style="position: absolute;right: 20px;top: 30px;">
+         <div class="col-auto">
+               <button type="submit" class="btn btn-primary" [routerLink]="['/dashboard']">Go to Dashboard</button>
+               
+         </div>
+      </div>
+      <form (ngSubmit)="onLoginUser()" #loginForm="ngForm" autocomplete="off" *ngIf="!currentUser">
+         <div class="form-row align-items-center">
+            <div class="col-sm-5">
+               <label class="sr-only" for="inlineFormInput">Username</label>
+               <input [(ngModel)]="loginUser.email" (focus)="login_error = false" type="text" class="form-control mb-2 mb-sm-0" name="username" placeholder="Username" required>
+               <a *ngIf="login_error"  class="login-error-block">{{error_msg}}</a>
+            </div>
+            <div class="col-sm-5">
+               <label class="sr-only" for="inlineFormInputGroup">Password</label>
+               <input required [(ngModel)]="loginUser.password" type="password" class="form-control mb-2 mb-sm-0" name="password" placeholder="Password">
+               <a data-toggle="modal" class="fp-block" (click)="forgotPassword.show();email_success=false;email_failure=false;forgotPass.email=''">Forgot Password?</a>
+            </div>
+            <div class="col-auto">
+               <button type="submit" class="btn btn-primary"  [disabled]="loginForm.invalid">Login</button>
+               <img  style="position: static;" *ngIf="searching" class="input-loading-img" src="assets/img/input-spinner.gif">
+            </div>
+         </div>
+      </form>
+      <div class="row">
+         <div class="col-sm-5 banner-tagline" data-aos="fade-right" data-aos-delay="1000">
+            Comprehensive Quality, Superior Health Care
+         </div>
+         <div class="col-sm-7 banner-laptop" data-aos="zoom-in">
+            <img class="img-fluid" src="assets/img/home/banner-laptop-new.png" alt="Mirra Logo" style="float: right;">
+         </div>
+      </div>
+   </section>
+   <h1 class="text-center main-heading" data-aos="zoom-in">Key multi-source data consolidated to one platform</h1>
+   <!-- Why UQP section -->
+   <section class="why-uqp">
+      <div class="container">
+         <div class="row">
+            <div class="col-sm-6">
+               <img class="img-fluid" src="assets/img/home/1-banner.jpg" alt="">
+            </div>
+            <div class="col-sm-6" data-aos="fade-left" data-aos-delay="600">
+               <h2 data-aos="fade-up" style="text-transform: inherit;">Why QAPRIMA?</h2>
+               <ul class="wuqp">
+                  <li>Comprehensive overview of MRA, HEDIS, & more</li>
+                  <li>Interactive, user-friendly dashboard</li>
+                  <li>HIPAA Compliance & Data Security</li>
+                  <li>Web, iOS, and Android compatibility</li>
+                  <li>Extensive reports feature, with export capability</li>
+                  <li>Performance & productivity tracking</li>
+                  <li>Role-based user profiles, including Member access</li>
+                  <li>Member <-> Provider communication</li>
+                  <li>Clear, simple formatting to accommodate even the novice user</li>
+                 
+               </ul>
+            </div>
+         </div>
+      </div>
+   </section>
+   <div class="text-center">
+      <img class="img-fluid" src="assets/img/home/section-shadow-img.png" alt="">
+   </div>
+
+   <!-- Quality Section -->
+   <section class="quality-reports">
+      <div class="container">
+         <div class="row">
+            <div class="col-sm-6" data-aos="fade-right" data-aos-delay="600">
+               <h2>Quality Reports</h2>
+               <p>QAPRIMA offers an extensive list of report features.  Some of the available reports include:</p>
+               <ul class="report-list">
+                  <li>
+                     <div><i  class="sprite sprite-overall-measure"></i></div>
+                     <div><b>Overall Gaps</b></div>
+                  </li>
+                  <li>
+                     <div><i class="sprite sprite-single-measure"></i></div>
+                     <div><b>Health Plan Score Card</b></div>
+                  </li>
+                  <li>
+                     <div><i class="sprite sprite-IPA-scorecard"></i></div>
+                     <div><b>MRA Score Card</b></div>
+                  </li>
+                  <li>
+                     <div><i  class="sprite sprite-provider-level"></i></div>
+                     <div><b>Provider Level Score Card</b></div>
+                  </li>
+                  <li>
+                     <div><i class="sprite sprite-measure-level-score"> </i></div>
+                     <div><b>Last Visit Report</b></div>
+                  </li>
+               </ul>
+            </div>
+            <div class="col-sm-6" data-aos="flip-right">
+               <img class="img-fluid" src="assets/img/home/4-banner.jpg" alt="">
+            </div>
+         </div>
+      </div>
+   </section>
+   <!-- User type section -->
+   <!-- <section class="user-type">
+      <div class="container">
+         <div class="row">
+            <div class="col-sm-6" data-aos="fade-right" data-aos-delay="600">
+               <h2>User type</h2>
+               <ul class="list-tick">
+                  <li>Executive Management</li>
+                  <li>Administrative Staff </li>
+                  <li>Quality Department</li>
+                  <li>IPA</li>
+                  <li>ACO</li>
+                  <li>PCP</li>
+                  <li>Health Plans</li>
+                  <li>Member</li>
+               </ul>
+            </div>
+            <div class="col-sm-6" data-aos="flip-right">
+               <img class="img-fluid" src="assets/img/home/2-banner.png" alt="">
+            </div>
+         </div>
+      </div>
+   </section> -->
+   <div class="text-center">
+      <img class="img-fluid" src="assets/img/home/section-shadow-img.png" alt="">
+   </div>
+   <section class="measures">
+      <div class="container">
+         <div class="row">
+            <div class="col-sm-6" data-aos="flip-left">
+               <img class="img-fluid" src="assets/img/home/3-banner.png" alt="">
+            </div>
+            <div class="col-sm-6" data-aos="fade-left" data-aos-delay="600">
+               <h2> Gap Identification & Closure</h2>
+               <p>QAPRIMA is designed to provide a complete quality suite in one convenient, easy-to-use application. It provides the ability to quickly identify under-performance right on the home page so work can begin without delay. The user-friendly design allows for quick and easy use, even for inexperienced users, and the work flow is designed in such a way to reduce the potential for data entry errors.</p>
+            </div>
+         </div>
+      </div>
+   </section>
+
+   <div class="text-center">
+      <img class="img-fluid" src="assets/img/home/section-shadow-img.png" alt="">
+   </div>
+   <!-- Performance Rating -->
+   <section class="performance-rating">
+      <div class="container text-center">
+         <h2 data-aos="zoom-in">Performance and Productivity Tracking</h2>
+         <p data-aos="fade-up" data-aos-delay="600">QAPRIMA's unique ability to track performance and productivity creates an opportunity for organizations to easily and effectively measure and monitor their providers’ and employees’ work. This data can be used to identify trends and shortfalls, revealing areas in need of retraining and, ultimately, leading to a visible, measurable improvement in quality and outcomes.</p>
+         <!-- <img class="img-fluid" data-aos="zoom-out" data-aos-delay="1000" src="assets/img/home/rating-graph.jpg" /> -->
+<div style="    max-width: 767px;
+    text-align: center;
+    margin: 0 auto;">
+   <carousel *ngIf="test">
+  <slide>
+    <img src="assets/img/home/rating-graph.jpg" alt="first slide" style="display: block; width: 100%;">
+    
+  </slide>
+  <slide>
+    <img src="assets/img/home/pie_chart.png" alt="second slide" style="display: block; width: 100%;">
+    
+  </slide>
+  <slide>
+    <img src="assets/img/home/performance.png" alt="third slide" style="display: block; width: 100%;">
+    
+  </slide>
+</carousel>
+</div>
+            
+      </div>
+   </section>
+
+   <div class="text-center">
+      <img class="img-fluid" src="assets/img/home/section-shadow-img.png" alt="">
+   </div>
+
+
+   <section class="upcoming-features">
+      <div class="container text-center">
+         <h2 data-aos="zoom-in">Upcoming Features</h2>
+         <!-- <p data-aos="fade-up" data-aos-delay="600">UQP’s unique ability to track performance and productivity creates an opportunity for organizations to easily and effectively measure and monitor their providers’ and employees’ work. This data can be used to identify trends and shortfalls, revealing areas in need of retraining and, ultimately, leading to a visible, measurable improvement in quality and outcomes.</p> -->
+         <!-- <img class="img-fluid" data-aos="zoom-out" data-aos-delay="1000" src="assets/img/home/rating-graph.jpg" /> -->
+     
+<ul class="report-list">
+                  <li data-aos-delay="600" data-aos="zoom-in">
+                     <div><b>MRA</b></div>
+                     <div><i class="sprite sprite-one"></i></div>
+                     
+                  </li>
+                  <li data-aos-delay="800" data-aos="zoom-in">
+                     <div><b>ACO</b></div>
+                     <div><i class="sprite sprite-two"></i></div>
+                     
+                  </li>
+                  <li data-aos-delay="1000" data-aos="zoom-in">
+                     <div><b>Trend Analysis</b></div>
+                     <div><i class="sprite sprite-three"></i></div>
+                     
+                  </li>
+                  <li data-aos-delay="1200" data-aos="zoom-in">
+                     <div><b>Productivity Measures</b></div>
+                     <div><i class="sprite sprite-four"></i></div>
+                     
+                  </li>
+                  <li data-aos-delay="1400" data-aos="zoom-in">
+                     <div><b>Compliance Audit</b></div>
+                     <div><i class="sprite sprite-five"></i></div>
+                     
+                  </li>
+               </ul>
+      </div>
+      <!-- <img class="img-fluid" src="assets/img/home/upcoming/bg.jpg" alt=""> -->
+   </section>
+<section class="u-banner mobile-app" style="background-image:url('/assets/img/home/upcoming/bg.jpg')">
+      
+      
+      
+      <div class="row" style="max-width: 1067px;
+    margin: 0 auto;">
+         <div class="col-sm-8 banner-tagline" data-aos="fade-right" data-aos-delay="1000">
+            Coming Soon
+
+            <div></div>
+            <div style="text-transform: none;">QAPRIMA Mobile App</div>
+            <img class="img-fluid" src="assets/img/home/upcoming/download.png">
+         </div>
+
+         <div class="col-sm-4 banner-laptop" data-aos="zoom-in">
+            <img class="img-fluid" src="assets/img/home/upcoming/hand-mobile.png" alt="Mirra Logo" style="float: right;">
+         </div>
+      </div>
+   </section>
+
+   <!-- Footer section -->
+   <section class="homepage-footer text-center">
+      <img class="img-fluid" src="assets/img/logo-new.png"  />
+      <p class="mb-0">QAPRIMA © 2019 Mirra HealthCare. LLC
+         Terms & Conditions | Privacy & Cookies
+      </p>
+      <div style="
+    font-weight: bold;
+    margin-bottom: 10px;
+">Contact - qaprima@mirrahealthcare.com</div>
+      <ul>
+         <li><a href="https://www.facebook.com/mirrahealthcare" target="_blank"><i class="sprite sprite-facebook-icon"></i></a></li>
+         <li><a href="https://twitter.com/mirrahealthcare"  target="_blank"><i class="sprite sprite-twitter-icon"></i></a></li>
+         <li><a href="https://www.youtube.com/channel/UCAfsrhBs3rSbOXGmQeNFVpA/"  target="_blank"><i class="sprite sprite-youtube-icon"></i></a></li>
+         <li><a href="https://www.linkedin.com/company/mirra-health-care/"  target="_blank"><i class="sprite sprite-linkedin-icon"></i></a></li>
+      </ul>
+   </section>
+</div>
+<!--forget password home screen pop upstart here-->
+<div bsModal #forgotPassword="bs-modal" class="modal fade u-modal forgot-modal" [config]="{backdrop: 'static'}" tabindex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h4 class="modal-title">What’s My Password?</h4>
+            <button (click)="forgotPassword.hide()" aria-label="Close" class="close" type="button">
+            <span aria-hidden="true">×</span>
+            </button>
+         </div>
+         <div class="modal-body fp">
+            <p class="">If you have forgotten your password you can reset it here</p>
+            <form action="" class="form-horizontal" autocomplete="off" (ngSubmit)="onForgotPassword()" #forgotpass="ngForm">
+               <div class="form-group row">
+                  <div class="col-md-12" style="padding: 0 15px;">
+                     <input class="form-control"  pattern="^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$" name="emailadress" placeholder="Please enter you email adress" type="text" [(ngModel)]="forgotPass.email" required>
+                  </div>
+                  <small class="modal_text text-success" *ngIf="email_success">{{email_msg}}</small>
+                  <small class="modal_text text-danger" *ngIf="email_failure">{{email_msg}}</small>
+               </div>
+               <button [disabled]="!(forgotpass.valid)" type="submit" class="btn btn-success"><i class="fa fa-send-o"></i>&nbsp;Send My Password</button>
+            </form>
+         </div>
+         <div class="modal-footer">
+         </div>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<div bsModal #ipaSelection="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true" [config]="{backdrop: 'static'}">
+   <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h4 class="modal-title">Please select Provider</h4> 
+         </div>
+         <div class="modal-body ">
+            <p class="f-14">Hello <b>{{currentUser?.name}}</b>, to proceed further choose any one Provider associated with your account.</p>
+            <div class="row">
+              <div class="col" *ngFor="let provider of associated_provider;let i = 'index'" (click)="selectAssociatedProvider(provider)">
+               <!-- *ngFor="let ipa of associated_ipa;let i = 'index'" -->
+                <div class="card"  style="cursor: pointer;">
+                  <div class="card-body ipa-div">
+                    
+                    <div class="h6 mb-0 text-uppercase">Dr. {{provider.ProviderName}}</div>
+                    <!-- <small class="text-uppercase">{{ipa.IPA_Name}}</small> -->
+                    
+                  </div>
+                </div>
+              </div>
+              
+
+            </div>   
+         </div>
+         <div class="modal-footer">
+         </div>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>

@@ -1,0 +1,135 @@
+<app-help class="d-none"></app-help>
+<div class="u-heading">
+   <h2>Star Value </h2>
+   <div class="pull-right">
+      <!-- <div class="u-search">
+      <input type="text" class="form-control"  placeholder="Search..">
+      <i class="material-icons">search</i>
+   </div> -->
+      <!-- <input [(ngModel)]="search_text" type="text" (keyup)="search()"> -->
+      <span *ngIf="userRolePerm?.add" class="add-text d-none d-md-inline-block">Add Star Value </span>
+      <span *ngIf="userRolePerm?.add" class="add-more" data-toggle="modal" (click)="createStar()">
+         <a><i class="material-icons">add</i></a>
+      </span>
+   </div>
+</div>
+<div class="custom-container">
+   <!--list  start here-->
+   <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob" *ngIf="stars">
+      <thead>
+         <tr *ngIf="stars">
+            <th>Measure Name</th>
+            <th *ngFor="let x of stars[0]?.starscore;let i ='index'">STAR {{i+1}}</th>
+            <th *ngIf="userRolePerm?.edit">Action</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr *ngFor="let y of stars;let i ='index'">
+            <td data-label="Measure Name">{{y?.measurename}}</td>
+            <td [attr.data-label]="'STAR '+x.StarName" *ngFor="let x of y.starscore;">
+               <div class="text-lowercase"> {{x.StarLR}}% >= to < {{x.StarUR}}% </div> </td> <td data-label="Edit"
+                     *ngIf="userRolePerm?.edit">
+                     <div> <a href="javascript:void(0)" (click)="editStar(y.measureid)"><i class="fa fa-edit"
+                              style="font-size:18px"></i></a> </div>
+            </td>
+         </tr>
+      </tbody>
+   </table>
+   <!--list  end here-->
+</div>
+<div bsModal #starModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog"
+   [config]="{backdrop: 'static'}" aria-labelledby="userModalLabel" aria-hidden="true">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h4 *ngIf="save_add_form" class="modal-title">Add Star Rating</h4>
+            <h4 *ngIf="!save_add_form" class="modal-title">Edit Star Rating</h4>
+            <button type="button" class="close" (click)="starModal.hide()" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+         <div class="modal-body">
+            <form action="" class="form-horizontal" autocomplete="off" #EditStar="ngForm">
+               <div *ngIf="save_add_form" class="form-group row">
+                  <div class="col-md-12">
+                     <label class=" form-control-label" for="select"
+                        style="font-size: 14px;margin-bottom: 0;margin-top: 5px;">Select Measure</label>
+                     <div>
+                        <select [(ngModel)]="star.measureid" class="form-control" id="select" name="measure"
+                           (change)="star.measurename=$event.target.selectedOptions[0].label" required>
+                           <option [selected]="true" value="">Select Measure</option>
+                           <option *ngFor="let measure of measures" [label]="measure.Measure_Name"
+                              [value]="measure.Measure_ID">{{ measure.Measure_Name }}</option>
+                        </select>
+                     </div>
+                  </div>
+               </div>
+               <div *ngIf="!save_add_form" class="form-group row">
+                  <div class="col-md-12">
+                     <label style="font-size: 14px;margin-bottom: 0;margin-top: 5px;">Measure Name: </label>
+                     <span class="mn-text" style="font-size: 14px;">{{star?.measurename}}</span>
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <table style="margin-bottom: 20px!important;"
+                        class="table table-responsive-sm table-hover table-outline mb-0 bg-white starTable">
+                        <thead>
+                           <tr>
+                              <th>Value</th>
+                              <th>From (Greater than equals to)</th>
+                              <th>To (Less than)</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let x of star?.starscore;let i ='index'">
+                              <td>Star {{i+1}}</td>
+                              <td>
+                                 <div>
+                                    <select [(ngModel)]="x.StarLR" class="form-control form-control-sm"
+                                       [name]='"StarL"+x.StarName' #score_lr="ngModel" required disabled>
+                                       <option [selected]="true" value="">Please select</option>
+                                       <option *ngFor="let l of scoreL;let i ='index'" [value]="l">
+                                          {{ l }}
+                                       </option>
+                                    </select>
+                                 </div>
+                              </td>
+                              <td>
+                                 <div>
+                                    <select (change)="check($event.target,x.StarName)" [(ngModel)]="x.StarUR"
+                                       class="form-control form-control-sm" [name]='"StarU"+x.StarName '
+                                       #score_ur="ngModel" required>
+                                       <option [selected]="true" value="">Please select</option>
+                                       <option *ngFor="let u of scoreU[i].arr" [value]="u">
+                                          {{ u }}
+                                       </option>
+                                    </select>
+                                 </div>
+                              </td>
+                           </tr>
+                        </tbody>
+                     </table>
+                     <div *ngIf="save_add_form" class="text-danger star-error" [hidden]="!EditStar.submitted">
+                        Please select all the above fields
+                     </div>
+                     <!-- (click)="updateStar(star.measureid,star,(EditStar.valid) && !measure_exist)" -->
+                     <button (click)="updateStar(star.measureid,star,(EditStar.valid))" *ngIf="!save_add_form"
+                        type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+                     <!-- (click)="addMeasure((EditMeasure.valid) && !measure_exist)" -->
+                     <button (click)="addStar((EditStar.valid))" *ngIf="save_add_form" type="submit"
+                        class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+                     <!-- (click)="addStar((EditStar.valid) && !measure_exist)" -->
+                     <!--     <button type="button" class="btn btn-danger"><i class="fa fa-times"></i>&nbsp;Close</button> -->
+                  </div>
+               </div>
+            </form>
+         </div>
+         <div class="modal-footer">
+         </div>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

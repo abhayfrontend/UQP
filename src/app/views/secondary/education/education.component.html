@@ -1,0 +1,78 @@
+<app-help class="d-none"></app-help>
+<div class="custom-container">
+	<div id="fade-video" (click)="lightbox_close()"></div>
+	<div class="outer-heading " style="padding:15px 0;">Education Section</div>
+	<div *ngIf="videoList?.length == 0">
+		<p class="message-h">No videos are yet uploaded for you, Please contact administrator for further support and assistance.</p>
+	</div>
+	<div  class="card video" *ngFor="let n of videoList; let i = 'index'">
+
+		<div  class="card-body p-3 clearfix  color-box" >
+			<div class="row">
+				<div class="col-sm-3 s-1">
+					
+					<div  class="h5 text-primary round-bx">{{i+1}}</div>
+					<!-- <div *ngIf="page > 1"  class="h5 text-primary round-bx">{{(i+1)+(page-1)*params.pageSize}}</div> -->
+					<div class="title" style="font-size: 20px;margin-top:8px;">
+						{{n.title}}
+					</div>
+					
+				</div>
+				<div class="col-sm-3 s-2">
+					<div class="">
+						<div class="head">
+							
+							Related Documents
+						</div>
+						<ul style="margin-left:0" >
+							<li *ngFor="let doc of n.guidelineodoc" style="margin:5px;margin-left:0;padding:0;border:0;">
+								<a target="_blank" [href]="CONTENT_BASE+doc.documentpath+'/'+doc.documentname"><i class="fa fa-file-o text-success pr-2" style="font-size: 30px !important;" placement="bottom" [tooltip]=doc.documentname></i></a>
+							</li>
+						</ul>
+					</div>
+					
+				</div>
+				<div class="col-sm-3 s-3">
+					<div class="videos-section">
+						<div class="head ">Description</div>
+						<div class="">
+							{{n.details}}
+							
+						</div>
+						
+					</div>
+					<!-- <div class="docs-section row">
+						<div class="head col-4">Uploaded Docs</div>
+						<div class="col">
+							<div class="docs" *ngFor="let doc of n.guidelineodoc">
+								<a target="_blank" [href]="'http://localhost:8085'+doc.documentpath+'/'+doc.documentname"><img src="assets/img/pdf.png"  placement="bottom" [tooltip]=doc.documentname></a>
+							</div>
+							
+						</div>
+					</div> -->
+				</div>
+			</div>
+			<div class="f-14 font-weight-bold ">Related Videos</div>
+
+			<!-- <div class="row" dragScroll scrollbar-hidden="true"> -->
+				<div class="row">
+				<div class="videos" *ngFor="let video of n.guidelinevideo; let j= 'index'"  >
+					
+                        
+                        <video [id]="'VisaChipCardVideo'+j" width="295" (click)="lightbox_open(video,j,$event)">
+                              <source [src]="this.CONTENT_BASE+video.videopath+'/'+video.videoname  | safe: 'url'" type="video/mp4">
+                              
+                           </video>
+                        <!-- [tooltip]=video.videoname (click)="lightbox_open(video,j,$event)" -->
+                        <div class="light-container">
+                           
+                           <!-- <video [id]="'VisaChipCardVideo'+j" width="600" controls>
+                              <source [src]="'http://localhost:8085'+video.videopath+'/'+video.videoname  | safe: 'url'" type="video/mp4">
+                              
+                           </video> -->
+                        </div>
+                     </div>
+			</div>
+		</div>
+	</div>
+</div>

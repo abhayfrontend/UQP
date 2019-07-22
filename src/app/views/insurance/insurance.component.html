@@ -1,0 +1,42 @@
+<app-help class="d-none"></app-help>
+<div class="u-heading">
+<h2>Insurance</h2>
+<div class="pull-right f-14"> 
+  <!-- <span class="m-y-color">MONTH/YEAR:</span> <span class="m-color"><b>{{previous_month_full}}  {{current_year}} </b></span>  -->
+</div>
+</div>
+<div class="custom-container">
+<accordion [closeOthers]="true" class="i-table-bg">
+  <accordion-group *ngFor="let insurance of insurance_list; let i = 'index'">
+    <div accordion-heading class="clearfix">
+      <!-- <span><strong style="text-transform: uppercase;font-weight: normal;">Insurance Name : </strong><strong>{{insurance.Insurance_Name}}</strong> </span> -->
+      <span class="insurance-name-text text-capitalize">{{insurance.Insurance_Name?.toLowerCase()}}</span>
+      <div style="display: inline-block;" ngSwitch="{{(i+6)%6}}">
+        <span *ngSwitchCase="'0'" [ngClass]="'badge-success'" class="badge hpc-text">{{insurance.MemberCount}}</span>
+        <span *ngSwitchCase="'1'" [ngClass]="'badge-info'" class="badge hpc-text">{{insurance.MemberCount}}</span>
+        <span *ngSwitchCase="'2'" [ngClass]="'badge-warning'" class="badge hpc-text">{{insurance.MemberCount}}</span>
+        <span *ngSwitchCase="'3'" [ngClass]="'badge-primary'" class="badge hpc-text">{{insurance.MemberCount}}</span>
+        <span *ngSwitchCase="'4'" [ngClass]="'badge-secondary'" class="badge hpc-text">{{insurance.MemberCount}}</span>
+        <span *ngSwitchCase="'5'" [ngClass]="'badge-danger'" class="badge hpc-text">{{insurance.MemberCount}}</span>
+      </div>
+      
+      <span class="float-right pull-right"><i class="icon-arrow-down icons font-1xl d-block mt-1"></i></span>
+    </div>
+    <ul class="h-plan-list">
+      <li><span class="h-plan-heading">Plan Name </span>  <span class="pull-right hpc-text">Member count</span> </li>
+      <li><span class="h-plan-heading">Plan Name </span>  <span class="pull-right hpc-text">Member count</span> </li>
+      <!-- <li class="text-capitalize" *ngFor="let plan of insurance.plan" (click)="storeplans(plan)"><a href="javascript:void(0)" target="_blank" [routerLink]="['/member/list']"> {{plan.health_Name?.toLowerCase()}} </a><span class="pull-right hpc-text">{{plan.membercount}}</span></li> -->
+
+<span class="info-box-number" *ngIf="scorecard && !scorecard?.totalmember">0</span>
+
+      <li *ngIf="insurance?.SNPCount" class="text-capitalize"  (click)="storeplans(0,insurance.Insurance_id)"><a href="javascript:void(0)" target="_blank" [routerLink]="['/member/list']"> SNP Members</a><span class="pull-right hpc-text">{{insurance.SNPCount}}</span></li>
+
+      <li *ngIf="!insurance?.SNPCount" class="text-capitalize" >SNP Members<span class="pull-right hpc-text">{{insurance.SNPCount}}</span></li>
+
+      <li *ngIf="insurance?.NonSNPCount" class="text-capitalize"  (click)="storeplans(1, insurance.Insurance_id)"><a href="javascript:void(0)" target="_blank" [routerLink]="['/member/list']"> Non SNP Members </a><span class="pull-right hpc-text">{{insurance.NonSNPCount}}</span></li>
+
+      <li *ngIf="!insurance?.NonSNPCount" class="text-capitalize"> Non SNP Members<span class="pull-right hpc-text">{{insurance.NonSNPCount}}</span></li>
+    </ul>
+  </accordion-group>
+</accordion>
+</div>

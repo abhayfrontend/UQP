@@ -1,0 +1,969 @@
+<app-help class="d-none"></app-help>
+<!-- <button (click)="cc()">cc</button> -->
+<div class="u-heading">
+<h2 style="top:8px">Membership Roster Report</h2>
+<div class="pull-right member-listing" style="margin-top:0px;">
+  <form action="" class="form-inline" autocomplete="off">
+    <div class="form-check my-2 mr-sm-2" >
+      <input [(ngModel)]="params.termedmembers" name="termedmembers" id="inlineFormCheck1" type="checkbox" value="termedmembers" (change)="params.newmembers = false;getAllMembers(true)">
+      <label class="form-check-label f-14" for="inlineFormCheck1">
+        Termed Members
+      </label>
+    </div>
+    <div class="form-check my-2 mr-sm-2">
+      <input [(ngModel)]="params.newmembers" name="newmembers" id="inlineFormCheck2" type="checkbox" value="newmembers" (change)="params.termedmembers = false;getAllMembers(true)">
+      <label class="form-check-label f-14" for="inlineFormCheck2">
+        New Members
+      </label>
+    </div>
+    <label class="f-14 mx-1" >Search By</label>
+    <div class="form-group p-1 ">
+      <label class="sr-only" for="if-password">Category</label>
+      <select [(ngModel)]="search_category"  class="form-control col-12" id="select" name="gender">
+        <option [selected]="true" value="">Select category</option>
+        <option value="name">Member Name</option>
+        <option value="id">Subscriber Id</option>
+        <option value='dob'>DOB</option>
+      </select>
+    </div>
+    <div class="form-group p-1">
+      <label class="sr-only" for="if-password">Search</label>
+      <input type="text" name ="search" [disabled]="!search_category" class="form-control col-12" (keyup)="search_value(term.value)" type="text" placeholder="Search.." #term>
+    </div>
+    <i class="material-icons" (click)="search(term.value)" >search</i>
+  </form>
+  </div>
+</div>
+<div class="filter-bar">
+  <div class="download-option mt-0"  *ngIf="member_list?.length">
+    <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Download Pdf</span></span>
+    <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span  class="download-text">Download Excel Sheet</span></span>
+  </div>
+  <form action="" class="form-inline" autocomplete="off">
+    <div class="form-group col-2  p-0 mr-sm-2" style="position: relative;padding: 0;" *ngIf="rolename!='provider'">
+      <input  [(ngModel)]="provider_name" (keyup)="searchProvider()" class="form-control col-12" name="provider_name" placeholder="Search Provider" type="text" required style="width:100%" >
+      <div  *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="left: auto;">
+        <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+        <div *ngFor="let member of members">
+          <a *ngIf="member.FirstName" href="javascript:void(0)"  (click)="getInsurance(member)"  class="dropdown-item text-capitalize" >
+            {{member.FirstName}} {{member.LastName}}
+            <span class="text-lowercase" *ngIf="member.email"> | {{member.email}} </span>
+          </a>
+        </div>
+      </div>
+      <div  *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+        <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+        <div >
+          <a  href="javascript:void(0)"   class="dropdown-item" >
+            No provider found
+          </a>
+        </div>
+      </div>
+      <!-- <p style="color:red;position:absolute" *ngIf="insurance_list?.length ==0 ">No healthplan associated with this provider</p> -->
+    </div>
+
+    <div class="form-group   p-0 mr-sm-2"  *ngIf="ipa_list?.length > 0 " >
+                     <select  [(ngModel)]="params.IPA_ID"  *ngIf="rolename=='healthplan'" class="form-control"  name="ipa">
+                        <option [selected]="true" value="0">Select IPA</option>
+                        <option *ngFor="let ipa of ipa_list" [value]="ipa.IPA_ID">
+                           {{ ipa.IPA_Name }}
+                        </option>
+                      
+                     </select>
+                  </div>
+
+
+    <!-- <div class="form-group col-2  p-0 mr-sm-2" *ngIf="insurance_list?.length >0" (change)="getAllIPA()"> -->
+    <div class="form-group   p-0 mr-sm-2" *ngIf="insurance_list?.length >0 && rolename!='healthplan'">
+      <label class="sr-only" for="if-password">Healthplan</label>
+      <!-- <select [(ngModel)]="params.healthplan_id"    class="form-control col-12"  name="insurance"  (change)="healthplanName=$event.target.selectedOptions[0].label">
+        <option [selected]="true" value="">Healthplan</option>
+        <option *ngFor="let insurance of insurance_list" [value]="insurance.healthplan_id" [label]="insurance.health_Name">
+          {{ insurance.health_Name }}
+        </option>
+        <option value="0">All</option>
+      </select> -->
+      <select [(ngModel)]="params.healthplan_id" *ngIf="currentRole !== 'healthplan'"  class="form-control mb-2 mr-sm-2 mb-sm-0"  name="insurance" (change)="healthplanName=$event.target.selectedOptions[0].label" required>
+        <option [selected]="true" value="">Select Healthplan</option>
+        <option  *ngFor="let insurance of insurance_list" [value]="insurance.healthplan_id" [label]="insurance.health_Name">
+          {{ insurance.health_Name }}
+        </option>
+        <option value="0">All</option>
+      </select>
+    </div>
+    <!-- <div class="form-group col-2 mx-1 p-0" *ngIf="ipa_list?.length >0">
+      <label class="sr-only" for="if-password">ipa</label>
+      
+      <select  [(ngModel)]="params.IPA_ID"   class="form-control col-12"  name="ipa" (change)="showDates = true">
+        <option [selected]="true" value="">Select IPA</option>
+        <option *ngFor="let ipa of ipa_list" [value]="ipa.IPA_ID">
+          {{ ipa.IPA_Name }}
+        </option>
+      </select>
+    </div>  -->
+    <select  [(ngModel)]="date.year" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2"  name="year" (change)="checkMonth(date.year)">
+      <option  value="">Select year</option>
+      <option [selected]="year == current_year" *ngFor="let year of years" [value]="year">{{year}}</option>
+    </select>
+    <select [(ngModel)]="date.month"   class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2"  name="month" (change)="formatDate()">
+      <option  value="">Select Month</option>
+      <option  *ngFor="let month of months" [value]="month.value" >
+        {{ month.full }}
+      </option>
+    </select>
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary btn-sm ml-2 mr-1" (click)="getAllMembers(true)" ><span><i class="fa fa-user"></i></span>View members</button>
+      <button type="button" class="btn btn-reset btn-sm ml-1 mr-2" (click)="resetFilters()" ><span><i class="fa fa-refresh"></i>
+      </span>Reset</button>
+    </div>
+  </form>
+</div>
+<nav *ngIf="total_pages>15" aria-label="Page navigation example" class="top-paging">
+  <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+    <li class="page-item  mr-2">
+      <a class="page-link" href="javascript:void(0)" *ngIf="page !== 1" [class.disabled]="page === 1" (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+        <!-- <i class="fa fa-arrow-circle-left" aria-hidden="true"></i> -->
+        <i class="fa fa-angle-left" aria-hidden="true"></i>
+      </a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="javascript:void(0)" *ngIf="pager.currentPage !== pager.total_pages" [class.disabled]="next_page === 'total_pages'" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+        <i class="fa fa-angle-right" aria-hidden="true"></i>
+      </a>
+    </li>
+  </ul>
+</nav>
+<div class="custom-container">
+  <div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob report-table blur">
+    <thead>
+      <tr>
+        <th >S.No.</th>
+        
+        <th>Member Name</th>
+<!--         <th>Billing Provider Address</th> -->
+        <!-- <th >PCP Name</th> -->
+        <th >Healthplan Name</th>
+        <th *ngIf="rolename=='healthplan'">IPA Name</th>
+        <th>MRA Current Score</th>
+        <th>Member DOB</th>
+        <th>Subscriber ID</th>
+        <th>Gender</th>
+        <th *ngIf="rolename !=='healthplan'">Age</th>
+        <th>Effective Date</th>
+        <th>End Date</th>
+        
+        <th>Review</th>
+        <!-- <th>PCP Fax</th>
+        <th>PCP County</th> -->
+      </tr>
+    </thead>
+    <tbody>
+      
+      <tr *ngFor="let member of member_list; let i = 'index'">
+        <td data-label="S.No." *ngIf="page == 1">{{i+1}}</td>
+        <td  data-label="S.No."*ngIf="page > 1">{{(i+1)+(page-1)*params.pageSize}}</td>
+        <td data-label="Member Name" ><a (click)="getmemberhealthcard(member)" href="javascript:void(0)">{{member.lastname?.toLowerCase()}}, {{member.firstname?.toLowerCase()}}</a></td>
+        <!-- {{member.midname?.toLowerCase()}}  -->
+        <!-- <td data-label="Billing Provider Address"> {{member.proivder_address}}</td> -->
+        <!-- <td data-label="PCP Name" ><span *ngIf="member.Provider_FirstName">Dr. </span>{{member.Provider_FirstName?.toLowerCase()}} {{member.Provider_MidName?.toLowerCase()}} {{member.Provider_LastName?.toLowerCase()}}</td> -->
+        <!-- <td data-label="PCP Name" ><span *ngIf="member.Provider_FirstName">Dr. </span>{{member.Provider_LastName?.toLowerCase()}}, {{member.Provider_FirstName?.toLowerCase()}}</td> -->
+        <td data-label="Healthplan Name" >{{member.hpname?.toLowerCase()}}</td>
+        <td data-label="IPA Name" *ngIf="rolename=='healthplan'">{{member.ipaname?.toLowerCase()}}</td>
+        <td data-label="MRA Score">{{member.mrascore | round}}</td>
+        <td data-label="Member DOB">{{member.dateofbirth | date}}</td>
+        <td data-label="Subscriber ID">{{member.subscriberid}}</td>
+        <td data-label="Gender">{{member.gender}}</td>
+        <td data-label="Age" *ngIf="rolename !=='healthplan'">{{calculateAge(member.dateofbirth)}}</td>
+        <td data-label="Effective Date">{{member.effectivedate | date}}</td>
+        <td data-label="End Date">{{member.enddate | date}}</td>
+        
+        
+        <td data-label="Review" *ngIf="!member.isreviewed">
+            <a  href="javascript:void(0)" (click)="createReview(member)"><i class="fa fa-edit" style="font-size:24px"></i></a>
+            
+         </td>
+         <td data-label="Review" *ngIf="member.isreviewed" >
+            <i class="fa fa-check" style="font-size:24px" (click)="getReviewDetails(member)"></i>
+            
+         </td>
+        <!-- <td data-label="PCP Fax">{{member.Fax}}</td>
+        <td data-label="PCP County">{{member.County?.toLowerCase()}}</td> -->
+        
+        
+      </tr>
+    </tbody>
+  </table>
+  <nav *ngIf="total_pages > 15" aria-label="Page navigation example" style="    margin-top: 25px;">
+    <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+      <li class="page-item">
+        <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1" (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+          <span class="sr-only">Previous</span>
+        </a>
+      </li>
+      <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item">
+        <a href="javascript:void(0)" (click)="loadByPage(p)" class="page-link">{{p}}</a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="javascript:void(0)" [class.disabled]="page === total_pages" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+          <span class="sr-only">Next</span>
+        </a>
+      </li>
+      <li class="custom_page" ><input type="number" onkeypress="return event.charCode != 45" min="1" #pgno>
+            <button class="btn  btn-primary" (click)="loadByPage(pgno.value)">goto page</button>
+         </li>
+    </ul>
+  </nav>
+  <!--   <button type="submit" class="btn btn-primary btn-sm" (click)="getProviderMembers()" >View members</button> -->
+</div>
+
+<!-- <div id="healthcard1">
+   cscsc {{member_card1?.firstname}}
+</div> -->
+<div bsModal #healthcard="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog" [config]="{backdrop: 'static'}" aria-labelledby="healthcardLabel" aria-hidden="true" >
+  <div class="modal-dialog modal-xl health-card" role="document" >
+    <div class="modal-content " id="healthcard">
+      <div class="modal-header app-header navbar" style="position: static;padding:14px;">
+        <a class="navbar-brand"  href="#" style="height:30px;border-bottom: none;"></a>
+        <h4  class="modal-title text-center" style="margin:0 auto;">MRA Quality Card</h4>
+                <div class="download-option">
+          <span class="d-block" (click)="test();"><i class="fa fa-file-pdf-o" aria-hidden="true" style="color:#fff;cursor:pointer"> </i></span>
+        </div>
+        <button type="button" class="close" (click)="healthcard.hide()" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+        
+      </div>
+      <div class="modal-body p-3"  >
+
+        <div class="row mx-0">
+          <div class="col p-1">
+            <div class="info-box">
+              <span class="info-box-icon light-blue-bg"><i class="fa fa-medkit"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Patient Name (DOB)</span>
+                <span class="info-box-number" >{{member_card?.firstname}} {{member_card?.LastName}}, {{member_card?.FirstName}} ({{member_card?.DateofBirth | date}})</span>
+              </div>
+              
+            </div>
+          </div>
+          <div class="col p-1">
+            <div class="info-box">
+              <span class="info-box-icon dark-bg"><i class="fa fa-balance-scale"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Address</span>
+                <!-- {{member_card?.Country.toLowerCase()}} -->
+                <span class="info-box-number text-capitalize f-12">{{member_card?.AddressLine1.toLowerCase()}} {{member_card?.City.toLowerCase()}} </span>
+              </div>
+              
+            </div>
+          </div>
+          
+        </div>
+
+        <div class="row mx-0">
+        
+          <div class="col p-1">
+            <div class="info-box">
+              <span class="info-box-icon gold-bg"><i class="fa fa-address-card"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Gender </span>
+                <span class="info-box-number" >{{member_card?.Gender}}</span>
+              </div>
+              
+            </div>
+          </div>
+          <div class="col p-1">
+            <div class="info-box">
+              <span class="info-box-icon green-bg"><i class="fa fa-address-card"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Phone number</span>
+                <span class="info-box-number" >{{member_card?.PhoneNumber}}</span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="row mx-0">
+          <div class="col p-1">
+            <div class="info-box">
+              <span class="info-box-icon orange-bg"><i class="fa fa-medkit"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">MRA - Current Score</span>
+                <span class="info-box-number" >{{member_card?.currentscore | round}}</span>
+              </div>
+              
+            </div>
+          </div>
+          <div class="col p-1">
+            <div class="info-box">
+              <span class="info-box-icon blue-bg"><i class="fa fa-balance-scale"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">MRA - Projected Score</span>
+                <span class="info-box-number">{{member_card?.projectedscore | round}}</span>
+              </div>
+
+            </div>
+          </div>
+          
+        </div>
+         <div class="row mx-0 gap-section" id="mra">
+          
+          
+            <div class="col">
+              <div class="card border-warning my-1">
+                <div class="card-header border-warning">Chronic Conditions</div>
+                <div class="card-body" style="padding-top:10px;">
+                  <p *ngIf="!member_card?.membermra?.length">There are no Chronic Conditions present for this member</p>
+                  <table class="table"  *ngIf="member_card?.membermra?.length">
+                    <thead>
+                      <tr>
+                        <th>Dx Code</th>
+                        <th width="180">Condition</th>
+                        <th>DOS</th>
+                        <th>HCC Code</th>
+                        <th> Physician</th>
+                        <th>Claim type</th>
+                        <th width="110"  *ngIf="currentRole !== 'provider' && currentRole !== 'officestaff'">Gateway Claims</th>
+                        <th width="90"  *ngIf="currentRole !== 'provider' && currentRole !== 'officestaff'">Service Fund</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of member_card?.membermra">
+                        <td>{{item.dxcode}}</td>
+                        <td>{{item.condition}}</td>
+                        <td>{{item.dateofservice | date:'shortDate'}}</td>
+                        <td>{{item.hcccode}}</td>
+                        <td>{{item.providername}}</td>
+                        <td>{{item.claimtype}}</td>
+                        <td  *ngIf="currentRole !== 'provider' && currentRole !== 'officestaff'">{{item.ingateway}}</td>
+                        <td  *ngIf="currentRole !== 'provider' && currentRole !== 'officestaff'">{{item.inservice}}</td>
+                      </tr>
+                      
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+        </div>
+        <div id="hedis" class="row mx-0 gap-section">
+          
+          <div class="col">
+            <div class="card border-info my-1">
+              <div class="card-header border-info">HEDIS Gap</div>
+              <div class="card-body" style="padding-top:10px;">
+                <p *ngIf="!member_card?.gaps">There are no gaps present for this member</p>
+                <table class="table"  *ngIf="member_card?.gaps?.length > 0">
+                    <thead>
+                      <tr>
+                        <th>Measure Name</th>
+                        
+                        <th>Status</th>
+                        
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let member of member_card?.gaps">
+                  
+
+
+<td data-label="Measure Name" *ngIf=" ![13,14,15].includes(member?.measureid)" ><a href="javascript:void(0)" (click)="openGapModal(member)">{{member.measname}}</a></td>
+
+<td data-label="Measure Name" *ngIf="[13,14,15].includes(member?.measureid)" >{{member.measname}}</td>
+
+
+                        <td data-label="Status" *ngIf="member.Isgapssubmit == 'submitted'" style="color:green">Pending</td>
+            <td data-label="Status" *ngIf="member.Isgapssubmit == 'notsubmitted'" style="color:red">Not Submitted</td>
+            <td data-label="Status" *ngIf="member.Isgapssubmit == 'approved'" style="color:green">Approved</td>
+            <td data-label="Status" *ngIf="member.Isgapssubmit == 'rejected'" style="color:red">Rejected</td>
+            <td data-label="Status" *ngIf="member.Isgapssubmit == 'reviewed'" style="color:blue">Reviewed</td>
+                       
+                      </tr>
+                    </tbody>
+                  </table>
+
+                <!-- <ul class="list-group list-group-flush" *ngIf="member_card?.gaps?.length > 0">
+                  <li *ngFor="let gap of member_card?.gaps" class="list-group-item"  (click)="openGapModal(gap);">{{gap.measname}}</li>
+                </ul> -->
+              </div>
+            </div>
+          </div>
+          
+        </div>
+        <div class="row mx-0">
+          <div class="col">
+            <div class="card border-warning my-1">
+              <div class="card-header border-warning">Suspected Conditions <button *ngIf="member_card?.mrasuspectedconditions?.length" style="line-height: 14px;" (click)="auditReviewSubmission()"  type="submit" class="btn btn-success btn-sm float-right mt-0">Update</button></div>
+              <div class="card-body" style="padding: 0px 30px;">
+
+
+                <form action="" class="form-horizontal" #followupModal="ngForm" autocomplete="off">
+
+        <div class="form-group row" *ngFor="let review of member_card?.mrasuspectedconditions; let i = 'index'" style="    border-bottom: 2px solid #eee;
+    padding: 20px 0px;" >
+          <div class="col">
+            <label>Type</label>
+            <div>{{review.type}}</div>
+           
+            
+            
+          </div>
+
+          <div class="col">
+            <label>DOS</label>
+            <div>{{review.dos | date}}</div>
+          </div>
+
+          <div class="col">
+            <label>Diagnosis Code</label>
+            <div>{{review.diagnosiscode}}</div>
+          </div>
+
+          <div class="col">
+            <label>HCC Code</label>
+            <div>{{review.hcccode}}</div>
+          </div>
+
+          <div class="col">
+            <label>Documented</label>
+            <div>{{review.hcccondition}}</div>
+
+          </div>
+
+          <div class="col">
+            <label>Description</label>
+            <div>{{review.HCCDescription}}</div>
+
+          </div>
+
+          <div class="col">
+            <label>Action</label>
+            <select [(ngModel)]="review.auditstatus"  class="form-control col-12" [name]="'status-'+i" name="status">
+        <option [selected]="true" value="null">Select category</option>
+        <option value="true">Agree</option>
+        <option value="false">Disagree</option>
+      </select>
+            
+         
+          </div>
+
+          <div class="col" *ngIf="review.auditstatus == 'false' || review.auditstatus == false">
+            <label>Reason</label>
+            <!-- <select [(ngModel)]="review.StatusReason"  class="form-control col-12" [name]="'reason-'+i">
+        <option [selected]="true" value="null">Select category</option>
+        <option value="Provider does not agree">Provider does not agree</option>
+        <option value="Not Documented">Not Documented</option>
+      </select> -->
+
+            <input  class="form-control col-12"  [name]="'reason-'+i" placeholder="reason" type="text" [(ngModel)]="review.StatusReason" > 
+          </div>
+
+        </div>
+
+<div class="form-group row"  *ngIf="member_card?.mrasuspectedconditions?.length">
+    <div class="col">
+            <label>Last Office Visit </label>
+            <div>{{member_card?.mrasuspectedconditions[0]?.lastofficevisit | date}}</div>
+          </div>
+          <div class="col">
+            <label>Next office visit</label>
+            <div>{{member_card?.mrasuspectedconditions[0]?.nextofficevisit | date}}</div>
+          </div>
+          <div class="col">
+            <label>Follow up Date</label>
+            
+            <div>{{member_card?.mrasuspectedconditions[0]?.folowup | date}}</div>
+          </div>
+
+</div>
+
+        </form>
+
+
+
+                <p style="    margin: 10px -10px;" *ngIf="!member_card?.mrasuspectedconditions?.length">There are no Suspected Conditions present for this member</p>
+               
+              </div>
+            </div>
+          </div>
+        </div>
+   
+        
+      </div>
+      <div class="modal-footer d-block">
+        <b class="mr-1">Disclaimer: </b> Data is displayed as available and is not guaranteed to be complete.
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Reminder modal before uploading files -->
+<div class="modal fade child-modal u-modal" [config]="{backdrop: 'static'}" bsModal #staticModal="bs-modal" 
+     tabindex="-1" role="dialog" aria-labelledby="dialog-static-name">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="dialog-static-name" class="modal-title pull-left">Download Settings</h4>
+        <button type="button" class="close"  aria-label="Close">
+            <span aria-hidden="true" (click)="staticModal.hide()">&times;</span>
+            </button>
+       
+      </div>
+      <div class="modal-body f-14">
+        <p><b>Please select any below criteria to print:</b></p>
+        <div >
+          <div class="select-all"><input [(ngModel)]="ismra" (click)="groupingCriteria(1)" name="inline-checkbox1" type="checkbox" value="option1"> 
+            <span>MRA Section (Chronic Conditions)</span></div>
+          <div class="select-all"><input [(ngModel)]="ishedis" (click)="groupingCriteria(2)"  name="inline-checkbox2" type="checkbox" value="option2"> 
+            <span>HEDIS Section (Hedis Gaps)</span></div>
+
+            <div class="select-all"><input [(ngModel)]="isboth" (click)="groupingCriteria(3)"  name="inline-checkbox3" type="checkbox" value="option3"> 
+            <span>BOTH MRA and HEDIS Section</span></div>
+        </div>
+      </div>
+      <button *ngIf="!printing" class="btn" (click)="GeneratePDF();">PRINT</button>
+      <button *ngIf="printing" class="btn" [disabled]="true">PRINTING ....</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MRA review gaps flow modal -->
+<div bsModal #MRAReviewModal="bs-modal" class="modal fade u-modal" [config]="{backdrop: 'static'}" tabindex="-1" role="dialog" aria-labelledby="notifLabel" aria-hidden="true">
+<div class="modal-dialog modal-xl" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      
+      <h4  class="modal-title">Add Review</h4>
+      <!-- <h4 *ngIf="!save_add_form" class="modal-title">Edit Notification</h4> -->
+      <button type="button" class="close" (click)="MRAReviewModal.hide()" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+      </button>
+      
+    </div>
+    <div class="modal-body">
+      <form action="" class="form-horizontal" #MRAReviewForm="ngForm" autocomplete="off"  *ngIf="add_review?.length">
+        <!--             <div class="form-group row">
+          <div class="col-md-12">
+            <select class="form-control" id="select" name="select" [(ngModel)]="user_role.type">
+              <option [selected]="true" value="Internal">Internal</option>
+              <option value="External">External</option>
+            </select>
+          </div>
+        </div> -->
+        <div *ngFor="let addr of add_review; let i = 'index'" >
+        <div class="form-group row"  >
+          <div class="col">
+            <label>Select Type</label>
+            <select class="form-control" id="select" name="select" [(ngModel)]="add_review[i].type" [name]="'type-'+i" required #type="ngModel" (change)="folowupDate()">
+              <option [selected]="true" value="null">Select category</option>
+              <option value="New Condition">New Condition</option>
+              <option value="New HCC">New HCC</option>
+              <option value="Missed Condition">Missed Condition</option>
+              <option value="Missed HCC">Missed HCC</option>
+              <option value="Retro Addition">Retro Addition</option>
+              <option value="Deletions">Deletions</option>
+              <option value="Suggestion">Suggestion</option>
+              <option value="Reviewed/Nothing found">Reviewed/Nothing Found</option>
+            </select>
+            <div *ngIf="type.errors" [hidden]="type.valid || (type.pristine && !MRAReviewForm.submitted)">
+              <small class="text-danger" *ngIf="type.errors.required">required</small>
+            </div>
+          </div>
+
+          <div class="col">
+            <label>DOS</label>
+            <input  [(ngModel)]="add_review[i].dos" class="form-control" [name]="'dos-'+i" placeholder="Date of Service" type="text" #dob="ngModel" bsDatepicker  #dos="ngModel" >
+            
+          </div>
+
+          <div class="col">
+            <label>Diagnosis Code</label>
+            <input  class="form-control"  [name]="'Diag-'+i" placeholder="Diagnosis code" type="text" [(ngModel)]="add_review[i].diagnosiscode"  (focusout)="getHCCCondition(add_review[i].diagnosiscode, i)" #diagnosiscode="ngModel"> 
+            
+          </div>
+
+          <div class="col">
+            <label>HCC Code</label>
+            <input  class="form-control"  [name]="'hcc-'+i" placeholder="HCC code" type="text" [(ngModel)]="add_review[i].hcccode"  #hcccode="ngModel"> 
+            <div *ngIf="hcccode.errors" [hidden]="hcccode.valid || (hcccode.pristine && !MRAReviewForm.submitted)">
+              <small class="text-danger" *ngIf="hcccode.errors.required">required</small>
+            </div>
+          </div>
+
+          <div class="col">
+            <label>Documented</label>
+            <input  class="form-control"  [name]="'hccConditions-'+i" placeholder="Documented" type="text" [(ngModel)]="add_review[i].hcccondition"> 
+          </div>
+
+           <div class="col">
+            <label>Description</label>
+            <input  class="form-control"  [name]="'HCCDescription-'+i" placeholder="Description" type="text" [(ngModel)]="add_review[i].HCCDescription"> 
+          </div>
+
+          <div class="col">
+               <div class="col-md-12">
+                  <div class=" upload-doc">
+                     <label>Upload Docs</label>
+                     <div >
+                        <!-- alert('Reminder:  All documents uploaded must contain the following components:\n · Date of service of the procedure \n · Rendering provider has signed the note/procedure \n · Documentation submitted includes, at a minimum, two patient identifiers') -->
+                        <label class="upload-button">
+                           
+                           <input style="width:150px;" type="file" id="upload-file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event,i)" [uploadInput]="uploadInputVideo" multiple #fileUpload>
+                        </label>
+                        
+                        
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+        </div>
+
+        <div class="form-group row" *ngIf="add_review[i]?.documents?.length">
+               <div class="col-md-12">
+                  <div class="upload-doc">
+                     <!-- <label>Uploaded Documents List</label> -->
+                     <ol>
+                        <li *ngFor="let d of add_review[i]?.documents" class="f-14">
+                           {{d.Filename}} <a target="_blank" [href]="CONTENT_BASE+d.Filepath"><i class="fa fa-file-pdf-o text-danger pl-2"></i></a>
+                           <a href="javascript:void(0)" (click)="removeGapDoc(d,'review',i)"><i class="fa fa-times text-danger pl-2"></i></a>
+                        </li>
+                     </ol>
+                  </div>
+               </div>
+            </div>
+
+        <div class="form-group row">
+          <div class="upload-items">
+                           <div class="upload-item" *ngFor="let f of add_review[i].files; let i = 'index';" style="display: inline-block;margin:0px 7px;">
+                              <span class="filename">
+                                 <span>{{ f.name }} - {{ f.progress?.data?.percentage }}%</span>
+                                 <span>uploading with {{ f.progress?.data?.speedHuman }}</span>
+                                 <span class="fa fa-close" (click)="removeGapDoc(f, 'review',i)"></span>
+                              </span>
+                              <div  class="progress progress mb-0">
+                                 <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar bg-success progress-bar-animated progress" role="progressbar" [style.width]="f?.progress?.data?.percentage + '%'"></div>
+                              </div>
+                           </div>
+                        </div>
+        </div>
+</div>
+
+<div class="clearfix" style="margin:0px -15px">
+  <i (click)="handleReviews(false)" class="material-icons text-danger float-left" *ngIf="add_review?.length>1">remove_circle</i>
+            <i (click)="handleReviews(true)" class="material-icons text-success float-right">add_circle</i>
+          </div>
+<!-- <div class="form-group row">
+    <div class="col">
+            <label>Last Office Visit </label>
+            <input  [(ngModel)]="review.lastofficevisit" class="form-control" name="lastvisit" placeholder="Date of lastvisit" type="text"  bsDatepicker  required  #lastofficevisit="ngModel">
+            <div *ngIf="lastofficevisit.errors" [hidden]="lastofficevisit.valid || (lastofficevisit.pristine && !MRAReviewForm.submitted)">
+              <small class="text-danger" *ngIf="lastofficevisit.errors.required">required</small>
+            </div>
+          </div>
+          <div class="col">
+            <label>Next office visit</label>
+            <input  [(ngModel)]="review.nextofficevisit" class="form-control" name="nextvisit" placeholder="Date of nextvisit" type="text"  bsDatepicker  required  #nextofficevisit="ngModel">
+            <div *ngIf="nextofficevisit.errors" [hidden]="nextofficevisit.valid || (nextofficevisit.pristine && !MRAReviewForm.submitted)">
+              <small class="text-danger" *ngIf="nextofficevisit.errors.required">required</small>
+            </div>
+          </div>
+          <div class="col">
+            <label>Follow up Review</label>
+            <input  [(ngModel)]="review.folowup" class="form-control" name="folowup" placeholder="Follow up date" type="text" bsDatepicker  required #folowup="ngModel" >
+            <div *ngIf="folowup.errors" [hidden]="folowup.valid || (folowup.pristine && !MRAReviewForm.submitted)">
+              <small class="text-danger" *ngIf="folowup.errors.required">required</small>
+            </div>
+          </div>
+
+</div> -->
+
+
+<div class="form-group row">
+    <div class="col">
+            <label>Last Office Visit </label>
+            <input  [(ngModel)]="review.lastofficevisit" class="form-control" name="lastvisit" placeholder="Date of last visit" type="text"  bsDatepicker [maxDate]="maxdate" required  #lastofficevisit="ngModel">
+            <div *ngIf="lastofficevisit.errors" [hidden]="lastofficevisit.valid || (lastofficevisit.pristine && !MRAReviewForm.submitted)">
+              <small class="text-danger" *ngIf="lastofficevisit.errors.required">required</small>
+            </div>
+          </div>
+          <div class="col">
+            <label>Next office visit</label>
+            <input  [(ngModel)]="review.nextofficevisit"  class="form-control" name="nextvisit" placeholder="Date of next visit" type="text"  bsDatepicker [minDate]="mindate"     #nextofficevisit="ngModel" >
+          <!-- folowupDate() is a function for making the date load into follow up date , as the user will select the date after 60 days the date will load into follow up date  -->
+            
+          </div>
+          <div class="col">
+            <label>Follow up Date</label>
+            <input  [(ngModel)]="review.folowup" class="form-control" name="folowup" placeholder="Follow up date" type="text"  required #folowup="ngModel" disabled bsDatepicker>
+            <div *ngIf="folowup.errors" [hidden]="folowup.valid || (folowup.pristine && !MRAReviewForm.submitted)">
+              <small class="text-danger" *ngIf="folowup.errors.required">required</small>
+            </div>
+          </div>
+
+</div>
+
+
+       
+        <div class="form-group row">
+          <div class="col-md-12">
+            
+            <button (click)="addMRAReview(MRAReviewForm.valid)"  type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+            
+            <!-- <button type="button" class="btn btn-danger" (click)="MRAReviewModal.hide()"><i class="fa fa-times"></i>&nbsp;Close</button> -->
+          </div></div>
+        </form>
+        <p  *ngIf="!add_review?.length" style="margin-left: -20px;">MRA chart review has been already done for this member.</p>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+
+<div bsModal #userModal="bs-modal" [config]="{backdrop: 'static'}" class="modal fade u-modal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h4  class="modal-title" >{{measureName}} - Update GAP</h4>
+            <button type="button" class="close" (click)="userModal.hide()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+         <div class="modal-body Update-gap-modal">
+            <div class="row">
+               <div class="col-6 col-lg-4">
+                  <div class="card">
+                     <div class="card-body p-0 clearfix">
+                        <i class="fa fa-user orange-bg p-4 font-2xl mr-3 float-left"></i>
+                        <div class="h5 mb-0 pt-3">Member Name</div>
+                        <!-- {{gapMember?.subscribermidname}}  -->
+                        <div class="text-capitalize">{{gapMember?.subscribelastname}}, {{gapMember?.subscriberFirstname}}</div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col-6 col-lg-4">
+                  <div class="card">
+                     <div class="card-body p-0 clearfix">
+                        <i class="fa fa-address-book light-green-bg p-4 font-2xl mr-3 float-left"></i>
+                        <div class="h5 mb-0 pt-3">Unique Member ID</div>
+                        <div class="text-capitalize"> {{gapMember?.subscriberid}}</div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col-6 col-lg-4">
+                  <div class="card">
+                     <div class="card-body p-0 clearfix">
+                        <i class="fa fa-user-md blue-bg p-4 font-2xl mr-3 float-left"></i>
+                        <div class="h5 mb-0 pt-3">Provider's Name</div>
+                        <div class="text-capitalize">{{gapMember?.pcplastname}} {{gapMember?.pcpmidname}} {{gapMember?.pcpfirstname}} </div>
+                        <!-- <div class="text-uppercase">{{gapMember?.PROVIDER_FirstName}} {{gapMember?.PROVIDER_MidName}} {{gapMember?.PROVIDER_LastName}}</div> -->
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="row">
+               <div class="col-6 col-lg-4">
+                  <div class="card">
+                     <div class="card-body p-0 clearfix">
+                        <i class="fa fa-medkit dark-bg p-4 font-2xl mr-3 float-left"></i>
+                        <div class="h5 mb-0 pt-3">HealthPlan/Insurance</div>
+                        <div class="text-capitalize">{{gapMember?.hpname}}</div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col-6 col-lg-4">
+                  <div class="card">
+                     <div class="card-body p-0 clearfix">
+                        <i class="fa fa-calendar gold-bg p-4 font-2xl mr-3 float-left"></i>
+                        <div class="h5 mb-0 pt-3">DOB</div>
+                        <div class="text-capitalize">{{gapMember?.dob | date}}</div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col-6 col-lg-4">
+                  <div class="card">
+                     <div class="card-body p-0 clearfix">
+                        <i class="fa fa-users red-bg p-4 font-2xl mr-3 float-left"></i>
+                        <div class="h5 mb-0 pt-3">Gender</div>
+                        <div class="text-capitalize">{{gapMember?.gender}}</div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <form action="" class="form-horizontal gap-form" autocomplete="off" #fillGaps="ngForm">
+               <!-- //common component for retreiving gap templates according to measureid -->
+            <app-gap-modal [gapSubmit]="gapSubmit" #childGapTemplate></app-gap-modal>
+            <div class="form-group row">
+               <div class="col-md-12">
+                  <div class=" upload-doc">
+                     <label>Upload Docs</label>
+                     <div >
+                        <!-- alert('Reminder:  All documents uploaded must contain the following components:\n · Date of service of the procedure \n · Rendering provider has signed the note/procedure \n · Documentation submitted includes, at a minimum, two patient identifiers') -->
+                        <label class="upload-button">
+                           <button *ngIf="showChildModalBtn" (click)="reminderModal.show();" class="btn">Upload Files</button>
+                           <input *ngIf="showBrowseFilesBtn" type="file" id="upload-file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event,'video')" [uploadInput]="uploadInput" multiple #fileUpload>
+                        </label>
+                        <div class="upload-items">
+                           <div class="upload-item" *ngFor="let f of videofiles; let i = 'index';">
+                              <span class="filename">
+                                 <span>{{ f.name }} - {{ f.progress?.data?.percentage }}%</span>
+                                 <span>uploading with {{ f.progress?.data?.speedHuman }}</span>
+                                 <span class="fa fa-close" (click)="removeFile(f.id)"></span>
+                              </span>
+                              <div  class="progress progress mb-0">
+                                 <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar bg-success progress-bar-animated progress" role="progressbar" [style.width]="f?.progress?.data?.percentage + '%'"></div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="py-3" *ngIf="errorFiles?.length">
+                           <div *ngFor="let item of errorFiles" class="text-danger">{{item.name}} donot have a valid file format and is not uploaded.</div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+           
+            <div class="form-group row" *ngIf="gapSubmit?.gapdoc?.length">
+               <div class="col-md-12">
+                  <div class="upload-doc">
+                     <label>Uploaded Documents List</label>
+                     <ol>
+                        <li *ngFor="let d of gapSubmit?.gapdoc; let i = 'index';" class="f-14">
+                           {{d.filename}} <a target="_blank" [href]="CONTENT_BASE+d.fileaddress"><i class="fa fa-file-pdf-o text-danger pl-2"></i></a>
+                           <a href="javascript:void(0)" (click)="removeGapDoc(d)"><i class="fa fa-times text-danger pl-2"></i></a>
+                        </li>
+                     </ol>
+                  </div>
+               </div>
+            </div>
+ 
+            <div class="form-group row" style="margin-top:10px;">
+   <div class="col-md-12">
+         
+         <div class="gap-checkbox d-inline-block" style="margin-top:4px;">
+            <input style="margin-right:10px;" [(ngModel)]="disclaimer" name="disclaimer" type="checkbox" value="option2">
+         </div>
+         <label style="width: 96%;text-align: justify;vertical-align: top;">Disclaimer: <span style="font-weight: normal;">User understands that measures submitted to the portal will not be included in numerator values until approved by the auditor, which may take up to 30 days. If you believe a submission was rejected in error, please contact your system administrator.</span></label>
+      </div>
+   </div>
+
+
+   <div class="form-group row" [ngSwitch]="gapSubmit?.measureid">
+
+    <div class="col-md-12" *ngSwitchCase="1">
+    
+          <button   *ngIf="!gapSubmit?.gapsid" (click)="disableBtn = true;updateGapClosure()" 
+          [disabled]="disableBtn || !(videofiles?.length > 0  || gapSubmit?.gapdoc?.length > 0) || !disclaimer || !gapSubmit?.procedurecode"
+             type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+
+          <button  *ngIf="gapSubmit?.gapsid && gapSubmit?.status !== 'approved'" (click)="disableBtn = true;modifyGapClosure()"
+             [disabled]="disableBtn || !(videofiles?.length > 0  || gapSubmit?.gapdoc?.length > 0) || !disclaimer || !gapSubmit?.procedurecode"
+             type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Update</button>
+    </div>
+
+    <div class="col-md-12" *ngSwitchCase="3">
+    
+          <button   *ngIf="!gapSubmit?.gapsid" (click)="disableBtn = true;updateGapClosure()" 
+          [disabled]="disableBtn || !(videofiles?.length > 0  || gapSubmit?.gapdoc?.length > 0) || !disclaimer || !gapSubmit?.ccc_result"
+             type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+
+          <button  *ngIf="gapSubmit?.gapsid && gapSubmit?.status !== 'approved'" (click)="disableBtn = true;modifyGapClosure()"
+             [disabled]="disableBtn || !(videofiles?.length > 0  || gapSubmit?.gapdoc?.length > 0) || !disclaimer || !gapSubmit?.ccc_result"
+             type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Update</button>
+    </div>
+
+    <div class="col-md-12" *ngSwitchCase="4">
+    
+          <button   *ngIf="!gapSubmit?.gapsid" (click)="disableBtn = true;updateGapClosure()" 
+          [disabled]="disableBtn || !(videofiles?.length > 0  || gapSubmit?.gapdoc?.length > 0) || !disclaimer || !gapSubmit?.dee_result"
+             type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+
+          <button  *ngIf="gapSubmit?.gapsid && gapSubmit?.status !== 'approved'" (click)="disableBtn = true;modifyGapClosure()"
+             [disabled]="disableBtn || !(videofiles?.length > 0  || gapSubmit?.gapdoc?.length > 0) || !disclaimer || !gapSubmit?.dee_result"
+             type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Update</button>
+    </div>
+
+    <div class="col-md-12" *ngSwitchCase="5">
+    
+          <button   *ngIf="!gapSubmit?.gapsid" (click)="disableBtn = true;updateGapClosure()" 
+          [disabled]="disableBtn || !(videofiles?.length > 0  || gapSubmit?.gapdoc?.length > 0) || !disclaimer || gapSubmit?.resultvalue == null"
+             type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+
+          <button  *ngIf="gapSubmit?.gapsid && gapSubmit?.status !== 'approved'" (click)="disableBtn = true;modifyGapClosure()"
+             [disabled]="disableBtn || !(videofiles?.length > 0  || gapSubmit?.gapdoc?.length > 0) || !disclaimer || gapSubmit?.resultvalue == null"
+             type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Update</button>
+    </div>
+
+    <div class="col-md-12" *ngSwitchDefault>
+
+       <button   *ngIf="!gapSubmit?.gapsid" (click)="disableBtn = true;updateGapClosure()" 
+       [disabled]="disableBtn || !(videofiles?.length > 0  || gapSubmit?.gapdoc?.length > 0) || !disclaimer" type="submit"
+        class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+
+       <button  *ngIf="gapSubmit?.gapsid && gapSubmit?.status !== 'approved'" (click)="disableBtn = true;modifyGapClosure()" 
+       [disabled]="disableBtn || !(videofiles?.length > 0  || gapSubmit?.gapdoc?.length > 0) || !disclaimer" type="submit" 
+       class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Update</button>
+
+    </div>
+    
+ </div>
+   <!-- <div class="form-group row">
+            <div class="col-md-12">
+               <button   *ngIf="!gapSubmit?.gapsid" (click)="disableBtn = true;updateGapClosure()" [disabled]="disableBtn || !(videofiles?.length > 0  || gapSubmit?.gapdoc?.length > 0) || !disclaimer" type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+               <button  *ngIf="gapSubmit?.gapsid && gapSubmit?.status !== 'approved'" (click)="disableBtn = true;modifyGapClosure()" [disabled]="disableBtn || !(videofiles?.length > 0  || gapSubmit?.gapdoc?.length > 0) || !disclaimer" type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Update</button>
+            </div>
+         </div> -->
+
+        <!--  <div class="form-group row">
+            <div class="col-md-12 f-14 text-center" style="background: #63ae68;color:#fff;padding:10px 0px;">
+               Upload has been successful. Click <a href="javascript:void(0)" style="color: #fff;text-decoration: underline;" (click)="userModal.hide()">here</a> to proceed.
+               
+            </div>
+         </div> -->
+         </form>
+      </div>
+      <div class="modal-footer">
+      </div>
+   </div>
+   <!-- /.modal-content -->
+</div>
+<!-- /.modal-dialog -->
+</div>
+
+<!-- Reminder modal before uploading files -->
+<div class="modal fade child-modal u-modal" bsModal #reminderModal="bs-modal" [config]="{backdrop: 'static'}"
+     tabindex="-1" role="dialog" aria-labelledby="dialog-static-name">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="dialog-static-name" class="modal-title pull-left">Reminder</h4>
+        
+       
+      </div>
+      <div class="modal-body f-14">
+        <p><b>All documents uploaded must contain the following components:</b></p>
+        <ul>
+           <li>Date of service of the procedure</li>
+           <li>Rendering provider has signed the note/procedure</li>
+           <li>Documentation submitted includes, at a minimum, two patient identifiers</li>
+        </ul>
+      </div>
+      <button class="btn" (click)="reminderModal.hide();showBrowseFilesBtn = true;showChildModalBtn=false;">OK</button>
+    </div>
+  </div>
+</div>
+
+
+
+

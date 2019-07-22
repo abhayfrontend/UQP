@@ -1,0 +1,116 @@
+<app-help class="d-none"></app-help>
+<div class="u-heading">
+  <h2>Pevalence Report</h2>
+</div>
+<div class="p-s-search">
+  <div class="download-option" *ngIf="gapMeasures?.length">
+    <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span
+        class="download-text">Download Pdf</span></span>
+    <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span
+        class="download-text">Download Excel Sheet</span></span>
+  </div>
+  <form autocomplete="off" class="form-inline" #providerScorecard="ngForm">
+    <div class="col-md-3 mb-2 mr-sm-2 mb-sm-0" style="position: relative;padding: 0;" *ngIf="rolename!='provider'">
+      <!-- [ngClass]="{'input-loading': searching}" -->
+      <input [(ngModel)]="provider_name" (keyup)="searchProvider()" (focus)="showPanel = true" (focusout)="hidePanel()"
+        class="form-control " name="provider_name" placeholder="Search Provider" type="text" required
+        style="width:100%">
+      <img *ngIf="searching" class="input-loading-img" src="assets/img/input-spinner.gif">
+      <div *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="min-width:100%">
+        <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+        <div *ngFor="let member of members"><a *ngIf="member.FirstName" href="javascript:void(0)" class="dropdown-item"
+            (click)="getInsurance(member)">
+            {{member?.LastName}} {{member?.FirstName}} <span *ngIf="member.email"> | {{member.email}} </span>
+          </a>
+        </div>
+      </div>
+      <div *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+        <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+        <div><a href="javascript:void(0)" class="dropdown-item">
+            No provider found
+          </a>
+        </div>
+      </div>
+      <p class="error-bx" *ngIf="insurance_list?.length ==0 ">No healthplan associated with this provider</p>
+    </div>
+    <select [(ngModel)]="provider.healthplanid" *ngIf="insurance_list?.length >0 && rolename !== 'healthplan'"
+      class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2" name="insurance" (change)="showDates = true;setHealthplan()"
+      required>
+      <option [selected]="true" value="">Select Healthplan</option>
+      <option *ngFor="let insurance of insurance_list" [value]="insurance.healthplan_id">
+        {{ insurance.health_Name }}
+      </option>
+      <option value="0">All</option>
+    </select>
+    <select *ngIf="showDates" [(ngModel)]="provider.year" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2" name="year"
+      (change)="checkMonth(provider.year)" required>
+      <option [selected]="true" value="">Select year</option>
+      <option *ngFor="let year of years" [value]="year">{{year}}</option>
+    </select>
+
+
+    <button type="submit" class="btn btn-primary btn-sm" (click)="getPrevalence(true)"
+      [disabled]="providerScorecard.form.invalid || !checkvalidity"><span><i class="fa fa-file"></i></span>View
+      Report</button>
+
+  </form>
+</div>
+<div class="custom-container">
+  <div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob report-table blur">
+    <thead>
+      <tr>
+        <th>S.No.</th>
+        <th>HCC </th>
+        <th>PCP Avg </th>
+        <th>Overall Avg</th>
+        <th>PCP without HCC</th>
+
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr *ngFor="let member of member_list; let i = 'index'">
+        <td data-label="S.No." *ngIf="page == 1">{{i+1}}</td>
+        <td data-label="S.No." *ngIf="page > 1">{{(i+1)+(page-1)*provider.pageSize}}</td>
+
+
+        <td data-label="HCC">{{member.hcc}}</td>
+        <td data-label="pcp avg">{{member.providerpercent | round}}</td>
+
+        <td data-label="overall avg">{{member.overallpercent | round}}</td>
+
+        <td data-label="overall avg"><a href="javascript:void(0)" target="_blank"
+            [routerLink]="['/reports/mra/members']"
+            (click)="storeHccDetails(member.hcc)">{{member.withoutHCCpercent | round}}</a></td>
+
+
+      </tr>
+    </tbody>
+  </table>
+  <nav *ngIf="total_pages > 15" aria-label="Page navigation example" style="    margin-top: 25px;">
+    <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+      <li class="page-item">
+        <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1"
+          (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+          <span class="sr-only">Previous</span>
+        </a>
+      </li>
+      <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item">
+        <a href="javascript:void(0)" (click)="loadByPage(p)" class="page-link">{{p}}</a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="javascript:void(0)" [class.disabled]="page === total_pages"
+          (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+          <span class="sr-only">Next</span>
+        </a>
+      </li>
+      <li class="custom_page"><input type="number" min="1" onkeypress="return event.charCode != 45" #pgno>
+        <button class="btn  btn-primary" (click)="loadByPage(pgno.value)">goto page</button>
+      </li>
+    </ul>
+  </nav>
+  <!--   <button type="submit" class="btn btn-primary btn-sm" (click)="getProviderMembers()" >View members</button> -->
+</div>

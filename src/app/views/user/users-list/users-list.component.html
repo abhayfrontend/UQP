@@ -1,0 +1,787 @@
+<app-help class="d-none"></app-help>
+<div class="u-heading">
+    <h2>User Listing</h2>
+    <div class="pull-right">
+        <!-- <div class="u-search">
+        <input type="text" class="form-control" [(ngModel)]="search_text" type="text" (keyup)="search()" placeholder="Search..">
+        <i class="material-icons">search</i>
+    </div> -->
+
+        <form action="" class="form-inline" autocomplete="off">
+            <label class="f-14 mx-1">Search By</label>
+            <div class="form-group p-1 ">
+                <label class="sr-only" for="if-password">Category</label>
+                <select [(ngModel)]="search_category" class="form-control col-12" id="select" name="gender">
+                    <option [selected]="true" value="">Select category</option>
+                    <option value="name">Member Name</option>
+                    <option value="id">Email </option>
+                    <option value="dob">DOB</option>
+                </select>
+            </div>
+            <div class="form-group p-1">
+                <label class="sr-only" for="if-password">Search</label>
+                <input type="text" name="search" [disabled]="!search_category" class="form-control col-12"
+                    (keyup)="search_value(term.value)" type="text" placeholder="Search.." #term>
+            </div>
+            <i class="material-icons" (click)="search(term.value)" style="padding-left: 11px;
+    padding-right: 106px;">search</i>
+
+
+
+            <!-- <span *ngIf="userRolePerm?.add" class="add-text d-none d-md-inline-block">Add User</span> -->
+            <div class="form-group p-1" style="margin-left:30px;">
+                <span *ngIf="userRolePerm?.add" class="add-more" data-toggle="modal" (click)="createUser(UserList)"
+                    style="top:12px;">
+                    <a><i class="material-icons">add</i></a>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="filter-bar" style="z-index: 0">
+    <div class="download-option mt-0" *ngIf="users?.length">
+        <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span
+                class="download-text">Download Pdf</span></span>
+        <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span
+                class="download-text">Download Excel Sheet</span></span>
+    </div>
+    <form action="" class="form-inline" autocomplete="off">
+        <div class="form-group">
+            <i class="fa fa-filter"></i>
+            <label for="inputPassword6" class="filter-label">Filter By</label>
+
+        </div>
+        <div class="form-group  p-1 ">
+            <label class="sr-only" for="if-password">Status</label>
+            <select [(ngModel)]="params.status" class="form-control col-12" name="status">
+                <option [selected]="true" value="">Status</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+                <option value="">All</option>
+            </select>
+        </div>
+        <div class="form-group  p-1 ">
+            <label class="sr-only" for="if-password">User role</label>
+            <select [(ngModel)]="params.roleid" class="form-control col-12" name="user-role">
+                <option [selected]="true" value="">User Role</option>
+                <option *ngFor="let role of user_role" [value]="role.User_Role_ID" [label]="role.User_Role_Name">
+                    {{ role.User_Role_Name }}
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-view-provider btn-sm ml-2 mr-1" (click)="getUsers(true)"><span><i
+                        _ngcontent-c16="" class="fa fa-eye"></i></span>View Users</button>
+            <button type="button" class="btn btn-reset btn-sm ml-1 mr-2" (click)="resetFilters()"><span><i
+                        class="fa fa-refresh"></i>
+                </span>Reset</button>
+        </div>
+    </form>
+</div>
+<nav *ngIf="total_pages>15" aria-label="Page navigation example" class="top-paging">
+    <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+        <li class="page-item  mr-2">
+            <a class="page-link" href="javascript:void(0)" *ngIf="page !== 1" [class.disabled]="page === 1"
+                (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+                <!-- <i class="fa fa-arrow-circle-left" aria-hidden="true"></i> -->
+                <i class="fa fa-angle-left" aria-hidden="true"></i>
+            </a>
+        </li>
+
+        <li class="page-item">
+            <a class="page-link" href="javascript:void(0)" *ngIf="pager.currentPage !== pager.total_pages"
+                [class.disabled]="next_page === 'total_pages'" (click)="loadByPage(pager.currentPage + 1)"
+                aria-label="Next">
+                <i class="fa fa-angle-right" aria-hidden="true"></i>
+            </a>
+        </li>
+
+    </ul>
+</nav>
+<div class="custom-container">
+    <div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+    <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+        <thead>
+            <tr>
+                <th style="width:61px;">S.No.</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th style="width:97px;">Type</th>
+                <th>Role</th>
+                <th>Mobile No.</th>
+                <th>IPA</th>
+                <th>HealthPlan</th>
+                <th>Alternate No.</th>
+                <th style="width:82px;">Gender</th>
+
+                <th>Address</th>
+                <th *ngIf="userRolePerm?.edit">Status</th>
+                <th *ngIf="userRolePerm?.edit">Edit</th>
+                <th *ngIf="userRolePerm?.edit"> Reset password</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let user of users; let i = 'index'">
+                <td data-label="S.No." *ngIf="page == 1">{{i+1}}</td>
+                <td data-label="S.No." *ngIf="page > 1">{{(i+1)+(page-1)*params.pageSize}}</td>
+                <td data-label="Name">
+                    <!-- {{user.User_MiddleName?.toLowerCase()}} -->
+                    <div class="text-capitalize" style="cursor:pointer;color:#20a8d8"
+                        [routerLink]="['/user/view/'+user.User_ID]">{{user.User_LastName?.toLowerCase()}},
+                        {{user.User_FirstName?.toLowerCase()}}</div>
+                    <!-- <div class="small text-muted">
+                    <span>New</span> | Registered: Jan 1, 2015
+                </div> -->
+                </td>
+                <td data-label="Email" class="text-lowercase">{{user.User_Email}}
+                </td>
+                <td data-label="User Type">{{user.User_Type.User_Type_Name}}
+                </td>
+                <td data-label="Role">{{user.User_Role.User_Role_Name}}
+                </td>
+                <td data-label="Mobile No.">{{user.User_MobileNumber}}</td>
+                <td data-label="IPA"><span *ngFor="let x of user.ipa">{{ x.IPA_Name}},</span> </td>
+                <td data-label="HealthPlan"><span *ngFor="let x of user.healthplan">{{ x.health_Name}},</span> </td>
+
+
+                <td data-label="Alternate No." *ngIf="user?.User_WorkNumber">{{user.User_WorkNumber}}
+                </td>
+                <td data-label="Alternate No." *ngIf="!user?.User_WorkNumber"> -
+                </td>
+                <td data-label="Gender">{{user.User_Gender?.toLowerCase()}}
+                </td>
+
+                <td data-label="Address" *ngIf="user?.User_Address">{{user.User_Address}}
+                </td>
+                <td data-label="Address" *ngIf="!user?.User_Address"> -
+                </td>
+                <td data-label="Status" *ngIf="userRolePerm?.edit">
+                    <label class="switch switch-icon switch-pill switch-success">
+                        <input [disabled]="!userRolePerm?.edit"
+                            (click)="updateUserStatus(user.User_ID, user.Status, user.User_FirstName, i)"
+                            checked="user.Status" class="switch-input" type="checkbox" [(ngModel)]="user.Status">
+                        <span class="switch-label" data-off="" data-on=""></span>
+                        <span class="switch-handle"></span>
+                    </label>
+                </td>
+                <td data-label="edit" *ngIf="userRolePerm?.edit">
+                    <a href="javascript:void(0)" (click)="editUser(user.User_ID)"><i class="fa fa-edit"
+                            style="font-size:24px"></i></a>
+                </td>
+                <td data-label="reset-password" class="text-center" *ngIf="userRolePerm?.edit">
+                    <a (click)="resetPassword(user.User_ID)">
+                        <i class="fa fa-key" aria-hidden="true"></i></a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <nav *ngIf="total_pages > 15" aria-label="Page navigation example" style="    margin-top: 25px;">
+        <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+            <li class="page-item">
+                <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1"
+                    (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                </a>
+            </li>
+            <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item">
+                <a href="javascript:void(0)" (click)="loadByPage(p)" class="page-link">{{p}}</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="javascript:void(0)" [class.disabled]="page === total_pages"
+                    (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </li>
+            <li class="custom_page"><input type="number" onkeypress="return event.charCode != 45" min="1" #pgno>
+                <button class="btn  btn-primary" (click)="loadByPage(pgno.value)">goto page</button>
+            </li>
+        </ul>
+    </nav>
+</div>
+<div bsModal #userModal="bs-modal" class="modal fade u-modal " tabindex="-1" role="dialog"
+    [config]="{backdrop: 'static'}" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 *ngIf="save_add_form" class="modal-title">Add User</h4>
+                <h4 *ngIf="!save_add_form" class="modal-title">Edit User</h4>
+                <button type="button" class="close" (click)="userModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form autocomplete="off" action="" class="form-horizontal" #UserList="ngForm">
+                    <!-- ;UserList.reset() -->
+                    <div class="form-group row mb-0">
+                        <label>Select Organisation</label>
+                    </div>
+                    <div class="form-group row">
+
+                        <div class="col-md-4">
+
+                            <div>HEDIS &nbsp;<input [(ngModel)]="organisation.hedis" name="inline-checkbox1"
+                                    type="checkbox" value="option1"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div>MRA &nbsp;<input [(ngModel)]="organisation.mra" name="inline-checkbox2" type="checkbox"
+                                    value="option2"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div>ACO &nbsp;<input [(ngModel)]="organisation.aco" name="inline-checkbox3" type="checkbox"
+                                    value="option3"></div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label>User Type</label>
+                            <select [(ngModel)]="add_user.User_Type_ID" class="form-control" name="user-type" required
+                                #user_type="ngModel"
+                                (change)="checkType($event.target.selectedOptions[0].label); showUserRole = false;">
+                                <option [selected]="true" value="">User Type</option>
+                                <option value="1" label="Internal">Internal</option>
+                                <option value="2" label="External">External</option>
+                                <option value="3" label="Office Staff">Office Staff</option>
+                            </select>
+                            <small *ngIf="fSubmitted" class="text-danger"
+                                [hidden]="user_type.valid || (user_type.pristine && !UserList.submitted)">
+                                Please select user type
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <label>User Role</label>
+                            <select [disabled]="office_exist || showUserRole" [(ngModel)]="add_user.User_Role_ID"
+                                class="form-control role-select" name="user-role" required #userRole="ngModel"
+                                (change)="checkRole(add_user.User_Role_ID)">
+                                <option [selected]="true" value="">User Role</option>
+                                <option *ngFor="let role of user_role" [value]="role.User_Role_ID"
+                                    [label]="role.User_Role_Name">
+                                    {{ role.User_Role_Name }}
+                                </option>
+                            </select>
+                            <!--   <small *ngIf="fSubmitted" class="text-danger" [hidden]="userRole.valid || (userRole.pristine && !UserList.submitted)">
+                        Please select user role.
+                        </small> -->
+                            <div *ngIf="userRole.errors"
+                                [hidden]="userRole.valid || (userRole.pristine && !UserList.submitted)">
+                                <small class="text-danger" *ngIf="userRole.errors.required && fSubmitted">User role is
+                                    required</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="ipa_exist">
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <!-- <label>Search Provider</label> -->
+                                <select [(ngModel)]="add_user.User_IPA_ID" class="form-control " name="ipa" required
+                                    #ipa="ngModel">
+                                    <option [selected]="true" value="">Select IPA</option>
+                                    <option [label]="ipa.IPA_Name" *ngFor="let ipa of ipa_list" [value]="ipa.IPA_ID">
+                                        {{ ipa.IPA_Name }}
+                                    </option>
+                                </select>
+
+
+                                <div *ngIf="ipa.errors" [hidden]="ipa.valid || (ipa.pristine && !UserList.submitted)">
+                                    <small class="text-danger" *ngIf="ipa.errors.required && fSubmitted">IPA is
+                                        required</small>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div *ngIf="!ipa_exist && !healthplan_exist">
+                        <div class="form-group row" style="margin-bottom:0px;">
+                            <div class="col-md-12">
+                                <label>Select associated IPA</label>
+                                <angular2-multiselect name="items" [data]="ipa_list" [(ngModel)]="selectedItems"
+                                    name="associatedipa" required #associated="ngModel" [settings]="dropdownSettings"
+                                    *ngIf="ipa_list?.length"></angular2-multiselect>
+
+                                <!-- <div *ngIf="associated?.errors " [hidden]="associated.valid || (associated.pristine && !UserList.submitted)"  style="margin-top: -15px;margin-bottom: 5px;">
+                                <small class="text-danger" *ngIf="associated.errors.required && fSubmitted">IPA is required</small>
+                            </div> -->
+                                <small class="text-danger" *ngIf="selectedItems.length==0 && fSubmitted">IPA is
+                                    required</small>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div *ngIf="!ipa_exist && !healthplan_exist">
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label>Select Default IPA</label>
+                                <select [(ngModel)]="add_user.DefaultIPA" class="form-control " name="default_ipa"
+                                    required #default_ipa="ngModel">
+                                    <option [selected]="true" value="">Select Default IPA</option>
+                                    <option [label]="ipa.IPA_Name" *ngFor="let ipa of ipa_list" [value]="ipa.IPA_ID">
+                                        {{ ipa.IPA_Name }}
+                                    </option>
+                                </select>
+
+                                <div *ngIf="default_ipa?.errors "
+                                    [hidden]="default_ipa.valid || (default_ipa.pristine && !UserList.submitted)">
+                                    <small class="text-danger" *ngIf="default_ipa.errors.required && fSubmitted">Default
+                                        IPA is required</small>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div *ngIf="pa_exist">
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label>Assign Provider</label>
+                                <input [(ngModel)]="provider_name" (keyup)="searchProvider()"
+                                    class="form-control text-capitalize" name="provider_name"
+                                    placeholder="Assign Provider" type="text">
+                                <div *ngIf="members?.length>0 && showPanel" class="dropdown-menu show"
+                                    style="left: auto;width:98%;">
+                                    <div class="dropdown-header text-center"><strong>Members associated with
+                                            provider</strong></div>
+                                    <div *ngFor="let member of members">
+                                        <a href="javascript:void(0)" *ngIf="member.FirstName" class="dropdown-item"
+                                            (click)="getMember_PA(member)">
+                                            <span class="text-capitalize">{{member.FirstName}}
+                                                {{member.LastName}}</span> <span *ngIf="member.email"> |
+                                                {{member.email}} </span>
+                                        </a></div>
+                                </div>
+                                <!-- <div *ngIf="email.errors" [hidden]="email.valid || (email.pristine && !UserList.submitted)">
+                                    <small *ngIf="fSubmitted" class="text-danger" *ngIf="email.errors.required">Email is required</small>
+                                    <small *ngIf="fSubmitted" class="text-danger" *ngIf="email.errors.pattern">Email format is not valid</small>
+                                </div> -->
+                                <!-- <small *ngIf="fSubmitted" class="text-danger" *ngIf="email_exist">Email already exist</small> -->
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div *ngIf="healthplan_exist">
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label>Select Health Plan</label>
+                                <select [(ngModel)]="add_user.User_HealthPlan_ID" class="form-control "
+                                    name="healthplan" required #healthplan="ngModel">
+                                    <option [selected]="true" value="">Select Health Plan</option>
+                                    <option [label]="hp.health_Name" *ngFor="let hp of healthplan_list"
+                                        [value]="hp.healthplan_id">
+                                        {{ hp.health_Name }}
+                                    </option>
+                                </select>
+                                <div *ngIf="healthplan.errors"
+                                    [hidden]="healthplan.valid || (healthplan.pristine && !UserList.submitted)">
+                                    <small class="text-danger"
+                                        *ngIf="healthplan.errors.required && fSubmitted">Healthplan is required</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="assurance_exist">
+                        <div class="form-group row">
+                            <div class="col" *ngIf="organisation.hedis">
+                                <label>Select HEDIS Team</label>
+                                <select [(ngModel)]="add_user.HedisTeamId" class="form-control " name="HedisTeam"
+                                    required #HedisTeam="ngModel"
+                                    (change)="add_user.HedisTeam =$event.target.selectedOptions[0].label">
+                                    <option [selected]="true" value="">Select team</option>
+                                    <option value="5" label="AHC Spring Hill">AHC Spring Hill</option>
+                                    <option value="6" label="Blue One">Blue One</option>
+
+                                </select>
+                                <div *ngIf="HedisTeam.errors"
+                                    [hidden]="HedisTeam.valid || (HedisTeam.pristine && !UserList.submitted)">
+                                    <small class="text-danger" *ngIf="HedisTeam.errors.required && fSubmitted">Please
+                                        select Hedis team</small>
+                                </div>
+                            </div>
+                            <div class="col" *ngIf="organisation.mra">
+                                <label>Select MRA Team</label>
+                                <select [(ngModel)]="add_user.MRATeamId" class="form-control " name="MRATeam" required
+                                    #MRATeam="ngModel"
+                                    (change)="add_user.MRATeam =$event.target.selectedOptions[0].label">
+                                    <option [selected]="true" value="">Select team</option>
+                                    <option value="1" label="Data Marshall">Data Marshall</option>
+                                    <option value="2" label="Blue One">Blue One</option>
+                                    <option value="3" label="AHC Spring Hill">AHC Spring Hill</option>
+                                    <option value="4" label="AHC Tampa">AHC Tampa</option>
+                                </select>
+                                <div *ngIf="MRATeam.errors"
+                                    [hidden]="MRATeam.valid || (MRATeam.pristine && !UserList.submitted)">
+                                    <small class="text-danger" *ngIf="MRATeam.errors.required && fSubmitted">Please
+                                        select MRA team</small>
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                    </div>
+
+
+
+                    <div *ngIf="provider_exist">
+                        <div class="form-group row" *ngIf="save_add_form">
+                            <div class="col-md-12">
+                                <label>Search Provider</label>
+                                <input [(ngModel)]="provider_name" (keyup)="searchProvider()"
+                                    class="form-control text-capitalize" name="provider_name"
+                                    placeholder="Search Provider" type="text">
+                                <div *ngIf="members?.length>0 && showPanel" class="dropdown-menu show"
+                                    style="left: auto;width:98%;">
+                                    <div class="dropdown-header text-center"><strong>Members associated with
+                                            provider</strong></div>
+                                    <div *ngFor="let member of members">
+                                        <a href="javascript:void(0)" *ngIf="member.FirstName" class="dropdown-item"
+                                            (click)="getMember(member)">
+                                            <span class="text-capitalize">{{member.FirstName}}
+                                                {{member.LastName}}</span> <span *ngIf="member.email"> |
+                                                {{member.email}} </span>
+                                        </a></div>
+                                </div>
+                                <!-- <div *ngIf="email.errors" [hidden]="email.valid || (email.pristine && !UserList.submitted)">
+                                    <small *ngIf="fSubmitted" class="text-danger" *ngIf="email.errors.required">Email is required</small>
+                                    <small *ngIf="fSubmitted" class="text-danger" *ngIf="email.errors.pattern">Email format is not valid</small>
+                                </div> -->
+                                <!-- <small *ngIf="fSubmitted" class="text-danger" *ngIf="email_exist">Email already exist</small> -->
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <label>Provider Level</label>
+                                <input [(ngModel)]="add_user.level" class="form-control" name="level"
+                                    placeholder="Provider Level" type="text">
+                            </div>
+                            <div class="col-md-4">
+                                <label>Office Type</label>
+                                <select [(ngModel)]="add_user.OfficeType" class="form-control" name="officeType">
+                                    <option value="">Office Type</option>
+                                    <option [selected]="true" value="PCP">PCP</option>
+                                    <option value="Speciality">Speciality</option>
+                                </select>
+                                <small *ngIf="fSubmitted" class="text-danger"
+                                    [hidden]="userRole.valid || (userRole.pristine && !UserList.submitted)">
+                                    Please select user role
+                                </small>
+                            </div>
+                            <div class="col-md-4">
+                                <label>Additional Information</label>
+                                <input [(ngModel)]="add_user.Office_Type_Info" class="form-control" placeholder=""
+                                    type="text" name="Office_Type_Info">
+                                <!-- <div *ngIf="firstName.errors" [hidden]="firstName.valid || (firstName.pristine && !UserList.submitted)">
+                                    <small *ngIf="fSubmitted" class="text-danger" *ngIf="firstName.errors.required">FirstName is required</small>
+                                    <small *ngIf="fSubmitted" class="text-danger" *ngIf="firstName.errors.pattern">FirstName format is not valid</small>
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="office_exist"
+                        class="ui-select-container ui-select-multiple dropdown form-control form-group row" tabindex="0"
+                        style="height:100%!important;">
+                        <div>
+                            <!-- <div class=""></div> -->
+                            <span class="ui-select-match">
+                                <!--template bindings={}--><span
+                                    *ngFor="let provider of add_user?.OfficeStaff_AssignedProvider; let i ='index'">
+                                    <span class="ui-select-match-item btn btn-default btn-xs" tabindex="-1"
+                                        type="button">
+                                        <a href="javascript:void(0)" (click)="removeAssignedProvider(i)" class="close"
+                                            style="margin-left: 5px; padding: 0;">×</a>
+                                        <span>{{provider.FirstName}} {{provider.MidName}} {{provider.LastName}}</span>
+                                    </span>
+                                </span>
+                            </span>
+                            <input [(ngModel)]="provider_name" (keyup)="searchProvider()"
+                                class="form-control ui-select-search" name="assign_providers"
+                                placeholder="Assign Providers" type="text">
+                            <div *ngIf="members?.length>0 && showPanel" class="dropdown-menu show"
+                                style="left: auto;width:98%;">
+                                <div class="dropdown-header text-center"><strong>Members associated with
+                                        provider</strong></div>
+                                <div *ngFor="let member of members">
+                                    <a href="javascript:void(0)" *ngIf="member.FirstName" class="dropdown-item"
+                                        (click)="assignProvider(member)">
+                                        {{member.FirstName}} {{member.LastName}} <span *ngIf="member.email"> |
+                                            {{member.email}} </span>
+                                    </a>
+                                </div>
+                            </div>
+                            <small class="text-danger"
+                                *ngIf="add_user.OfficeStaff_AssignedProvider.length==0 && fSubmitted">Please assign
+                                atleast one provider</small>
+
+                        </div>
+                        <!--template bindings={}-->
+                        <!--template bindings={}-->
+                    </div>
+                    <div *ngIf="duplicateAssigment" class="duplicate">{{duplicateAssigment}}</div>
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <label>Title</label>
+                            <div *ngIf="provider_exist">
+                                <input [(ngModel)]="add_user.title" class="form-control" name="provider-title"
+                                    type="text">
+                            </div>
+                            <div *ngIf="!provider_exist">
+                                <select [(ngModel)]="add_user.title" class="form-control" name="title" required
+                                    #title="ngModel">
+                                    <option [selected]="true" value="">Title</option>
+                                    <option value="Mr.">Mr.</option>
+                                    <option value="Ms.">Ms.</option>
+                                    <option value="Mrs.">Mrs.</option>
+                                    <option value="Dr.">Dr.</option>
+                                </select>
+                                <small *ngIf="fSubmitted" class="text-danger"
+                                    [hidden]="title.valid || (title.pristine && !UserList.submitted)">
+                                    Please select title
+                                </small>
+                            </div>
+                            <!--     <small *ngIf="fSubmitted" class="text-danger" [hidden]="title.valid || (title.pristine && !UserList.submitted)">
+                        Please select user title.
+                        </small> -->
+                        </div>
+                        <div class="col-md-4">
+                            <label>First Name</label>
+                            <input [(ngModel)]="add_user.User_FirstName" class="form-control" name="firstName"
+                                placeholder="First name" type="text" #firstName="ngModel" required pattern="^[A-z]+$"
+                                maxlength="50">
+                            <div *ngIf="firstName.errors"
+                                [hidden]="firstName.valid || (firstName.pristine && !UserList.submitted)">
+                                <small class="text-danger" *ngIf="firstName.errors.required && fSubmitted">FirstName is
+                                    required</small>
+                                <small class="text-danger" *ngIf="firstName.errors.pattern && fSubmitted">FirstName
+                                    format is not valid</small>
+                            </div>
+                        </div>
+                        <!-- <div class="col-md-2">
+                        <label>Middle Name</label>
+                        <input [disabled]="provider_exist && add_user?.User_MiddleName?.length > 0" [(ngModel)]="add_user.User_MiddleName" class="form-control" name="middleName" placeholder="Middle name" type="text" #middleName="ngModel" maxlength="50">
+                        
+                    </div> -->
+                        <div class="col-md-4">
+                            <label>Last Name</label>
+                            <input [(ngModel)]="add_user.User_LastName" class="form-control" name="lastName"
+                                placeholder="Last name" type="text" #lastName="ngModel" required pattern="^[A-z]+$"
+                                maxlength="50">
+                            <div *ngIf="lastName.errors"
+                                [hidden]="lastName.valid || (lastName.pristine && !UserList.submitted)">
+                                <small class="text-danger" *ngIf="lastName.errors.required && fSubmitted">LastName is
+                                    required</small>
+                                <small class="text-danger" *ngIf="lastName.errors.pattern && fSubmitted">LastName format
+                                    is not valid</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <label>Date of Birth</label>
+                            <input [(ngModel)]="add_user.User_DOB" class="form-control" name="dob"
+                                placeholder="Date of Birth" type="text" #dob="ngModel" bsDatepicker
+                                [(bsValue)]="bsValue">
+                            <!--                             <small *ngIf="fSubmitted" class="text-danger" [hidden]="dob.valid || (dob.pristine && !UserList.submitted)">
+                        DOB is required.
+                        </small>  -->
+                        </div>
+                        <div class="col-md-7">
+                            <label>Email Address</label>
+                            <input (focusout)="checkUserEmail(add_user.User_Email)" [(ngModel)]="add_user.User_Email"
+                                class="form-control" name="email" placeholder="Email Address" type="text" required
+                                pattern="^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$" #email="ngModel">
+                            <div *ngIf="email.errors" [hidden]="email.valid || (email.pristine && !UserList.submitted)">
+                                <small class="text-danger" *ngIf="email.errors.required && fSubmitted">Email is
+                                    required</small>
+                                <small class="text-danger" *ngIf="email.errors.pattern && fSubmitted">Email format is
+                                    not valid</small>
+                            </div>
+                            <small class="text-danger" *ngIf="email_exist">Email already exist</small>
+                        </div>
+                        <div class="col-md-2">
+                            <label>Gender</label>
+                            <select [(ngModel)]="add_user.User_Gender" class="form-control" name="gender" required
+                                #gender="ngModel">
+                                <option [selected]="true" value="">Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                            <small *ngIf="fSubmitted" class="text-danger"
+                                [hidden]="gender.valid || (gender.pristine && !UserList.submitted)">
+                                Please select gender
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+
+                        <div class="col-md-6">
+                            <label>Mobile Number</label>
+                            <!-- <input [(ngModel)]="add_user.User_MobileNumber" class="form-control" name="number" placeholder="Mobile Number" type="text" required pattern="^[0-9]*$" #number="ngModel" minlength="10" maxlength="10"> -->
+
+                            <input [(ngModel)]="add_user.User_MobileNumber" class="form-control" name="number"
+                                placeholder="Mobile Number" type="text" required #number="ngModel">
+
+                            <div *ngIf="number.errors"
+                                [hidden]="number.valid || (number.pristine && !UserList.submitted)">
+                                <small class="text-danger" *ngIf="number.errors.required && fSubmitted">Number is
+                                    required</small>
+                                <small class="text-danger" *ngIf="number.errors.pattern && fSubmitted">Number format is
+                                    not valid</small>
+                                <small class="text-danger" *ngIf="number.errors.minlength && fSubmitted">Enter atleast
+                                    10 digits</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Alternate Number</label>
+                            <input [(ngModel)]="add_user.User_WorkNumber" class="form-control" name="number_alt"
+                                placeholder="Alternate Number" type="text" pattern="^[0-9]*$" #number_alt="ngModel"
+                                maxlength="15">
+                            <div *ngIf="number_alt.errors"
+                                [hidden]="number_alt.valid || (number_alt.pristine && !UserList.submitted)">
+                                <!-- <small *ngIf="fSubmitted" class="text-danger" *ngIf="number_alt.errors.required">Number is required</small> -->
+                                <small class="text-danger" *ngIf="number_alt.errors.pattern && fSubmitted">Number format
+                                    is not valid</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="!provider_exist">
+                        <div class="col-md-12">
+                            <label>Address Information </label>
+                            <textarea [(ngModel)]="add_user.User_Address" required minlength="5" class="form-control"
+                                id="textarea-input" name="textarea-input" placeholder="Address Information" rows="9"
+                                style="margin-top: 0px; margin-bottom: 0px; height: 104px;"
+                                #description="ngModel"></textarea>
+                            <div *ngIf="description.errors"
+                                [hidden]="description.valid || (description.pristine && !UserList.submitted)">
+                                <small class="text-danger" *ngIf="description.errors.required && fSubmitted">Address
+                                    information is required</small>
+                                <small class="text-danger" *ngIf="description.errors.minlength && fSubmitted">The
+                                    minimum length should be 5 characters</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" *ngIf="provider_exist && add_user?.customFacility">
+                        <div class="col-md-12">
+                            <label>Select Primary Address</label>
+                            <ul class="facility-list">
+                                <li [ngClass]="{'border-primary': add?.isdefault}"
+                                    *ngFor="let add of add_user?.customFacility" (click)="selectFacility(add,$event)">
+                                    {{add.address}}</li>
+                                <small class="text-danger"
+                                    *ngIf="add_user?.PrimaryFacilityId?.length==0 && showError">Please select primary
+                                    address</small>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <!-- && add_user.PrimaryFacilityId.length!==0 -->
+                            <button *ngIf="save_add_form && !provider_exist && !office_exist"
+                                (click)="addUser(UserList.valid && !email_exist ,userModal);showError = true"
+                                type="submit" class="btn btn-success">
+                                <i class="fa fa-check"></i>&nbsp;Save</button>
+                            <button *ngIf="save_add_form && provider_exist && !office_exist"
+                                (click)="addUser(UserList.valid && !email_exist && add_user.PrimaryFacilityId.length!==0,userModal);showError = true"
+                                type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+                            <button *ngIf="save_add_form && !provider_exist && office_exist"
+                                (click)="addUser(UserList.valid && !email_exist && add_user.OfficeStaff_AssignedProvider.length,userModal);showError = true"
+                                type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+
+                            <button *ngIf="!save_add_form"
+                                (click)="updateUser(UserList.valid && !email_exist,add_user.User_ID,add_user,userModal);showError = true"
+                                type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Update</button>
+                            <!--  <button type="button" class="btn btn-danger" (click)="userModal.hide()"><i class="fa fa-times"></i>&nbsp;Close</button> -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<div bsModal #resetpasswordModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog"
+    [config]="{backdrop: 'static'}" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reset password</h5>
+                <button type="button" class="close" data-dismiss="modal" (click)="resetpasswordModal.hide()"
+                    aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <form class="form-horizontal" autocomplete="off" #changePass="ngForm">
+                    <!-- <h4>Change Password</h4> -->
+                    <!-- <p class="text-muted">Please enter a new password</p> -->
+
+                    <div class=" mb-4">
+                        <label for="message-text" class="col-form-label">New Password</label>
+                        <input [(ngModel)]="changePasswrd.newpassword" name="new_password" class="form-control"
+                            placeholder="New Password" type="password" required #new_password="ngModel">
+                        <div>
+                            <small class="text-danger"
+                                [hidden]="new_password.valid || (new_password.pristine && !changePass.submitted)">
+                                Please enter your new password
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class=" mb-4">
+                        <label for="message-text" class="col-form-label">Confirm Password</label>
+                        <input name="confirm_password" [(ngModel)]="passwordConfirmation" class="form-control"
+                            placeholder="Confirm Password" type="password" required #confirm_password="ngModel">
+                        <div *ngIf="confirm_password.errors"
+                            [hidden]="confirm_password.valid || (confirm_password.pristine && !changePass.submitted)">
+                            <small class="text-danger" *ngIf="confirm_password.errors.required">Please confirm your new
+                                password</small>
+
+                        </div>
+                        <div>
+                            <small class="text-danger" [hidden]="(confirm_password.pristine && !changePass.submitted)"
+                                *ngIf="changePasswrd.newpassword != passwordConfirmation">Password does not
+                                match</small></div>
+                        <div>
+                            <!-- <small class="text-danger"  *ngIf="error">Password updation failed</small> -->
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-success"
+                                (click)="saveresetpassword((changePass.valid) && (changePasswrd.newpassword == passwordConfirmation))"><i
+                                    class="fa fa-check"></i>&nbsp;Save</button>
+
+                        </div>
+                    </div>
+                </form>
+
+
+                <!--   <form>
+         
+          <div class="form-group">
+            <label for="message-text" class="col-form-label">New Password</label>
+            <input [(ngModel)]="changepassword.first" type="password" class="form-control" name="first">
+             <label for="message-text" class="col-form-label">Confirm Password</label>
+            <input [(ngModel)]="changepassword.confirm" type="password" class="form-control" name="second">
+            <button (click)="saveresetpassword()" type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+            
+
+          </div>
+        </form> -->
+            </div>
+            <div class="modal-footer">
+
+
+            </div>
+        </div>
+    </div>
+</div>

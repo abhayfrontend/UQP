@@ -1,0 +1,118 @@
+<app-help class="d-none"></app-help>
+<div class="bulk-mail-container">
+  <h4 class="mail-label">Send mail to </h4>
+  <div class="row" style="margin:0px;">
+    <!--  <div><img (click)="resetState('provider');show = true" [ngClass]="{'mailer-active': isProvider && show}" class="bc-p"> Provider</div>
+  
+  <div><img (click)="resetState('member')" [ngClass]="{'mailer-active': !isProvider && show}" class="bc-m"> Member</div> -->
+    <div class="col-md-6 Bulk-mail-selection" (click)="resetState('provider');show = true"
+      [ngClass]="{'mailer-active': isProvider && show}">provider </div>
+    <div class="col-md-6 Bulk-mail-selection" (click)="resetState('member')"
+      [ngClass]="{'mailer-active': !isProvider && show}"> Member</div>
+  </div>
+  <!-- if provider -->
+  <div *ngIf="isProvider && show">
+    <!-- select all providers -->
+    <div class="select-all"><input [(ngModel)]="providerAll" (click)="offCategoryMail()" name="inline-checkbox1"
+        type="checkbox" value="option1">
+      <span>All Providers</span></div>
+    <!-- <button (click)="postBulkmailDetails('provider')">mail providers</button> -->
+  </div>
+  <!-- if member -->
+  <div *ngIf="!isProvider  && show">
+    <div class="select-all"> <input [(ngModel)]="memberAll" (click)="offCategoryMail()" name="inline-checkbox2"
+        type="checkbox" value="option2">
+      <span>All Members</span></div>
+    <!-- <button (click)="postBulkmailDetails('member')">mail members</button> -->
+  </div>
+
+
+  <div *ngIf="!providerAll && !memberAll && show">
+    <div class="select-all"><input [(ngModel)]="ishealthplan" (click)="groupingCriteria()" name="inline-checkbox1"
+        type="checkbox" value="option1">
+      <span>wrt Healthplan</span></div>
+    <div class="select-all"><input [(ngModel)]="isIPA" (click)="groupingCriteria()" name="inline-checkbox2"
+        type="checkbox" value="option2">
+      <span>wrt IPA</span></div>
+
+    <div class="select-all"><input [(ngModel)]="isMeasure" (click)="groupingCriteria()" name="inline-checkbox3"
+        type="checkbox" value="option3">
+      <span>wrt Measure</span></div>
+
+    <select *ngIf="ishealthplan" [(ngModel)]="healthplanid"
+      (change)="getProviders('healthplan');healthplanName=$event.target.selectedOptions[0].label"
+      class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2 selectplan" name="insurance" required>
+      <option [selected]="true" [value]="undefined">Select Healthplan</option>
+      <option [label]="healthplan.health_Name" *ngFor="let healthplan of healthplan_list"
+        [value]="healthplan.healthplan_id">
+        {{ healthplan.health_Name }}
+      </option>
+    </select>
+    <select *ngIf="isIPA" [(ngModel)]="ipaid"
+      (change)="getProviders('ipa');ipaName=$event.target.selectedOptions[0].label"
+      class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2 selectplan" name="ipa" required>
+      <option [selected]="true" [value]="undefined">Select IPA</option>
+      <option [label]="ipa.IPA_Name" *ngFor="let ipa of ipa_list" [value]="ipa.IPA_ID">
+        {{ ipa.IPA_Name }}
+      </option>
+    </select>
+
+
+    <!-- select group of providers -->
+
+    <angular2-multiselect *ngIf="itemList.length > 0" [data]="itemList" [(ngModel)]="selectedItems"
+      [settings]="settings" (onSelect)="onItemSelect($event)" (onDeSelect)="OnItemDeSelect($event)"
+      (onSelectAll)="onSelectAll($event)" (onDeSelectAll)="onDeSelectAll($event)">
+    </angular2-multiselect>
+
+    <angular2-multiselect *ngIf="isMeasure" [data]="measures" [(ngModel)]="selectedItems" [settings]="measuresettings"
+      (onSelect)="onItemSelect($event)" (onDeSelect)="OnItemDeSelect($event)" (onSelectAll)="onSelectAll($event)"
+      (onDeSelectAll)="onDeSelectAll($event)">
+    </angular2-multiselect>
+
+  </div>
+
+  <div class="mail-subject">
+    <h4 class="mail-label">Mail Subject </h4>
+    <input type="text" name="emailsubject" [(ngModel)]="emailsubject">
+  </div>
+  <h4 class="mail-label">Mail Body</h4>
+  <quill-editor [(ngModel)]="emailbody" [style]="{height:'300px'}"></quill-editor>
+
+  <div class="form-group row">
+    <div class="col-md-12">
+      <div class="upload-doc">
+        <h4 class="mail-label">Upload Docs</h4>
+        <div>
+          <label class="upload-button">
+            <input type="file" id="upload-file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
+              [uploadInput]="uploadInput">
+          </label>
+          <div class="upload-items">
+            <div class="upload-item" *ngFor="let f of files; let i = 'index';">
+              <span class="filename">
+                <span>{{ f.name }} - {{ f.progress?.data?.percentage }}%</span>
+                <!-- <span>uploading with {{ f.progress?.data?.speedHuman }}</span> -->
+                <span class="fa fa-close" (click)="removeFile(f.id)"></span>
+              </span>
+              <div class="progress progress mb-0">
+                <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25"
+                  class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar"
+                  [style.width]="f?.progress?.data?.percentage + '%'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isProvider && show">
+    <button class="mail-button" (click)="postBulkmailDetails('provider')"><i class="material-icons">near_me</i> Mail
+      Providers</button>
+  </div>
+  <div *ngIf="!isProvider  && show">
+    <button class="mail-button" (click)="postBulkmailDetails('member')"><i class="material-icons">near_me</i> Mail
+      Members</button>
+  </div>
+</div>

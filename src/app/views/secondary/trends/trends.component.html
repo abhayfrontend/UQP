@@ -1,0 +1,245 @@
+<div class="animated fadeIn trend_section">
+   <div _ngcontent-c12="" class="dash btn-group btn-group-toggle mt-3 w-100">
+      <label class="btn btn-outline-primary" [ngClass]="{'active':hedis_trend_view}"
+         (click)="hedis_trend_view = true;mra_trend_view=false;">HEDIS Trend</label>
+      <label class="btn btn-outline-primary" [ngClass]="{'active':mra_trend_view}"
+         (click)="hedis_trend_view = false;mra_trend_view=true;">MRA Trend</label>
+   </div>
+
+
+   <div class="" *ngIf="hedis_trend_view">
+      <div class="card" id="membership_trend">
+         <div class="card-header">
+            Membership Trend
+            <div class="btn-group ml-3 mt-1" role="group" aria-label="Default button group">
+               <button (click)="member_trend_graph=false;member_trend.name='totalmembers';getMemberTrends()"
+                  [ngClass]="{'btn-primary' : member_trend.name=='totalmembers'}" class="btn " type="button">Total
+                  Members</button>
+               <button (click)="member_trend_graph=false;member_trend.name='termed';getMemberTrends()"
+                  [ngClass]="{'btn-primary' : member_trend.name=='termed'}" class="btn " type="button">Termed</button>
+               <button (click)="member_trend_graph=false;member_trend.name='aged';getMemberTrends()"
+                  [ngClass]="{'btn-primary' : member_trend.name=='aged'}" class="btn " type="button">Aged</button>
+               <button (click)="member_trend_graph=false;member_trend.name='disabled';getMemberTrends()"
+                  [ngClass]="{'btn-primary' : member_trend.name=='disabled'}" class="btn "
+                  type="button">Disabled</button>
+               <button (click)="member_trend_graph=false;member_trend.name='snp';getMemberTrends()"
+                  [ngClass]="{'btn-primary' : member_trend.name=='snp'}" class="btn " type="button">SNP</button>
+               <button (click)="member_trend_graph=false;member_trend.name='nonsnp';getMemberTrends()"
+                  [ngClass]="{'btn-primary' : member_trend.name=='nonsnp'}" class="btn " type="button">Non SNP</button>
+            </div>
+
+            <div class="btn-group ml-3 mt-1" role="group" aria-label="Default button group">
+               <button (click)="member_trend_graph=false;member_trend.healthplanid=1;getMemberTrends()"
+                  [ngClass]="{'btn-primary' : member_trend.healthplanid==1}" class="btn " type="button">HP Wise</button>
+               <button (click)="member_trend_graph=false;member_trend.healthplanid=0;getMemberTrends()"
+                  [ngClass]="{'btn-primary' : member_trend.healthplanid==0}" class="btn " type="button">IPA
+                  wise</button>
+            </div>
+
+            <div class="download-option">
+               <span class="pdf-icon d-block" (click)="GeneratePDF('membership_trend')"><i class="fa fa-file-pdf-o"
+                     aria-hidden="true"> </i><span class="download-text">Export Pdf</span></span>
+            </div>
+            <form action="" autocomplete="off" class="form-inline pull-right" novalidate="">
+               <select [(ngModel)]="member_trend.range" class="form-control" name="member_trend_range"
+                  (change)="graph_range_calc(member_trend.range, 'member')">
+                  <option value="">Select range</option>
+                  <option value="3">Last 3 months</option>
+                  <option value="6">Last 6 months</option>
+                  <option value="9">Last 9 months</option>
+                  <option value="12">Last 12 months</option>
+               </select>
+            </form>
+            <span class="pull-right"><b>Aged (Age > 65) | Disabled (Age < 65)</b> </span> </div> <div class="card-body">
+                     <div class="chart-wrapper" *ngIf="member_trend_graph">
+                        <canvas baseChart class="chart" [datasets]="memberTrendData" [labels]="memberTrendLabels"
+                           [options]="memberChartOptions" [colors]="lineChartColours" [legend]="lineChartLegend"
+                           [chartType]="MemberChartType" (chartHover)="chartHovered($event)"
+                           (chartClick)="chartClicked($event)"></canvas>
+                     </div>
+         </div>
+      </div>
+
+
+      <div class="card" id="ipa_trend">
+         <div class="card-header">
+            IPA Trend
+            <div class="btn-group ml-3 mt-1" role="group" aria-label="Default button group">
+               <button (click)="ipa_trend_graph=false;ipa_trend.name='totalmembers';getIPATrend()"
+                  [ngClass]="{'btn-primary' : ipa_trend.name=='totalmembers'}" class="btn " type="button">Total
+                  Members</button>
+               <button (click)="ipa_trend_graph=false;ipa_trend.name='termed';getIPATrend()"
+                  [ngClass]="{'btn-primary' : ipa_trend.name=='termed'}" class="btn " type="button">Termed</button>
+               <button (click)="ipa_trend_graph=false;ipa_trend.name='aged';getIPATrend()"
+                  [ngClass]="{'btn-primary' : ipa_trend.name=='aged'}" class="btn " type="button">Aged</button>
+               <button (click)="ipa_trend_graph=false;ipa_trend.name='disabled';getIPATrend()"
+                  [ngClass]="{'btn-primary' : ipa_trend.name=='disabled'}" class="btn " type="button">Disabled</button>
+               <button (click)="ipa_trend_graph=false;ipa_trend.name='healthplans';getIPATrend()"
+                  [ngClass]="{'btn-primary' : ipa_trend.name=='healthplans'}" class="btn " type="button">Total Health
+                  Plan</button>
+               <button (click)="ipa_trend_graph=false;ipa_trend.name='providers';getIPATrend()"
+                  [ngClass]="{'btn-primary' : ipa_trend.name=='providers'}" class="btn " type="button">Total
+                  Providers</button>
+
+            </div>
+            <div class="download-option">
+               <span class="pdf-icon d-block" (click)="GeneratePDF('ipa_trend')"><i class="fa fa-file-pdf-o"
+                     aria-hidden="true"> </i><span class="download-text">Export Pdf</span></span>
+            </div>
+            <form action="" autocomplete="off" class="form-inline pull-right" novalidate="">
+               <select [(ngModel)]="ipa_trend.range" class="form-control" name="ipa_trend_range"
+                  (change)="graph_range_calc(ipa_trend.range, 'ipa')">
+                  <option value="">Select range</option>
+                  <option value="3">Last 3 months</option>
+                  <option value="6">Last 6 months</option>
+                  <option value="9">Last 9 months</option>
+                  <option value="12">Last 12 months</option>
+               </select>
+            </form>
+            <span class="pull-right"><b>Aged (Age > 65) | Disabled (Age < 65)</b> </span> </div> <div class="card-body">
+                     <div class="chart-wrapper" *ngIf="ipa_trend_graph">
+                        <canvas baseChart class="chart" [datasets]="ipaChartData" [labels]="ipaChartLabels"
+                           [options]="IPAChartOptions" [colors]="lineChartColours" [legend]="lineChartLegend"
+                           [chartType]="IPAChartType" (chartHover)="chartHovered($event)"
+                           (chartClick)="chartClicked($event)"></canvas>
+                     </div>
+         </div>
+      </div>
+
+
+      <div class="card" id="measure_trend">
+         <div class="card-header">
+            Measure Trend
+            <div class="btn-group ml-3 mt-1" role="group" aria-label="Default button group">
+               <button (click)="measure_trend_graph=false;measure_trend.name='compliant';getMeasureTrend()"
+                  [ngClass]="{'btn-primary' : measure_trend.name=='compliant'}" class="btn "
+                  type="button">Compliant</button>
+               <button (click)="measure_trend_graph=false;measure_trend.name='noncompliant';getMeasureTrend()"
+                  [ngClass]="{'btn-primary' : measure_trend.name=='noncompliant'}" class="btn " type="button">Non
+                  Compliant</button>
+
+            </div>
+            <div class="download-option">
+               <span class="pdf-icon d-block" (click)="GeneratePDF('measure_trend')"><i class="fa fa-file-pdf-o"
+                     aria-hidden="true"> </i><span class="download-text">Export Pdf</span></span>
+            </div>
+            <form action="" autocomplete="off" class="form-inline pull-right" novalidate="">
+               <select [(ngModel)]="measure_trend.year" class="form-control" name="measure_trend_range"
+                  (change)="checkyear(measure_trend.year)">
+                  <option value="">Select year</option>
+                  <option value="2018">2018</option>
+                  <option value="2019">2019</option>
+
+               </select>
+               <!-- (change)="getInsuranceByIpa(provider.ipaid);ipaName=$event.target.selectedOptions[0].label" -->
+               <select [(ngModel)]="measure_trend.ipaid" class="form-control ml-2" name="ipa"
+                  (change)="measure_trend_graph=false;getMeasureTrend()">
+                  <option [selected]="true" value="">Select IPA</option>
+                  <option [label]="ipa.IPA_Name" *ngFor="let ipa of ipa_list" [value]="ipa.IPA_ID">
+                     {{ ipa.IPA_Name }}
+                  </option>
+               </select>
+            </form>
+         </div>
+         <div class="card-body" *ngIf="measure_trend.name=='noncompliant'">
+            <div class="chart-wrapper" *ngIf="measure_trend_graph">
+               <canvas baseChart class="chart" [datasets]="measureChartData" [labels]="measureChartLabels"
+                  [options]="MeasureChartOptions" [legend]="barChartLegend" [colors]="lineChartColoursRed"
+                  [chartType]="MeasureChartType" (chartHover)="chartHovered($event)"
+                  (chartClick)="chartClicked($event)"></canvas>
+            </div>
+         </div>
+
+         <div class="card-body" *ngIf="measure_trend.name!='noncompliant'">
+            <div class="chart-wrapper" *ngIf="measure_trend_graph">
+               <canvas baseChart class="chart" [datasets]="measureChartData" [labels]="measureChartLabels"
+                  [options]="MeasureChartOptions" [legend]="barChartLegend" [colors]="lineChartColours"
+                  [chartType]="MeasureChartType" (chartHover)="chartHovered($event)"
+                  (chartClick)="chartClicked($event)"></canvas>
+            </div>
+         </div>
+      </div>
+
+
+   </div>
+
+   <div *ngIf="mra_trend_view">
+      <div class="card" id="mra_trend">
+         <div class="card-header">
+            MRA Trend
+            <div class="btn-group ml-3 mt-1" role="group" aria-label="Default button group">
+               <button (click)="mra_trend_graph=false;mra_trend.name='mrapopulation';getMRATrend()"
+                  [ngClass]="{'btn-primary' : mra_trend.name=='mrapopulation'}" class="btn " type="button">MRA
+                  Population</button>
+               <button (click)="mra_trend_graph=false;mra_trend.name='riskscore';getMRATrend()"
+                  [ngClass]="{'btn-primary' : mra_trend.name=='riskscore'}" class="btn" type="button">Risk
+                  Score</button>
+               <button (click)="mra_trend_graph=false;mra_trend.name='tophcc';getMRATrend()"
+                  [ngClass]="{'btn-primary' : mra_trend.name=='tophcc'}" class="btn" type="button">Top HCC</button>
+               <button (click)="mra_trend_graph=false;mra_trend.name='providerscore';getMRATrend()"
+                  [ngClass]="{'btn-primary' : mra_trend.name=='providerscore'}" class="btn" type="button">Provider
+                  Score</button>
+
+            </div>
+
+            <div class="download-option">
+               <span class="pdf-icon d-block" (click)="GeneratePDF('mra_trend')"><i class="fa fa-file-pdf-o"
+                     aria-hidden="true"> </i><span class="download-text">Export Pdf</span></span>
+            </div>
+            <span class="pull-right mt-1 ml-2" *ngIf="mra_trend.name=='riskscore'"><b>Risk population (MRA score >
+                  {{mra_trend.mrascore}})</b></span>
+            <form action="" autocomplete="off" class="form-inline pull-right" novalidate=""
+               *ngIf="mra_trend.name=='riskscore'">
+               <input type="number" onkeypress="return event.charCode != 45" min="0" [(ngModel)]="mra_trend.mrascore"
+                  name="mrascore" class="form-control">
+               <button (click)="mra_trend_graph=false;getMRATrend()" class="btn btn-sm mt-0 ml-2 btn-primary"
+                  type="button">Set MRA Score</button>
+            </form>
+         </div>
+         <div class="card-body">
+            <div class="chart-wrapper" *ngIf="mra_trend_graph">
+               <canvas baseChart class="chart" [datasets]="mraChartData" [labels]="mraChartLabels"
+                  [colors]="lineChartColours" [options]="MRAChartOptions" [legend]="barChartLegend"
+                  [chartType]="MRAChartType" (chartHover)="chartHovered($event)"
+                  (chartClick)="chartClicked($event)"></canvas>
+            </div>
+         </div>
+      </div>
+
+      <div class="card" id="nohcc_trend">
+         <div class="card-header">
+            No HCC Trend
+
+
+            <div class="download-option">
+               <span class="pdf-icon d-block" (click)="GeneratePDF('nohcc_trend')"><i class="fa fa-file-pdf-o"
+                     aria-hidden="true"> </i><span class="download-text">Export Pdf</span></span>
+            </div>
+
+            <form action="" autocomplete="off" class="form-inline pull-right" novalidate="">
+               <label for="">Min Age</label>
+               <input type="number" onkeypress="return event.charCode != 45" min="1" [(ngModel)]="nohcc_trend.minage"
+                  name="minage" class="form-control">
+               <label for="">Max Age</label>
+               <input type="number" onkeypress="return event.charCode != 45" min="1" [(ngModel)]="nohcc_trend.maxage"
+                  name="maxage" class="form-control">
+               <button (click)="nohcc_trend_graph=false;getnohccTrend()" class="btn btn-sm mt-0 ml-2 btn-primary"
+                  type="button">Set Age Range</button>
+            </form>
+         </div>
+         <div class="card-body">
+            <div class="chart-wrapper" *ngIf="nohcc_trend_graph">
+               <canvas baseChart class="chart" [datasets]="nohccChartData" [labels]="nohccChartLabels"
+                  [colors]="lineChartColours" [options]="nohccChartOptions" [legend]="barChartLegend"
+                  [chartType]="nohccChartType" (chartHover)="chartHovered($event)"
+                  (chartClick)="chartClicked($event)"></canvas>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+
+</div>

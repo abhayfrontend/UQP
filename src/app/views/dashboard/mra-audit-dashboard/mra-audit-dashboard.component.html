@@ -1,0 +1,216 @@
+<div class="dash btn-group btn-group-toggle mt-3 w-100" > 
+   <label  class="btn btn-outline-primary " [routerLink]="['/dashboard/quality-audit']" >HEDIS Dashboard</label>
+   <label  class="btn btn-outline-primary active" [routerLink]="['/dashboard/audit/mra']">MRA Dashboard</label>
+</div>
+<!-- this code is for buttons -->
+
+<app-help class="d-none"></app-help>
+<div class="animated fadeIn dashboard" id="dashboard">
+   <!-- <div class="download-option">
+   <span class="pdf-icon d-block" (click)="GeneratePDF()"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Export Pdf</span></span>
+</div> -->
+<div class="outer-heading ">Dashboard : {{currentUser.rolename}}<span class="float-right">{{previous_month_full}} {{current_year}}</span></div>
+<div class="d-container emd-area">
+   <div class="row">
+      <div class="col p-1">
+         <div class="card" >
+            <div class="card-body">
+               <div class="h1 text-muted text-right">
+                  <i class="material-icons group-bg">group</i>
+               </div>
+               <div class="h5 mb-0 f-size">Total conditions reviewed</div>
+               <div class="numData" >{{data_count?.totalconditionsreviewed}}</div>
+               <div class="progress progress-xs mb-0">
+                  <div style="background-color:#ed5724;width:17%; " class="progress-bar"  role="progressbar"  aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">h</div>
+               </div>
+               <!-- <div class="perc_change mt-1">4% from Last Month</div> -->
+            </div>
+         </div>
+      </div>
+
+       
+       <div class="col p-1">
+         <div class="card">
+            <div class="card-body">
+               <div class="h1 text-muted text-right">
+                  <i class="material-icons person-bg">person</i>
+               </div>
+               <div class="h5 mb-0 f-size">Total Follow Ups Done</div>
+               <div class="numData" >{{data_count?.totalfollowupsdone}}</div>
+               <div class="progress progress-xs mb-0">
+                  <div style="background-color:#59669d;width:17%; " class="progress-bar"  role="progressbar"  aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+               </div>
+               
+            </div>
+         </div>
+      </div>
+       <div class="col p-1"  >
+         <div class="card">
+            <div class="card-body">
+               <div class="h1 text-muted text-right">
+                  <i class="material-icons security-bg">security</i>
+               </div>
+               <div class="h5 mb-0 f-size">Total Follow Ups Pending</div>
+               <div class="numData">{{data_count?.totalfollowupspending}}</div>
+               <div class="progress progress-xs mb-0">
+                  <div style="background-color:#61a967;width:17%;" class="progress-bar"  role="progressbar"  aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+               </div>
+               
+            </div>
+         </div>
+      </div>
+       <div class="col p-1">
+        <!-- <div class="card" [routerLink]="['/reports/membership-roster']"> -->
+         <div class="card">
+            <div class="card-body">
+               <div class="h1 text-muted text-right">
+                  <i class="material-icons hospital-bg">local_hospital</i>
+               </div>
+               <div class="h5 mb-0 f-size">Total Patients Reviewed</div>
+               <div class="numData" >{{data_count?.totalpatientsreviewed}}</div>
+               <div class="progress progress-xs mb-0">
+                  <div style="background-color: #efb818;width:17%;" class="progress-bar"  role="progressbar"  aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+               </div>
+               
+            </div>
+         </div>
+       </div>
+   </div>
+</div>
+     
+
+
+
+    <div  class="d-container  my-2 gaps-block">
+   <div  class="row">
+      <div  class="col-sm-12 col-lg-7 bg-white">
+         <div  class="outer-heading pb-0">Gaps Summary</div>
+         
+         
+         <form  autocomplete="off" class="form-inline ng-untouched ng-pristine ng-invalid" novalidate="" style="display: -webkit-box;">
+
+            <div  class=" mb-2 mr-sm-2 mb-sm-0" style="position: relative;padding: 0;">
+               
+               <input class="form-control ng-untouched ng-pristine ng-invalid" #drp="bsDaterangepicker" bsDaterangepicker [(ngModel)]="bsRangeValue" name="range" placeholder="select range"   (ngModelChange)="getAllAssurance(true);">
+              
+      </div>
+
+
+      <select  class="form-control mb-2 mr-sm-2 mb-sm-0 ng-untouched ng-pristine ng-valid" name="insurance"  [(ngModel)]="param.teamid"  (change)="getAllAssurance(true);" required="" ng-reflect-required="" ng-reflect-name="insurance" ng-reflect-model="0">
+         <option  value="" ng-reflect-value="">Select Team</option>
+         <!--bindings={
+  "ng-reflect-ng-for-of": "[object Object],[object Object"
+}--><option  value="1" label="Data Marshall">
+            Data Marshall
+
+         </option><option  value="2"  label="
+Blue One
+">
+Blue One
+            
+         </option><option  value="3"  label="
+AHC Spring Hill
+">
+AHC Spring Hill
+
+            
+         </option><option value="4" label="AHC Tampa">AHC Tampa
+           </option>
+       
+         <option  value="null" >All</option>
+      </select>
+
+
+           
+         </form>
+         
+         <!--bindings={
+  "ng-reflect-ng-if": "false"
+}-->
+         <!--bindings={
+  "ng-reflect-ng-if": "true"
+}--><table  class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+            <thead >
+               <tr >
+                  <th   >S.No.</th>
+                    <th  > Name</th>
+                    
+                    <th  >Total Patients </th>
+                    <th   >New Conditions </th>
+
+                    <th  >New Hcc </th>
+                    <th  >Missed Conditions</th>
+                    <th   >Missed Hcc</th>
+                    <th  >Retro Addition</th>
+                    <th  > Deletions</th>
+                    
+                  
+               </tr>
+            </thead>
+            <tbody>
+               <tr *ngFor="let x of body">
+                  <!-- //When normal role users -->
+                  <td data-label="serial no">{{x?.$id}}
+                  <td data-label="Team Name" >{{x?.AssuranceFirstName}}</td>
+
+                  <!-- When provider role comes...redirect to provider scorecard -->
+                  <td data-label="Total Patients">{{x?.TotalPatients}} </td>
+                 
+                  <!-- When ipa role comes...redirect to ipa scorecard -->
+                  <td data-label="New ConditionMissed Condition" >{{x?.NewCondition}}</td>
+
+                  <td data-label="New Hcc">{{x?.NewHcc}}</td>
+                  <td data-label="Missed Condition" >{{x?.MissedCondition}}</td>
+                  <td data-label="Missed Hcc" >{{x?.MissedHcc}}</td>
+                  <td data-label="Retro Addition" >{{x?.RetroAddition}}</td>
+                  <td data-label="Deletions" >{{x?.Deletions}}</td>
+               </tr>
+            </tbody>
+         </table>
+      </div>
+     
+
+      
+   <div class="col-sm-12 col-lg-5" *ngIf="show_graph">
+         <div class="">
+          <div class="dash btn-group btn-group-toggle float-right" > 
+
+                 <button [ngClass]="{'active' : clicked_patients}" class="btn btn-outline-primary" (click)="patients()"> Total patients</button>
+                 <button  [ngClass]="{'active' : !clicked_patients}" class="btn btn-outline-primary " (click)= "graphproductivity()"> Total condition </button>
+            </div>
+            <div class="card-body">
+               <div class="chart-wrapper" *ngIf="!clicked_patients">
+               
+                  <canvas baseChart class="chart" 
+                  [colors]="colors"
+                  [datasets]="cData_healthplan"
+                  [labels]="chartLabels2"
+                  [options]="barChartOptions"
+                  [legend]="barChartLegend"
+                  [chartType]="barChartType"
+                  (chartHover)="chartHovered($event)"
+                  (chartClick)="chartClicked($event)">
+                 
+                  </canvas>
+              </div>
+                  <div class="chart-wrapper" *ngIf="clicked_patients">
+               
+                  <canvas baseChart class="chart" 
+                  [colors]="colors"
+                  [datasets]="cData_healthplan"
+                  [labels]="chartLabels2"
+                  [options]="barChartOptions1"
+                  [legend]="barChartLegend"
+                  [chartType]="barChartType"
+                  (chartHover)="chartHovered($event)"
+                  (chartClick)="chartClicked($event)">
+                 
+                  </canvas>
+
+               </div>
+            </div>
+         </div>
+      </div>
+  </div>
+    
+    </div>

@@ -1,0 +1,173 @@
+<app-help class="d-none"></app-help>
+<div class="u-heading">
+    <h2>Measure</h2>
+    <div class="pull-right">
+        <div class="u-search">
+            <input type="text" class="form-control" [(ngModel)]="search_text" type="text" (keyup)="search()" placeholder="Search..">
+            <i class="material-icons">search</i>
+        </div>
+        <!-- <input [(ngModel)]="search_text" type="text" (keyup)="search()"> -->
+        <span *ngIf="userRolePerm?.add" class="add-text d-none d-md-inline-block">Add Measure </span>
+        <span *ngIf="userRolePerm?.add" class="add-more" data-toggle="modal" (click)="createMeasure()">
+      <a><i class="material-icons">add</i></a>
+      </span>
+    </div>
+</div>
+
+<div class="custom-container">
+
+<table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob measures-table">
+    <thead>
+        <tr>
+            <th>S.No.</th>
+            <th>Measure Name</th>
+            <th>Measure Description</th>
+            <th>Numerator Detail</th>
+            <th>Denominator Detail</th>
+            <th>Exclusion Detail</th>
+            <th>Weightage</th>
+            <!-- <th>Status</th> -->
+            <th *ngIf="userRolePerm?.edit">Edit</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let measure of measures; let i = 'index';" style="position:relative!important">
+            <td data-label="S.No.">{{i+1}}</td>
+            <td data-label="Name">
+                <a style="cursor:pointer;color:#20a8d8" [routerLink]="['/measures/view/'+measure.Measure_ID]">{{measure?.Measure_Name}}</a>
+            </td>
+            <td data-label="Description" placement="bottom" [tooltip]=measure.Measure_Description >
+                {{measure.Measure_Description | truncate:[50, '...']}}
+            </td>
+             <!-- triggers="" #pop="bs-tooltip" (click)="pop.toggle()" -->
+            <td data-label="Numerator" placement="bottom" [tooltip]=measure.Numerator_Detail>
+                {{measure?.Numerator_Detail | truncate:[50, '...']}}
+            </td>
+            <td data-label="Denominator" placement="bottom" [tooltip]=measure.Denominator_Detail>
+                {{measure?.Denominator_Detail | truncate:[50, '...']}}
+            </td>
+            <td data-label="Exclusion" placement="bottom" [tooltip]=measure.Exclusion_Detail>
+                {{measure?.Exclusion_Detail | truncate:[50, '...']}}
+            </td>
+            <td data-label="Weightage">
+                {{measure?.Weightage}}
+            </td>
+            <!-- <td data-label="Status">
+                <label class="switch switch-icon switch-pill switch-success">
+                    <input [disabled]="!userRolePerm?.edit" checked="measure.Status" (click)="updateMeasureStatus(measure.Measure_ID, measure.Status, measure.Measure_Name)" [(ngModel)]="measure.Status" class="switch-input" type="checkbox">
+                    <span class="switch-label" data-off="" data-on=""></span><span class="switch-handle"></span></label>
+            </td> -->
+            <td *ngIf="userRolePerm?.edit" data-label="Edit"><a href="javascript:void(0)" (click)="editMeasure(measure.Measure_ID)"><i class="fa fa-edit" style="font-size:18px"></i></a></td>
+        </tr>
+    </tbody>
+</table>
+</div>
+
+<div bsModal #editMeasureModal="bs-modal" class="modal fade u-modal" tabindex="-1" [config]="{backdrop: 'static'}" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 *ngIf="save_add_form" class="modal-title">Add Measure</h4>
+                <h4 *ngIf="!save_add_form" class="modal-title">Edit Measure</h4>
+                <button type="button" class="close" (click)="editMeasureModal.hide()" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+               </button>
+              
+            </div>
+            <div class="modal-body">
+                <form action="" class="form-horizontal" autocomplete="off" #EditMeasure="ngForm">
+                    <!--             <div class="form-group row">
+                  <div class="col-md-12">
+                     <select class="form-control" id="select" name="select" [(ngModel)]="user_role.type">
+                     <option [selected]="true" value="Internal">Internal</option>
+                     <option value="External">External</option>
+                     </select>
+                  </div>
+                  </div> -->
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Measure Name</label>
+                            <input (focusout)="checkMeasure(measure.Measure_Name)" [(ngModel)]="measure.Measure_Name" class="form-control" name="measurename" placeholder="Measure Name" type="text" required #name="ngModel">
+                            <div *ngIf="name.errors" [hidden]="name.valid || (name.pristine && !EditMeasure.submitted)">
+                                <small class="text-danger" *ngIf="name.errors.required">Measure Name is required</small>
+                            </div>
+                            <small class="text-danger" *ngIf="measure_exist">Measure name already exist</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Measure Description</label>
+                            <textarea [(ngModel)]="measure.Measure_Description" class="form-control" placeholder="Measure Description" name="measuredesc" rows="9" #description="ngModel"></textarea>
+                            <div *ngIf="description.errors" [hidden]="description.valid || (description.pristine && !EditMeasure.submitted)">
+                                <small class="text-danger" *ngIf="description.errors.required">Description is required</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Numerator Detail</label>
+                            <textarea [(ngModel)]="measure.Numerator_Detail" class="form-control" name="numeratordetail" placeholder="Numerator Detail" rows="9"  required  #num="ngModel"></textarea>
+                            
+                            <div *ngIf="num.errors" [hidden]="num.valid || (num.pristine && !EditMeasure.submitted)">
+                                <small class="text-danger" *ngIf="num.errors.required">Numerator is required</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Denominator Detail</label>
+                            <textarea [(ngModel)]="measure.Denominator_Detail" class="form-control" name="denominatordetail" placeholder="Denominator Detail" rows="9"  required  #den="ngModel"></textarea>
+
+                            
+                            <div *ngIf="den.errors" [hidden]="den.valid || (den.pristine && !EditMeasure.submitted)">
+                                <small class="text-danger" *ngIf="den.errors.required">Denominator is required</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Exclusion Detail</label>
+                            <textarea [(ngModel)]="measure.Exclusion_Detail" class="form-control" name="exclusiondetail" placeholder="Exclusion Detail" rows="9"  required  #exclusion="ngModel"></textarea>
+
+                            
+                            <div *ngIf="exclusion.errors" [hidden]="exclusion.valid || (exclusion.pristine && !EditMeasure.submitted)">
+                                <small class="text-danger" *ngIf="exclusion.errors.required">Exclusion is required</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        
+                        <div class="col-md-12">
+                            <label>Weightage</label>
+                            <select [(ngModel)]="measure.Weightage" class="form-control" id="select" name="weightage" required #weightage="ngModel">
+                                <option [selected]="true" value="">Please select</option>
+                                <option *ngFor="let w of weight" [value]="w">
+                                    {{ w }}
+                                </option>
+                            </select>
+                            <div *ngIf="weightage.errors" [hidden]="weightage.valid || (weightage.pristine && !EditMeasure.submitted)">
+                                <small class="text-danger" *ngIf="weightage.errors.required">Weightage is required</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        
+                        <div class="col-md-12">
+                    <button *ngIf="!save_add_form" (click)="updateMeasure(measure.Measure_ID,measure,(EditMeasure.valid) && !measure_exist)" type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+                    <button *ngIf="save_add_form" (click)="addMeasure((EditMeasure.valid) && !measure_exist)" type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+                    <!-- <button type="button" class="btn btn-danger"><i class="fa fa-times"></i>&nbsp;Close</button> -->
+                </div></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<!--edit measure-->
+<!-- <div class="back-btn">
+    <button class="btn btn-primary" type="button"><i class="fa fa-rotate-left"></i>&nbsp; Back</button>
+</div> -->

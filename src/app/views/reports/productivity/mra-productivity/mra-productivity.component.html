@@ -1,0 +1,169 @@
+<app-help class="d-none"></app-help>
+<!-- <div *ngIf="spinner" class="loading">Loading&#8230;</div> -->
+<div class="u-heading">
+<h2>Productivity Review (MRA)</h2>
+<div class="pull-right">
+  <div class="u-search searchmd">
+    <div>
+    <input type="text" name ="search" class="form-control col-12 prosearch" [(ngModel)]="params.name"   type="text"  placeholder="Search..">
+  </div>
+  <div>
+    <i class="material-icons shifticon" (click)="searchAssurance()">search</i>
+  </div>
+  </div>
+
+  
+</div>
+</div>
+<div class="filter-bar" >
+<div class="download-option mt-0"  *ngIf="assurance_list?.length">
+  <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Download Pdf</span></span>
+  <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span  class="download-text">Download Excel Sheet</span></span>
+</div>
+<form action="" class="form-inline" autocomplete="off">
+  <div class="form-group">
+    <i class="fa fa-filter"></i>
+    <label for="inputPassword6" class="filter-label">Filter By</label>
+    
+  </div>
+  
+ <!--  <div class="form-group col-2 p-0 ">
+    <label class="sr-only" for="if-password">Status</label>
+    <select [(ngModel)]="params.status" class="form-control col-12" id="select" name="gender">
+      <option [selected]="true" value="" >Status</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+      <option value="all">All</option>
+    </select>
+  </div> -->
+ <div class="form-group">
+     <select  [(ngModel)]="category" class="form-control mr-2" id="select" name="gender" (change)="customDate(category)" >
+        <option [selected]="true" value="">Select category</option>
+        <option value="1">Today</option>
+        <option value="2">Yesterday</option>
+        <option value="3">Last week</option>
+        <option value="4">Last 30 days</option>
+        <option value="5">Last 90 days</option>
+        <option value="6">Last 6 months</option>
+        <option value="7">Last 12 months</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <input class="form-control" #drp="bsDaterangepicker" bsDaterangepicker [(ngModel)]="bsRangeValue" [bsConfig]="{ dateInputFormat: 'YYYY/MM/DD' }" name="range" placeholder="select range" [(bsValue)]="bsValue"  (ngModelChange)="getAllAssurance(true);" >
+  </div>
+   <div class="form-group" style="    padding-left: 10px;">
+      <select  class="form-control mr-2 " name="insurance"  [(ngModel)]="params.teamid"  (change)="getAllAssurance(true);" required="" ng-reflect-required="" ng-reflect-name="insurance" ng-reflect-model="0">
+         <option  value="" ng-reflect-value="">Select Team</option>
+         <!--bindings={
+  "ng-reflect-ng-for-of": "[object Object],[object Object"
+}--><option  value="1" label="Data Marshall">
+            Data Marshall
+
+         </option><option  value="2"  label="
+Blue One
+">
+Blue One
+            
+         </option><option  value="3"  label="
+AHC Spring Hill
+">
+AHC Spring Hill
+
+            
+         </option><option value="4" label="AHC Tampa">AHC Tampa
+           </option>
+       
+         <option  value="null" >All</option>
+      </select>
+    </div>
+
+<!--   <div class="form-group">
+
+    <button type="submit" class="btn btn-view-provider btn-sm ml-2 mr-1" (click)="getAllAssurance(true)"><span><i _ngcontent-c16="" class="fa fa-eye"></i></span>View</button>
+
+
+ 
+
+
+
+  </div> -->
+
+</form>
+</div>
+<nav *ngIf="total_pages>15" aria-label="Page navigation example" class="top-paging">
+<ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+  <li class="page-item  mr-2">
+    <a class="page-link" href="javascript:void(0)" *ngIf="page !== 1" [class.disabled]="page === 1" (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+      <!-- <i class="fa fa-arrow-circle-left" aria-hidden="true"></i> -->
+      <i class="fa fa-angle-left" aria-hidden="true"></i>
+    </a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="javascript:void(0)" *ngIf="pager.currentPage !== pager.total_pages" [class.disabled]="next_page === 'total_pages'" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+      <i class="fa fa-angle-right" aria-hidden="true"></i>
+    </a>
+  </li>
+</ul>
+</nav>
+<div class="custom-container">
+<div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+<table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+
+
+  <thead >
+    <tr>
+
+
+      <th >S.No.</th>
+      <th >Name</th>
+      <th >Total Patients</th>
+      <th>New Condition</th>
+      <th >New Hcc</th>
+      <th>Missed Condition </th>
+      <th >Missed Hcc</th>
+      <th >Retro Addition</th>
+      <th >Deletions</th>
+   
+    </tr>
+  </thead>
+
+
+
+    <tbody>
+    <tr *ngFor="let qa of assurance_list; let i = 'index'">
+      <td data-label="S.No." *ngIf="page == 1">{{i+1}}</td>
+      <td  data-label="S.No."*ngIf="page > 1">{{(i+1)+(page-1)*params.pageSize}}</td>
+      <td data-label="Name">{{qa.AssuranceLastName?.toLowerCase()}}, {{qa.AssuranceFirstName?.toLowerCase()}} </td>
+      <td data-label="Total Patients">{{qa.TotalPatients}}</td>
+      <td data-label="New Condition">{{qa.NewCondition}}</td>
+      <td data-label="New Hcc">{{qa.NewHcc}}</td>
+		<td data-label="Missed Condition" class="text-lowercase">{{qa.MissedCondition}}</td>
+		<td data-label="Missed Hcc">{{qa.MissedHcc}}</td>
+      <td data-label="Retro Addition">{{qa.RetroAddition}}</td>
+      <td data-label="Deletions" >{{qa.Deletions}}</td>
+      
+    </tr>
+   
+  </tbody>
+
+</table>
+</div>
+
+
+<nav *ngIf="total_pages>15" aria-label="Page navigation example" style="    margin-top: 25px;">
+<ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+  <li class="page-item">
+    <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1" (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+      <span aria-hidden="true">&laquo;</span>
+      <span class="sr-only">Previous</span>
+    </a>
+  </li>
+  <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item"><a href="javascript:void(0)" (click)="loadByPage(p)" class="page-link">{{p}}</a></li>
+  <li class="page-item">
+    <a class="page-link" href="javascript:void(0)" [class.disabled]="next_page === 'total_pages'" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+      <span aria-hidden="true">&raquo;</span>
+      <span class="sr-only">Next</span>
+    </a>
+  </li>
+</ul>
+</nav>

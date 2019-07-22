@@ -1,0 +1,64 @@
+<app-help class="d-none"></app-help>
+<!--
+<div class="u-heading">
+  <h2>Measure</h2>
+  
+</div> -->
+<div class="u-heading underline-style">
+  <h2>{{measure.Measure_Name}}</h2>
+  <!--
+  <div class="pull-right">
+    <button class="btn btn-outline-secondary edit-new-btn" type="button">Edit Measure<i class="fa fa-edit"></i></button>
+  </div>  -->
+</div>
+<div class="measure-view">
+  <div class="row  brief-bx">
+    <div class="col-md-2"><span class="measure-title">Measure Name</span></div>
+    <div class="col-md-10"><span class="measure-brief-text">{{measure.Measure_Name}} </span></div>
+  </div>
+  
+  
+  <div class="row  brief-bx">
+    <div class="col-md-2"><span class="measure-title">Measure Description</span></div>
+    <div class="col-md-10"><span class="measure-brief-text">{{measure.Measure_Description}} </span></div>
+  </div>
+  
+  
+  <div class="row  brief-bx">
+    <div class="col-md-2"><span class="measure-title">Numerator Details</span></div>
+    <div class="col-md-10"><span class="measure-brief-text">{{measure.Numerator_Detail}} </span></div>
+  </div>
+  
+  
+  <div class="row  brief-bx">
+    <div class="col-md-2"><span class="measure-title">Denominator Details</span></div>
+    <div class="col-md-10"><span class="measure-brief-text">{{measure.Denominator_Detail}} </span></div>
+  </div>
+  
+  
+  <div class="row  brief-bx">
+    <div class="col-md-2"><span class="measure-title">Exclusion Details</span></div>
+    <div class="col-md-10"><span class="measure-brief-text">{{measure.Exclusion_Detail}} </span></div>
+  </div>
+  
+  
+  <div class="row  brief-bx">
+    <div class="col-md-2"><span class="measure-title">Weightage</span></div>
+    <div class="col-md-10"><span class="measure-brief-text">{{measure.Weightage}}</span></div>
+  </div>
+  
+  
+  <div class="row  brief-bx">
+    <div class="col-md-2"><span class="measure-title">Status</span></div>
+    <div class="col-md-10"><span class="measure-brief-text">
+      
+      <label class="switch switch-icon switch-pill switch-success">
+        <input checked="measure.Status" [(ngModel)]="measure.Status" class="switch-input" type="checkbox" (click)="updateMeasureStatus(measure.Measure_ID, measure.Status, measure.Measure_Name)">
+        <span class="switch-label" data-off="" data-on=""></span><span class="switch-handle"></span></label>
+        
+      </span></div>
+    </div>
+    
+    
+    
+  </div>

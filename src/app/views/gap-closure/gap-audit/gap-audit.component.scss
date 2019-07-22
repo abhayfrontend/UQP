@@ -1,0 +1,30 @@
+.audit-component{
+	.h5{
+	font-size: 16px;
+}
+.card .fa{
+	color:#fff;
+}
+.gap-form{
+	flex-wrap:wrap;
+	.upload-doc{
+		flex-basis:100%;
+		margin-top: 10px;
+	}
+	.col {
+	    flex: 0 50%;
+	    margin-bottom: 10px;
+	}
+}
+.gap-checkbox{
+	// text-align: center;
+	margin-top: 10px;
+}
+
+.audit input, .audit select{
+	pointer-events:none;
+}
+.filter-bar input, .member-listing input{
+	pointer-events:all;
+}
+}

@@ -1,0 +1,722 @@
+<!-- <button (click)="changeProv()">change prov</button> -->
+<div class="dash btn-group btn-group-toggle mt-3 w-100">
+   <div class=" mb-2 mr-sm-2 mb-sm-0" style="position: absolute;padding: 0;left:10px;top:0px;"
+      *ngIf="currentUser.roleid == 2 ">
+      <!-- [ngClass]="{'input-loading': searching}" -->
+      <input [(ngModel)]="provider_name_dash" (keyup)="searchProvider_dash()" class="form-control d-inline-block"
+         name="provider_name" placeholder="Search Provider" type="text" required style="width:auto">
+      <img *ngIf="searching_dash" class="input-loading-img" src="assets/img/input-spinner.gif">
+      <button (click)="buttonClick()">abhay</button>
+      <div *ngIf="members_dash?.length>0 && showPanel_dash" class="dropdown-menu show" style="min-width:100%">
+         <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+         <div *ngFor="let member of members_dash"><a *ngIf="member.FirstName" href="javascript:void(0)"
+               class="dropdown-item" (click)="changeProv(member, 'provider')">
+               {{member.FirstName}} {{member.LastName}} <span *ngIf="member.email"> | {{member.email}} </span>
+            </a>
+         </div>
+      </div>
+      <div *ngIf="members_dash?.length == 0 && showPanel_dash" class="dropdown-menu show"
+         style="left: auto;width:100%;">
+         <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+         <div><a href="javascript:void(0)" class="dropdown-item">
+               No provider found
+            </a>
+         </div>
+      </div>
+      <p style="color:red;position:absolute" *ngIf="insurance_list?.length ==0 ">No healthplan associated with this
+         provider</p>
+   </div>
+   <label class="btn btn-outline-primary active" *ngIf="userRolePerm_HEDIS?.view" [routerLink]="['/dashboard']">HEDIS
+      Dashboard</label>
+   <label class="btn btn-outline-primary" *ngIf="userRolePerm?.view" [routerLink]="['/dashboard/mra']">MRA
+      Dashboard</label>
+   <label class="btn btn-outline-primary" *ngIf="userRolePerm_ACO?.view" [routerLink]="['/dashboard/aco']">ACO
+      Dashboard</label>
+   <i class="fa fa-refresh ml-2" (click)="changeProv('','')" *ngIf="officestaff_providername && currentUser.root_exec"
+      style="position:absolute;right:10px;"></i>
+</div>
+<app-help class="d-none"></app-help>
+<div class="dashboard" id="dashboard">
+   <div class="download-option">
+      <span class="pdf-icon d-block" (click)="GeneratePDF()"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span
+            class="download-text">Export Pdf</span></span>
+   </div>
+   <div class="outer-heading ">
+      Dashboard : {{currentUser.rolename}} <span *ngIf="currentUser.officestaff_providername">(Dr.
+         {{officestaff_providername}})</span><span *ngIf="currentRole == 'ipa' && ipa_data?.length"> -
+         {{ipa_data[0].plancard.healthplan}}</span>
+      <!-- <span class="float-right">{{previous_month_full}} {{current_year}}</span> -->
+   </div>
+   <div class="d-container emd-area" *ngIf="currentRole !== 'qa'">
+      <div class="row">
+         <div class="col p-1" *ngIf="currentRole !== 'provider'">
+            <div class="card" [routerLink]="['/provider/list']" (click)="storeDashboardDate(dashboard)">
+               <div class="card-body">
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons group-bg">group</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">Providers</div>
+                  <div class="numData">{{data_count?.providercount}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color:#ed5724;width:17%; " class="progress-bar" role="progressbar"
+                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">h</div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="col p-1">
+            <div class="card">
+               <div class="card-body" [routerLink]="['/reports/membership-roster']">
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons person-bg">person</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">Membership</div>
+                  <div class="numData">{{data_count?.membercount}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color:#59669d;width:17%; " class="progress-bar" role="progressbar"
+                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <div class="perc_change mt-1 f-14">
+                     <i class="fa fa-angle-up" aria-hidden="true"></i> <a *ngIf="data_count?.newmembers !== 0"
+                        href="javascript:void(0)" class="mr-2"
+                        (click)="storeMemberchanges('newmembers')">{{data_count?.newmembers}}</a>
+                     <a href="javascript:void(0)" *ngIf="data_count?.newmembers == 0"
+                        (click)="$event.stopPropagation();">0</a>
+                     <i class="fa fa-angle-down" aria-hidden="true"></i> <a *ngIf="data_count?.termedmembers !== 0"
+                        href="javascript:void(0)"
+                        (click)="storeMemberchanges('termedmembers')">{{data_count?.termedmembers}}</a>
+                     <a href="javascript:void(0)" *ngIf="data_count?.termedmembers == 0"
+                        (click)="$event.stopPropagation();">0</a>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <div class="col p-1" *ngIf="currentUser.officetype">
+            <div class="card">
+               <div class="card-body">
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons person-bg">person</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">All Provider Membership</div>
+                  <div class="numData">{{data_count?.totalprovidermembercount}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color:#59669d;width:17%; " class="progress-bar" role="progressbar"
+                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+
+         <div class="col p-1" *ngIf="currentRole !== 'healthplan'">
+            <div class="card" [routerLink]="['/insurance/list']">
+               <div class="card-body">
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons security-bg">security</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">Insurance</div>
+                  <div class="numData">{{data_count?.healthplancount}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color:#61a967;width:17%; " class="progress-bar" role="progressbar"
+                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="col p-1" *ngIf="currentRole !== 'ipa'">
+            <div class="card" [routerLink]="['/IPA/list']">
+               <div class="card-body">
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons hospital-bg">local_hospital</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">IPA</div>
+                  <div class="numData">{{data_count?.ipacount}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color: #efb818;width:17%;" class="progress-bar" role="progressbar"
+                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="col p-1">
+            <div class="card">
+               <div class="card-body">
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons gap-bg">aspect_ratio</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">Gaps</div>
+                  <!-- <div class="numData">{{data_count?.gapscount}}</div> -->
+                  <div class="numData">{{prevMonthGaps}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color:#333;width:17%; " class="progress-bar" role="progressbar"
+                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <!--/.col-->
+      </div>
+   </div>
+   <div class="d-container emd-area" *ngIf="currentRole == 'qa'">
+      <div class="row">
+         <div class="col p-1">
+            <div class="card" (click)="storeDashboardQAgaps('approved')">
+               <div class="card-body">
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons group-bg">group</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">Gaps Approved</div>
+                  <div class="numData">{{data_count?.gapapproved}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color:#ed5724;width:17%; " class="progress-bar" role="progressbar"
+                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">h</div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="col p-1">
+            <div class="card" (click)="storeDashboardQAgaps('reviewed')">
+               <div class="card-body">
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons group-bg">group</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">Reviewed Measure</div>
+                  <div class="numData">{{data_count?.reviewedgap}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color:#ed5724;width:17%; " class="progress-bar" role="progressbar"
+                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">h</div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="col p-1">
+            <div class="card">
+               <div class="card-body" (click)="storeDashboardQAgaps('rejected')">
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons person-bg">person</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">Gaps Rejected</div>
+                  <div class="numData">{{data_count?.gaprejected}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color:#59669d;width:17%; " class="progress-bar" role="progressbar"
+                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="col p-1">
+            <div class="card" (click)="storeDashboardQAgaps('pending')">
+               <div class="card-body">
+                  <div class="h1 text-muted text-right">
+                     <i class="material-icons security-bg">security</i>
+                  </div>
+                  <div class="h5 mb-0 f-size">Gaps Pending</div>
+                  <div class="numData">{{data_count?.gappending}}</div>
+                  <div class="progress progress-xs mb-0">
+                     <div style="background-color:#61a967;width:17%; " class="progress-bar" role="progressbar"
+                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="outer-heading " *ngIf="currentRole !== 'healthplan'">Membership <span
+         class="badge badge-success"><i><small>{{data_count?.membercount}}</small></i></span></div>
+   <div class="d-container bg-white mb-2 gauge" *ngIf="currentRole !== 'healthplan'">
+      <div class="row">
+         <div class="col" *ngFor="let item of membership_count; let i = 'index'">
+            <!-- <img style="display: none" class="img-fluid" src="assets/img/mirra-logo.png" alt="Mirra Logo" (load)="gaugeOptions()"> -->
+            <div class="perc">{{(membership_count[i]?.membercount/data_count?.membercount * 100) | round}}%</div>
+            <canvas [attr.id]="'g' + i" width="150" style='width:150px;height:150px'></canvas>
+            <div class="gauge-details">
+               <div class="name" [ngClass]="'gauge-text-'+i">{{membership_count[i]?.health_Name?.toLowerCase()}}</div>
+               <div style="font-weight: bold"> {{membership_count[i]?.LastRefreshedDate | date:'shortDate'}}</div>
+               <div class="count">
+                  <div class="perc_change mt-1 f-14 left" *ngIf="membership_count[i]?.newmembers">
+                     <i class="fa fa-angle-up" aria-hidden="true"></i> <a href="javascript:void(0)"
+                        (click)="storeGaugechanges('newmembers',membership_count[i].healthplan_id)">{{membership_count[i]?.newmembers}}</a>
+                  </div>
+                  <div class="perc_change mt-1 f-14 left" *ngIf="!membership_count[i]?.newmembers">
+                     <i class="fa fa-angle-up" aria-hidden="true"></i> <a href="javascript:void(0)">0</a>
+                  </div>
+                  <a style="font-size:16px" href="javascript:void(0)" target="_blank"
+                     *ngIf="membership_count[i]?.membercount !== 0" (click)="storeMemberScorecard(membership_count[i])"
+                     [routerLink]="['/members/TotalMembership']">{{membership_count[i]?.membercount}}</a>
+                  <a style="font-size:16px" href="javascript:void(0)"
+                     *ngIf="membership_count[i]?.membercount == 0">{{membership_count[i]?.membercount}}</a>
+                  <div class="perc_change mt-1 f-14 right" *ngIf="membership_count[i]?.termedmembers">
+                     <i class="fa fa-angle-down" aria-hidden="true"></i> <a href="javascript:void(0)"
+                        (click)="storeGaugechanges('termedmembers',membership_count[i].healthplan_id)">{{membership_count[i]?.termedmembers}}</a>
+                  </div>
+                  <div class="perc_change mt-1 f-14 right" *ngIf="!membership_count[i]?.termedmembers">
+                     <i class="fa fa-angle-down" aria-hidden="true"></i> <a href="javascript:void(0)">0</a>
+                  </div>
+               </div>
+               <div *ngIf="currentRole == 'executive'">
+                  <div class="progress progress-xs my-1">
+                     <div class="progress-bar" [ngClass]="'progress-visit-'+i" role="progressbar"
+                        [style.width]="(membership_count[i]?.lastvisitcount/membership_count[i]?.membercount)*100+'%'">
+                     </div>
+                  </div>
+                  <div>Last visit -
+                     {{(membership_count[i]?.lastvisitcount/membership_count[i]?.membercount)*100 | round}}%</div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="d-container bg-white my-2 healthplan_scorecard-area">
+      <div class="row">
+         <div class="col-sm-12 col-lg-6">
+            <div class="outer-heading pb-0" *ngIf="currentRole !== 'provider'">Health Plan Score Card</div>
+            <div class="outer-heading pb-0" *ngIf="currentRole == 'provider'">Score Card</div>
+            <!-- <div class="inner-heading">fregergergegregrg</div> -->
+            <form action="" class="form-inline" autocomplete="off">
+               <select [(ngModel)]="healthplandate.year" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-6" name="year"
+                  (change)="checkMonth(healthplandate.year,'healthplan');getHealthplanCount()">
+                  <option value="">Select year</option>
+                  <option [selected]="year == current_year" *ngFor="let year of years" [value]="year">{{year}}</option>
+               </select>
+               <select [(ngModel)]="healthplandate.month" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-6"
+                  name="month" (change)="formatDate('healthplan');getHealthplanCount()">
+                  <option value="">Select Month</option>
+                  <option *ngFor="let month of months" [value]="month.value">
+                     {{ month.full }}
+                  </option>
+               </select>
+            </form>
+            <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+               <thead>
+                  <tr>
+                     <th>Insurance Name</th>
+                     <th>Part C Overall</th>
+                     <th>Part D Overall</th>
+                     <th>Combined Overall</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr *ngFor="let healthplan of healthplan_data">
+                     <!-- //When normal role users -->
+                     <td data-label="Insurance Name" *ngIf="currentRole !== 'provider'"><a href="javascript:void(0)"
+                           (click)="storeHpScorecard(healthplan)"
+                           [routerLink]="['/scorecard/healthplan']">{{healthplan?.plancard.healthplan?.toLowerCase()}}</a>
+                     </td>
+                     <!-- When provider role comes...redirect to provider scorecard -->
+                     <td data-label="Insurance Name" *ngIf="currentRole == 'provider'"><a href="javascript:void(0)"
+                           (click)="storeHpScorecard(healthplan)"
+                           [routerLink]="['/scorecard/provider']">{{healthplan?.plancard.healthplan?.toLowerCase()}}</a>
+                     </td>
+                     <!-- When ipa role comes...redirect to ipa scorecard -->
+                     <!-- <td data-label="Insurance Name" *ngIf="currentRole == 'ipa'"><a href="javascript:void(0)"  (click)="storeHpScorecard(healthplan)" [routerLink]="['/scorecard/ipa']">{{healthplan?.plancard.healthplan?.toLowerCase()}}</a></td> -->
+                     <td data-label="Part C Overall">{{healthplan?.plancard.partcoverall | round}}</td>
+                     <td data-label="Part D Overall">{{healthplan?.plancard.partdoverall | round}}</td>
+                     <td data-label="Total Score">
+                        <span class="">{{healthplan?.plancard.totalscore | round}}</span>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+         <div class="col-sm-12 col-lg-6">
+            <div class="">
+               <div class="card-body">
+                  <div class="chart-wrapper">
+                     <canvas baseChart class="chart" *ngIf="showHealthplangraph" [colors]="colors"
+                        [datasets]="cData_healthplan" [labels]="chartLabels2" [options]="barChartOptions"
+                        [legend]="barChartLegend" [chartType]="barChartType" (chartHover)="chartHovered($event)"
+                        (chartClick)="chartClicked($event)"></canvas>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="d-container bg-white ipa-scoredcard-area"
+      *ngIf="currentRole !== 'provider' && currentRole !== 'healthplan'">
+      <div class="row">
+         <div class="col-sm-12 col-lg-6">
+            <div class="">
+               <div class="card-body">
+                  <div class="chart-wrapper">
+                     <canvas baseChart class="chart" *ngIf="showIPAgraph" [colors]="colors2" [datasets]="cData_ipa"
+                        [labels]="chartLabels1" [options]="barChartOptions" [legend]="barChartLegend"
+                        [chartType]="barChartType" (chartHover)="chartHovered($event)"
+                        (chartClick)="chartClicked($event)"></canvas>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="col-sm-12 col-lg-6">
+            <div class="outer-heading pb-0">IPA Score Card</div>
+            <form action="" class="form-inline" autocomplete="off">
+               <select [(ngModel)]="IPAdate.year" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-6" name="year"
+                  (change)="checkMonth(IPAdate.year,'ipa');getIPACount()">
+                  <option value="">Select year</option>
+                  <option [selected]="year == current_year" *ngFor="let year of years" [value]="year">{{year}}</option>
+               </select>
+               <select [(ngModel)]="IPAdate.month" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-6" name="month"
+                  (change)="formatDate('ipa');getIPACount()">
+                  <option value="">Select Month</option>
+                  <option *ngFor="let month of months2" [value]="month.value">
+                     {{ month.full }}
+                  </option>
+               </select>
+            </form>
+            <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+               <thead>
+                  <tr>
+                     <th>Insurance Name</th>
+                     <th>Part C Overall</th>
+                     <th>Part D Overall</th>
+                     <th>Combined Overall</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr *ngFor="let ipa of ipa_data">
+                     <td data-label="Insurance Name"><a href="javascript:void(0)" (click)="storeIpaScorecard(ipa)"
+                           [routerLink]="['/scorecard/ipa']">{{ipa?.plancard.healthplan?.toLowerCase()}}</a></td>
+                     <td data-label="Part C Overall">{{ipa?.plancard.partcoverall | round}}</td>
+                     <td data-label="Part D Overall">{{ipa?.plancard.partdoverall | round}}</td>
+                     <td data-label="Combined Overall">
+                        <span class="">{{ipa?.plancard.totalscore  | round}}</span>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
+   <div class="d-container  my-2 gaps-block">
+      <div class="row">
+         <div class="col-sm-12 col-lg-12 bg-white">
+            <div class="outer-heading pb-0">HEDIS Summary</div>
+            <form autocomplete="off" class="form-inline" #providerScorecard="ngForm"
+               *ngIf="currentRole !== 'provider' && currentRole !== 'ipa'">
+               <div class=" mb-2 mr-sm-2 mb-sm-0" style="position: relative;padding: 0;">
+                  <input [(ngModel)]="provider_name" (keyup)="searchProvider()" class="form-control "
+                     name="provider_name" placeholder="Search Provider" type="text" required style="width:100%">
+                  <img *ngIf="searching" class="input-loading-img" src="assets/img/input-spinner.gif">
+                  <div *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="min-width:100%">
+                     <div *ngFor="let member of members"><a *ngIf="member.FirstName" href="javascript:void(0)"
+                           class="dropdown-item" (click)="getInsurance(member)">
+                           {{member.FirstName}} {{member.LastName}} <span *ngIf="member.email"> | {{member.email}}
+                           </span>
+                        </a>
+                     </div>
+                  </div>
+                  <div *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show"
+                     style="left: auto;width:100%;">
+                     <div><a href="javascript:void(0)" class="dropdown-item">
+                           No provider found
+                        </a>
+                     </div>
+                  </div>
+               </div>
+               <select *ngIf="currentRole !== 'healthplan'" [(ngModel)]="provider.healthplanid"
+                  class="form-control mb-2 mr-sm-2 mb-sm-0" name="insurance"
+                  (change)="showDates = true;this.provider.healthplanName = $event.target.selectedOptions[0].label;healthplanName=$event.target.selectedOptions[0].label"
+                  required>
+                  <option [selected]="true" value="">Select Healthplan</option>
+                  <option *ngFor="let insurance of insurance_list" [value]="insurance.healthplan_id"
+                     [label]="insurance.health_Name">
+                     {{ insurance.health_Name }}
+                  </option>
+                  <option value="0">All</option>
+               </select>
+               <select [(ngModel)]="provider.year" class="form-control mb-2 mr-sm-2 mb-sm-0 " name="pyear"
+                  (change)="checkMonth(provider.year,'provider')" required>
+                  <option value="">Select year</option>
+                  <option *ngFor="let year of years" [value]="year">{{year}}</option>
+               </select>
+               <select [(ngModel)]="provider.month" class="form-control mb-2 mr-sm-2 mb-sm-0 " name="pmonth"
+                  (change)="formatDate('provider')" required>
+                  <option value="">Select Month</option>
+                  <option *ngFor="let month of months3" [value]="month.value">
+                     {{ month.full }}
+                  </option>
+               </select>
+               <i (click)="getGapsCount()" class="material-icons r-g-search"
+                  style="vertical-align:middle;cursor:pointer;">search</i>
+            </form>
+            <form autocomplete="off" class="form-inline" #providerScorecard="ngForm" *ngIf="currentRole == 'provider'">
+               <select [(ngModel)]="provider.healthplanid"
+                  *ngIf="insurance_list?.length >0 && currentRole !== 'healthplan'"
+                  class="form-control mb-2 mr-sm-2 mb-sm-0" name="insurance" (change)="showDates = true;" required>
+                  <option [selected]="true" value="">Select Healthplan</option>
+                  <option *ngFor="let insurance of insurance_list" [value]="insurance.healthplan_id">
+                     {{ insurance.health_Name }}
+                  </option>
+                  <option value="0">All</option>
+               </select>
+               <select [(ngModel)]="provider.year" class="form-control mb-2 mr-sm-2 mb-sm-0" name="pyear"
+                  (change)="checkMonth(provider.year,'provider')" required>
+                  <option value="">Select year</option>
+                  <option *ngFor="let year of years" [value]="year">{{year}}</option>
+               </select>
+               <select [(ngModel)]="provider.month" class="form-control mb-2 mr-sm-2 mb-sm-0" name="pmonth"
+                  (change)="formatDate('provider')" required>
+                  <option value="">Select Month</option>
+                  <option *ngFor="let month of months3" [value]="month.value">
+                     {{ month.full }}
+                  </option>
+               </select>
+               <i (click)="getGapsCount()" class="material-icons"
+                  style="vertical-align:middle;cursor:pointer;">search</i>
+            </form>
+            <form autocomplete="off" class="form-inline" #providerScorecard="ngForm" *ngIf="currentRole == 'ipa'">
+               <select [(ngModel)]="provider.healthplanid"
+                  *ngIf="insurance_list?.length >0 && currentRole !== 'healthplan'"
+                  class="form-control mb-2 mr-sm-2 mb-sm-0" name="insurance"
+                  (change)="showDates = true;healthplanName=$event.target.selectedOptions[0].label" required>
+                  <option [selected]="true" value="">Select Healthplan</option>
+                  <option *ngFor="let insurance of insurance_list" [label]="insurance.health_Name"
+                     [value]="insurance.healthplan_id">
+                     {{ insurance.health_Name }}
+                  </option>
+                  <option value="0">All</option>
+               </select>
+               <select [(ngModel)]="provider.year" class="form-control mb-2 mr-sm-2 mb-sm-0 " name="pyear"
+                  (change)="checkMonth(provider.year,'provider')" required>
+                  <option value="">Select year</option>
+                  <option *ngFor="let year of years" [value]="year">{{year}}</option>
+               </select>
+               <select [(ngModel)]="provider.month" class="form-control mb-2 mr-sm-2 mb-sm-0 " name="pmonth"
+                  (change)="formatDate('provider')" required>
+                  <option value="">Select Month</option>
+                  <option *ngFor="let month of months3" [value]="month.value">
+                     {{ month.full }}
+                  </option>
+               </select>
+               <i (click)="getGapsCount()" class="material-icons"
+                  style="vertical-align:middle;cursor:pointer;">search</i>
+            </form>
+            <div class="row summary">
+
+               <a target="_blank" class="col p-0" [routerLink]="['/members/Denominator']">
+                  <div class="col p-1" (click)="storeGapDetails(0, 'All','denom')">
+                     <div class="card">
+                        <div class="card-body">
+                           <div class="h5 mb-0 f-size">Total Denominator</div>
+                           <div class="numData text-primary">{{total_denominator}}</div>
+                        </div>
+                     </div>
+                  </div>
+               </a>
+
+               <a target="_blank" class="col p-0" [routerLink]="['/members/Numerator']">
+                  <div class="col p-1" (click)="storeGapDetails(0, 'All','num')">
+                     <div class="card">
+                        <div class="card-body">
+                           <div class="h5 mb-0 f-size">Total Numerator</div>
+                           <div class="numData text-warning">{{total_numerator}}</div>
+                        </div>
+                     </div>
+                  </div>
+               </a>
+               <div class="col p-1" *ngIf="total_gaps>0" (click)="goToNonCompliant('gaps')">
+                  <div class="card">
+                     <div class="card-body">
+                        <div class="h5 mb-0 f-size">Total Gaps</div>
+                        <div class="numData text-danger">{{total_gaps}}</div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col p-1" *ngIf="total_gaps==0">
+                  <div class="card">
+                     <div class="card-body">
+                        <div class="h5 mb-0 f-size">Total Gaps</div>
+                        <div class="numData text-danger">{{total_gaps}}</div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col p-1" *ngIf="total_pending>0" (click)="goToNonCompliant('pending')">
+                  <div class="card">
+                     <div class="card-body">
+                        <div class="h5 mb-0 f-size">Total Pending</div>
+                        <div class="numData text-secondary">{{total_pending}}</div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col p-1" *ngIf="total_pending==0">
+                  <div class="card">
+                     <div class="card-body">
+                        <div class="h5 mb-0 f-size">Total Pending</div>
+                        <div class="numData text-secondary">{{total_pending}}</div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+            <div class="row summary" *ngIf="gaps_data && currentUser.officetype">
+
+               <a target="_blank" class="col p-0">
+                  <div class="col p-1" (click)="storeGapDetails(0, 'All','denom')">
+                     <div class="card">
+                        <div class="card-body">
+                           <div class="h5 mb-0 f-size">All Provider Denominator</div>
+                           <div class="numData text-primary">{{gaps_data[0]?.totalprovdenominator}}</div>
+                        </div>
+                     </div>
+                  </div>
+               </a>
+
+               <a target="_blank" class="col p-0">
+                  <div class="col p-1" (click)="storeGapDetails(0, 'All','num')">
+                     <div class="card">
+                        <div class="card-body">
+                           <div class="h5 mb-0 f-size">All Provider Numerator</div>
+                           <div class="numData text-warning">{{gaps_data[0]?.totalprovnumerator}}</div>
+                        </div>
+                     </div>
+                  </div>
+               </a>
+               <div class="col p-1" *ngIf="total_gaps>0">
+                  <div class="card">
+                     <div class="card-body">
+                        <div class="h5 mb-0 f-size">All Provider Gaps</div>
+                        <div class="numData text-danger">{{gaps_data[0]?.totalprovgapcount}}</div>
+                     </div>
+                  </div>
+               </div>
+
+               <div class="col p-1" *ngIf="total_pending>0">
+                  <div class="card">
+                     <div class="card-body">
+                        <div class="h5 mb-0 f-size">All Provider Pending</div>
+                        <div class="numData text-secondary">{{gaps_data[0]?.totalprovpending}}</div>
+                     </div>
+                  </div>
+               </div>
+
+            </div>
+            <p *ngIf="loading" class="section-loader"><img src="assets/img/input-spinner.gif"></p>
+            <div class="gaps-table">
+               <table *ngIf="!loading" class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+                  <thead>
+                     <tr>
+                        <th>Measure Name</th>
+                        <th>Total Denominator</th>
+                        <th>Total Numerator</th>
+                        <th>Total Gaps</th>
+                        <th>Total Pending</th>
+                        <th>% Completed</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr *ngFor="let gap of gaps_data">
+                        <td data-label="Measure Name">{{gap?.measname?.toLowerCase()}}</td>
+                        <td data-label="Total Denominator" *ngIf="gap?.totaldenominator"><a href="javascript:void(0)"
+                              target="_blank" [routerLink]="['/members/Denominator']"
+                              (click)="storeGapDetails(gap.measureid, gap.measname)">{{gap?.totaldenominator}}</a></td>
+                        <td data-label="Total Denominator" *ngIf="!gap?.totaldenominator">0</td>
+                        <td data-label="Total Numerator" target="_blank" *ngIf="gap?.totalnumerator"><a
+                              href="javascript:void(0)" target="_blank" [routerLink]="['/members/Numerator']"
+                              (click)="storeGapDetails(gap.measureid, gap.measname)">{{gap?.totalnumerator}}</a></td>
+                        <td data-label="Total Numerator" target="_blank" *ngIf="!gap?.totalnumerator">0</td>
+                        <!-- <td data-label="Total Denominator" >{{gap?.totaldenominator}}</td>
+                        <td data-label="Total Numerator" >{{gap?.totalnumerator}}</td> -->
+                        <td data-label="Total Gaps" *ngIf="gap?.gapcount"><a href="javascript:void(0)"
+                              (click)="storeGapScorecard(gap)"
+                              [routerLink]="['/reports/non-compliant']">{{gap?.gapcount}}</a></td>
+                        <td data-label="Total Gaps" *ngIf="!gap?.gapcount">0</td>
+                        <td data-label="Total Pending">
+                           <span class="">{{gap?.totalpending}}</span>
+                        </td>
+                        <td data-label="% Completed">{{(gap?.totalnumerator / gap?.totaldenominator) *100 | round}} %
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+         </div>
+         <!-- <div class="col-sm-12 col-lg-5">
+         <div class="outer-heading pb-0">Census Graph</div>
+               <form autocomplete="off" class="form-inline" >
+                  
+          
+            <select  [(ngModel)]="censusdate.year" class="form-control mb-2 mr-sm-2 mb-sm-0 "  name="pyear" (change)="checkMonth(censusdate.year,'census');getCensusGraph()" required>
+               <option  value="">Select year</option>
+               <option *ngFor="let year of years" [value]="year">{{year}}</option>
+            </select>
+            <select  [(ngModel)]="censusdate.month"   class="form-control mb-2 mr-sm-2 mb-sm-0 "  name="pmonth" (change)="formatDate('census');getCensusGraph()" required>
+               <option  value="">Select Month</option>
+               <option *ngFor="let month of months4" [value]="month.value" >
+                  {{ month.full }}
+               </option>
+            </select>
+            
+         </form>
+         
+         
+         
+         <div class="" style="margin-top:50px;">
+                  <div class="card-body">
+                     <div class="chart-wrapper">
+                        <canvas baseChart class="chart" *ngIf="showcensusgraph"
+                        [colors]="colors2"
+                        [datasets]="cData_census"
+                        [labels]="chartLabels3"
+                        [legend]="barChartLegend"
+                        [chartType]="barChartType"
+                        ></canvas>
+                     </div>
+                  </div>
+               </div>
+         </div> -->
+      </div>
+   </div>
+   <div class="assurance-performance-area">
+      <div class="row" *ngIf=" currentRole == 'audit'">
+         <div class="col">
+            <div class="card my-1">
+               <div class="card-header">
+                  Top 10 Performers
+                  <div class="float-right">
+                     <span class="badge badge-primary badge-pill">Compliant %</span>
+                     <span class="badge badge-success badge-pill">Measures</span>
+                  </div>
+               </div>
+               <div class="card-body" style="padding-top:10px;">
+                  <p *ngIf="!assurance_list?.top?.length">There are no gaps present for this member</p>
+                  <ul class="list-group list-group-flush" *ngIf="assurance_list?.top?.length > 0">
+                     <li *ngFor="let item of assurance_list?.top"
+                        class="list-group-item d-flex list-group-item-action justify-content-between align-items-center text-capitalize">
+                        {{item.AssuranceLastName?.toLowerCase()}}, {{item.AssuranceFirstName?.toLowerCase()}}
+                        <div class="float-right">
+                           <span class="badge badge-primary badge-pill">{{item.CompliancePercent | round}}</span>
+                           <span class="badge badge-success badge-pill">{{item.TotalPoints}}</span>
+                        </div>
+                     </li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+         <div class="col">
+            <div class="card my-1">
+               <div class="card-header">
+                  Bottom 10 Performers
+                  <div class="float-right">
+                     <span class="badge badge-primary badge-pill">Compliant %</span>
+                     <span class="badge badge-success badge-pill">Measures</span>
+                  </div>
+               </div>
+               <div class="card-body" style="padding-top:10px;">
+                  <p *ngIf="!assurance_list?.bottom?.length">There are no gaps present for this member</p>
+                  <ul class="list-group list-group-flush" *ngIf="assurance_list?.bottom?.length > 0">
+                     <li *ngFor="let item of assurance_list?.bottom"
+                        class="list-group-item d-flex list-group-item-action justify-content-between align-items-center text-capitalize">
+                        {{item.AssuranceLastName?.toLowerCase()}}, {{item.AssuranceFirstName?.toLowerCase()}}
+                        <div class="float-right">
+                           <span class="badge badge-primary badge-pill">{{item.CompliancePercent | round}}</span>
+                           <span class="badge badge-success badge-pill">{{item.TotalPoints}}</span>
+                        </div>
+                     </li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>

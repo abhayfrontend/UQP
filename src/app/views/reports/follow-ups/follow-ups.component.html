@@ -1,0 +1,314 @@
+<app-help class="d-none"></app-help>
+<!-- <button (click)="cc()">cc</button> -->
+<div class="u-heading">
+<h2 style="top:8px">Follow Up Report <span *ngIf="member_list" class="f-14">( Total Conditions: {{member_list[0]?.id}} )</span></h2>
+<!-- <span *ngIf="member_list" >Total Conditions: {{member_list[0].id}}</span> -->
+</div>
+<div class="filter-bar">
+  <div class="download-option mt-0"  *ngIf="member_list?.length">
+    <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Download Pdf</span></span>
+    <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span  class="download-text">Download Excel Sheet</span></span>
+  </div>
+  <form action="" class="form-inline" autocomplete="off">
+
+     <select *ngIf="currentRole != 'qa'" [(ngModel)]="params.docsubmittedby" class="form-control mb-2 mr-sm-2 mb-sm-0 "  name="docsubmittedby" >
+         <option  value="null">Select assurance</option>
+         <option  [selected]="params.docsubmittedby == user.userid" *ngFor="let user of assuranceUsers" [value]="user.userid">{{user.firstname}} {{user.lastname}}</option>
+      </select>
+
+ <div class="form-group">
+    <input class="form-control" #drp="bsDaterangepicker" bsDaterangepicker [(ngModel)]="bsRangeValue" name="range" placeholder="select range" >
+  </div>
+   <div  class="form-group col-2  p-0 mr-sm-2" style="padding-left:7px !important;" >
+      <input  [(ngModel)]="provider_name" (keyup)="searchProvider()" class="form-control col-12" name="provider_name" placeholder="Search Provider" type="text" required  >
+      <div  *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="left: auto;">
+        <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+        <div *ngFor="let member of members">
+          <a *ngIf="member.FirstName" href="javascript:void(0)"  (click)="getInsurance(member)"  class="dropdown-item text-capitalize" >
+            {{member.FirstName}} {{member.LastName}}
+            <span class="text-lowercase" *ngIf="member.email"> | {{member.email}} </span>
+          </a>
+        </div>
+      </div>
+      <div  *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+       
+        <div >
+          <a  href="javascript:void(0)"   class="dropdown-item" >
+            No provider found
+          </a>
+        </div>
+      </div>
+     
+    </div>
+
+    <select *ngIf="rolename !='healthplan'" [(ngModel)]="params.healthplanid"  class="form-control mb-2 mr-sm-2 mb-sm-0 "  name="insurance"  name="healthplanid">
+      <option  value="0">Select Healthplan</option>
+      <option  value="1" label="COVENTRY">COVENTRY</option>
+      <option value="2" label="FREEDOM HEALTH PLAN">FREEDOM HEALTH PLAN</option>
+      <option value="3" label="HUMANA">HUMANA</option>
+      <option value="4" label="OPTIMUM HEALTHCARE INC">OPTIMUM HEALTHCARE INC</option>
+      <option value="5" label="ULTIMATE HEALTH PLANS">ULTIMATE HEALTH PLANS</option>
+      <option value="6" label="WELLCARE HEALTH PLANS">WELLCARE HEALTH PLANS</option>
+     
+   </select>
+
+   <select class="form-control mb-2 mr-sm-2 mb-sm-0 " name="select" [(ngModel)]="params.condition"  #type="ngModel"  >
+              <option value="0" value="null">Select category</option>
+              <option value="New Condition"> New Condition</option>
+              <option value="New HCC"> New HCC</option>
+              <option value="Missed Condition"> Missed Condition</option>
+              <option value="Missed HCC"> Missed HCC</option>
+              <option value="Retro Addition"> Retro Addition</option>
+              <option value="Deletions"> Deletions</option>
+              <option value="Suggestion"> Suggestion</option>
+              <option value="Reviewed/Nothing found"> Reviewed/Nothing Found </option>
+     </select>
+           
+
+    <select class="form-control mb-2 mr-sm-2 mb-sm-0 "  [(ngModel)]="params.status" name="status" >
+              <option value="0" >Status</option>
+              <option value="true">Approved</option>
+              <option value="false">Rejected</option>
+              <option value="tobefollowed">To be followed</option>
+              <option value="Peer Review">Peer Review</option>
+              <option value=null>All</option>
+
+    </select>
+
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary btn-sm ml-2 mr-1" (click)="getAllMembers(true)" ><span><i class="fa fa-user"></i></span>View members</button>
+      <button type="button" class="btn btn-reset btn-sm ml-1 mr-2" (click)="resetFilters()" ><span><i class="fa fa-refresh"></i>
+      </span>Reset</button>
+    </div>
+  </form>
+</div>
+<nav *ngIf="total_pages>15" aria-label="Page navigation example" class="top-paging">
+  <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+    <li class="page-item  mr-2">
+      <a class="page-link" href="javascript:void(0)" *ngIf="page !== 1" [class.disabled]="page === 1" (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+        <i class="fa fa-angle-left" aria-hidden="true"></i>
+      </a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="javascript:void(0)" *ngIf="pager.currentPage !== pager.total_pages" [class.disabled]="next_page === 'total_pages'" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+        <i class="fa fa-angle-right" aria-hidden="true"></i>
+      </a>
+    </li>
+  </ul>
+</nav>
+<div class="custom-container">
+  <div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob report-table blur">
+    <thead>
+      <tr>
+        <th >S.No.</th>
+        
+        <th>Member Name</th>
+        <!-- <th>Billing Provider Address</th> -->
+        <th >PCP Name</th>
+        <th >Healthplan Name</th>
+        <th>Member DOB</th>
+        <th>Subscriber ID</th>
+        <th>Gender</th>
+        <!-- <th>Age</th> -->
+        <!-- <th>Effective Date</th> -->
+        <th>Category</th>
+        <th>Submitted Date</th>
+        <th>Submitted By</th>
+        <!-- <th>Review</th> -->
+        <!-- <th>PCP Fax</th>
+        <th>PCP County</th> -->
+      </tr>
+    </thead>
+    <tbody>
+      
+      <tr *ngFor="let member of member_list; let i = 'index'">
+        <td data-label="S.No." *ngIf="page == 1">{{i+1}}</td>
+        <td  data-label="S.No."*ngIf="page > 1">{{(i+1)+(page-1)*params.pageSize}}</td>
+        <td data-label="Member Name" ><a (click)="getReviewDetails(member)" href="javascript:void(0)">{{member.subscriberlastname?.toLowerCase()}}, {{member.subscriberfirstname?.toLowerCase()}}</a></td>
+        <!-- {{member.midname?.toLowerCase()}}  -->
+        <!-- <td data-label="Billing Provider Address"> {{member.proivder_address}}</td> -->
+        <!-- <td data-label="PCP Name" ><span *ngIf="member.Provider_FirstName">Dr. </span>{{member.Provider_FirstName?.toLowerCase()}} {{member.Provider_MidName?.toLowerCase()}} {{member.Provider_LastName?.toLowerCase()}}</td> -->
+        <td data-label="PCP Name" ><span *ngIf="member.Provider_FirstName">Dr. </span>{{member.providerlastname?.toLowerCase()}}, {{member.providerfirstname?.toLowerCase()}}</td>
+        <td data-label="Healthplan Name" >{{member.healthplanName?.toLowerCase()}}</td>
+        <td data-label="Member DOB">{{member.dateofbirth | date}}</td>
+        <td data-label="Subscriber ID">{{member.subscriberid}}</td>
+        <td data-label="Gender">{{member.gender}}</td>
+        <td data-label="Category">{{member.type}}</td>
+        <td data-label="Submitted Date">{{member.createdDateByUQP | date}}</td>
+        <td data-label="Submitted By">{{member.createdbylastname}}, {{member.createdbyfirstname}}</td>
+        <!-- <td data-label="End Date">{{member.enddate | date}}</td> -->
+        <!-- <td data-label="PCP Phone">{{member.Provider_MobileNumber}}</td> -->
+        <!-- <td data-label="Review" *ngIf="!member.isreviewed">
+            <a  href="javascript:void(0)" (click)="createReview(member)"><i class="fa fa-edit" style="font-size:24px"></i></a>
+            
+         </td> -->
+         <!-- <td data-label="Review" *ngIf="member.isreviewed">
+            <i class="fa fa-check" style="font-size:24px"></i>
+            
+         </td> -->
+        <!-- <td data-label="PCP Fax">{{member.Fax}}</td>
+        <td data-label="PCP County">{{member.County?.toLowerCase()}}</td> -->
+        
+        
+      </tr>
+    </tbody>
+  </table>
+  <nav *ngIf="total_pages > 15" aria-label="Page navigation example" style="    margin-top: 25px;">
+    <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+      <li class="page-item">
+        <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1" (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+          <span class="sr-only">Previous</span>
+        </a>
+      </li>
+      <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item">
+        <a href="javascript:void(0)" (click)="loadByPage(p)" class="page-link">{{p}}</a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="javascript:void(0)" [class.disabled]="page === total_pages" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+          <span class="sr-only">Next</span>
+        </a>
+      </li>
+      <li class="custom_page" ><input type="number" onkeypress="return event.charCode != 45" min="1" #pgno>
+            <button class="btn  btn-primary" (click)="loadByPage(pgno.value)">goto page</button>
+         </li>
+    </ul>
+  </nav>
+  <!--   <button type="submit" class="btn btn-primary btn-sm" (click)="getProviderMembers()" >View members</button> -->
+</div>
+
+
+
+<!-- MRA review gaps flow modal -->
+<div bsModal #MRAReviewModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog" [config]="{backdrop: 'static'}" aria-labelledby="notifLabel" aria-hidden="true">
+<div class="modal-dialog modal-xl" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      
+      <h4  class="modal-title">Follow Up Review</h4>
+      <!-- <h4 *ngIf="!save_add_form" class="modal-title">Edit Notification</h4> -->
+      <button type="button" class="close" (click)="MRAReviewModal.hide()" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+      </button>
+      
+    </div>
+    <div class="modal-body">
+      <form action="" class="form-horizontal" #MRAReviewForm="ngForm" autocomplete="off">
+
+        <div *ngFor="let review of review_details?.conditions; let i = 'index'"  style="    border-bottom: 2px solid #eee;
+    padding: 10px 0px;">
+
+        <div class="form-group row"  >
+          <div class="col">
+            <label>Type</label>
+            <div>{{review.type}}</div>
+           
+            
+            
+          </div>
+
+          <div class="col">
+            <label>DOS</label>
+            <div>{{review.dos | date}}</div>
+          </div>
+
+          <div class="col">
+            <label>Diagnosis Code</label>
+            <div>{{review.diagnosiscode}}</div>
+          </div>
+
+          <div class="col">
+            <label>HCC Code</label>
+            <div>{{review.hcccode}}</div>
+          </div>
+
+          <div class="col">
+          	<label>Documented</label>
+            <div>{{review.hcccondition}}</div>
+
+          </div>
+          <div class="col">
+            <label>Description</label>
+            <div>{{review.HCCDescription}}</div>
+
+          </div>
+
+          <div class="col">
+          	<label>Action</label>
+          	<select [(ngModel)]="review.auditstatus"  class="form-control col-12" [name]="'status-'+i" name="status">
+        <option [selected]="true" value="null">Select category</option>
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+          	
+         
+          </div>
+
+          <div class="col" *ngIf="review.auditstatus == 'false' ">
+          	<label>Reason</label>
+          	<select [(ngModel)]="review.StatusReason"  class="form-control col-12" [name]="'reason-'+i">
+        <option [selected]="true" value="null">Select category</option>
+        <option value="Provider does not agree">Provider does not agree</option>
+        <option value="Not Documented">Not Documented</option>
+      </select>
+
+          	
+          </div>
+
+          
+
+        </div>
+
+        <div class="form-group row" *ngIf="review?.documents?.length">
+               <div class="col-md-12">
+                  <div class="upload-doc">
+                     <!-- <label>Uploaded Documents List</label> -->
+                     <ol>
+                        <li *ngFor="let d of review?.documents" class="f-14">
+                           {{d.Filename}} <a target="_blank" [href]="CONTENT_BASE+d.Filepath"><i class="fa fa-file-pdf-o text-danger pl-2"></i></a>
+                           <a href="javascript:void(0)" (click)="removeGapDoc(d,'review',i)"><i class="fa fa-times text-danger pl-2"></i></a>
+                        </li>
+                     </ol>
+                  </div>
+               </div>
+            </div>
+          </div>
+
+<div class="form-group row">
+    <div class="col">
+            <label>Last Office Visit </label>
+            <div>{{review_details?.lastofficevisit | date}}</div>
+          </div>
+          <div class="col">
+            <label>Next office visit</label>
+            <div>{{review_details?.nextofficevisit | date}}</div>
+          </div>
+          <div class="col">
+            <label>Follow up Date</label>
+            
+            <div>{{review_details?.folowup | date}}</div>
+          </div>
+
+</div>
+
+
+
+<div class="form-group row">
+          <div class="col-md-12">
+            
+            <button (click)="auditReviewSubmission()"  type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+            
+            <!-- <button type="button" class="btn btn-danger" (click)="MRAReviewModal.hide()"><i class="fa fa-times"></i>&nbsp;Close</button> -->
+          </div></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

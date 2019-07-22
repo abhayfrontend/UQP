@@ -1,0 +1,31 @@
+<div bsModal #ipaSelection="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true" [config]="{backdrop: 'static'}">
+   <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h4 class="modal-title">Please select IPA</h4> 
+         </div>
+         <div class="modal-body ">
+            <p class="f-14">Hello {{currentUser?.name}}, to proceed further choose any one IPA associated with your account.</p>
+            <div class="row">
+              <div class="col" *ngFor="let ipa of associated_ipa;let i = 'index'" (click)="selectIPADB(ipa)">
+               <!-- *ngFor="let ipa of associated_ipa;let i = 'index'" -->
+                <div class="card"  style="cursor: pointer;">
+                  <div class="card-body ipa-div">
+                    
+                    <div class="h6 mb-0 text-uppercase">{{ipa.IPA_Name}}</div>
+                    <!-- <small class="text-uppercase">{{ipa.IPA_Name}}</small> -->
+                    
+                  </div>
+                </div>
+              </div>
+              
+
+            </div>   
+         </div>
+         <div class="modal-footer">
+         </div>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>

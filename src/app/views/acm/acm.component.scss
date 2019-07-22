@@ -1,0 +1,35 @@
+
+
+button.add-new-btn {background-color: white;border-color: #d7d7d7;  color: #151b1e;    font-size: 12px; font-weight: bold;
+i {margin-left: 15px;}
+}
+
+button.add-new-btn:not([disabled]):not(.disabled):active {border-color: #fff; background-color: #fff; color: #151b1e; box-shadow: none; }
+div.select-function {max-width: 100%;display: inline-block;width: 270px;
+select {height:37px;}
+}
+
+div.add-funtion-btn {margin:0; padding: 10px; position: relative;
+span.add-icon { position: absolute; background: #fff; box-shadow: 0px 6px 14px #ccc;border-radius: 50px;border: 1px solid #ececec;text-align: center;cursor: pointer;width: 35px;height: 35px;}	
+i {font-size: 16px;font-weight: 100;margin-top: 8px;color: gray;}
+span.add-icon-text {font-size: 12px;padding-left: 40px;padding-top: 10px;display: block;}
+}
+
+input[type=checkbox] {
+    top: 0.275rem;
+    margin: 0 1rem 0 0;
+}
+input[type=checkbox]:before {
+    margin-top: -3px;
+}
+input[type=checkbox]:after {
+    top: -0.125rem;
+    margin-top: 1px;
+
+}
+.table-hover tbody tr:hover {
+input[type=checkbox]:after {
+        background-color: #f5f5f5 !important;
+}
+
+}

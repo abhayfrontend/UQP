@@ -1,0 +1,33 @@
+button.add-new-btn{
+  background-color: white;
+  border-color: #d7d7d7;
+  color: #151b1e;
+  font-size: 12px;
+  font-weight: bold; }
+  button.add-new-btn  
+
+i {
+    margin-left: 15px; }
+
+button.add-new-btn:not([disabled]):not(.disabled):active {
+  border-color: #fff;
+  background-color: #fff;
+  color: #151b1e;
+  box-shadow: none; }
+
+.list-2-bx {margin:0; padding: 0;
+table { margin-bottom: 30px !important;}
+	
+}
+
+.add-star-value-bx {margin:0; padding: 0;
+.sm-text {font-size:20px; font-weight: bold;}
+	
+}
+
+span.mn-text {font-size:12px;  line-height: 32px;}
+.m-padd {padding: 0 70px;}
+.star-error{
+    margin-top: -20px;
+    margin-bottom: 10px;
+}

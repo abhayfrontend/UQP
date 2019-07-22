@@ -1,0 +1,322 @@
+
+<!-- Dashboard page -->
+<div class="dash btn-group btn-group-toggle mt-3 w-100" > 
+   <label  class="btn btn-outline-primary active" *ngIf="userRolePerm_HEDIS?.view" [routerLink]="['/dashboard/quality-audit']" >HEDIS Dashboard</label>
+   <label  class="btn btn-outline-primary "  *ngIf="userRolePerm?.view" [routerLink]="['/dashboard/audit/mra']">MRA Dashboard</label>
+</div>
+
+<app-help class="d-none"></app-help>
+<div class="animated fadeIn dashboard" id="dashboard">
+   <div class="download-option">
+   <span class="pdf-icon d-block" (click)="GeneratePDF()"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Export Pdf</span></span>
+</div>
+<!-- <div class="download-option">
+   <span class="pdf-icon d-block" (click)="GeneratePDF()"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Export Pdf</span></span>
+</div> -->
+<div class="outer-heading ">Dashboard : {{currentUser.rolename}}<span class="float-right">{{previous_month_full}} {{current_year}}</span></div>
+<div class="d-container emd-area">
+   <div class="row">
+      <div class="col p-1">
+         <div class="card" [routerLink]="['/gap-closure/gap-audit']" (click)="storeDashboardQAgaps('all')">
+            <div class="card-body">
+               <div class="h1 text-muted text-right">
+                  <i class="material-icons group-bg">group</i>
+               </div>
+               <div class="h5 mb-0 f-size">Total Submitted</div>
+               <div class="numData" >{{data_count?.Gapsubmitted}}</div>
+               <div class="progress progress-xs mb-0">
+                  <div style="background-color:#ed5724;width:17%; " class="progress-bar"  role="progressbar"  aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">h</div>
+               </div>
+               <!-- <div class="perc_change mt-1">4% from Last Month</div> -->
+            </div>
+         </div>
+      </div>
+      <div class="col p-1">
+         <div class="card">
+            <div class="card-body" [routerLink]="['/gap-closure/gap-audit']" (click)="storeDashboardQAgaps('reviewed')" >
+               <div class="h1 text-muted text-right">
+                  <i class="material-icons person-bg">person</i>
+               </div>
+               <div class="h5 mb-0 f-size">Reviewed</div>
+               <div class="numData" >{{data_count?.reviewedgap}}</div>
+               <div class="progress progress-xs mb-0">
+                  <div style="background-color:#59669d;width:17%; " class="progress-bar"  role="progressbar"  aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+               </div>
+               <!-- <div class="perc_change mt-1">4% from Last Month</div> -->
+            </div>
+         </div>
+      </div>
+      <div class="col p-1">
+         <div class="card">
+            <div class="card-body" [routerLink]="['/gap-closure/gap-audit']" (click)="storeDashboardQAgaps('approved')" >
+               <div class="h1 text-muted text-right">
+                  <i class="material-icons person-bg">person</i>
+               </div>
+               <div class="h5 mb-0 f-size">Approved</div>
+               <div class="numData" >{{data_count?.Gapapproved}}</div>
+               <div class="progress progress-xs mb-0">
+                  <div style="background-color:#59669d;width:17%; " class="progress-bar"  role="progressbar"  aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+               </div>
+               <!-- <div class="perc_change mt-1">4% from Last Month</div> -->
+            </div>
+         </div>
+      </div>
+      <div class="col p-1">
+         <div class="card"  [routerLink]="['/gap-closure/gap-audit']" (click)="storeDashboardQAgaps('pending')">
+            <div class="card-body">
+               <div class="h1 text-muted text-right">
+                  <i class="material-icons security-bg">security</i>
+               </div>
+               <div class="h5 mb-0 f-size">Pending</div>
+               <div class="numData">{{data_count?.Gappending}}</div>
+               <div class="progress progress-xs mb-0">
+                  <div style="background-color:#61a967;width:17%; " class="progress-bar"  role="progressbar"  aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+               </div>
+               <!-- <div class="perc_change mt-1">4% from Last Month</div> -->
+            </div>
+         </div>
+      </div>
+      <div class="col p-1">
+         <div class="card" [routerLink]="['/gap-closure/gap-audit']" (click)="storeDashboardQAgaps('rejected')">
+            <div class="card-body">
+               <div class="h1 text-muted text-right">
+                  <i class="material-icons hospital-bg">local_hospital</i>
+               </div>
+               <div class="h5 mb-0 f-size">Rejected</div>
+               <div class="numData" >{{data_count?.Gaprejected}}</div>
+               <div class="progress progress-xs mb-0">
+                  <div style="background-color: #efb818;width:17%;" class="progress-bar"  role="progressbar"  aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+               </div>
+               <!-- <div class="perc_change mt-1">4% from Last Month</div> -->
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<!-- <div>
+      Reasons:
+      <ul>
+            <li *ngFor="let reason of rejectedReasons">
+                  {{reason.name}}
+            </li>
+      </ul>
+</div> -->
+<div class="d-container bg-white my-2 healthplan_scorecard-area">
+   <div class="row">
+      <div class="col-sm-12 col-lg-6">
+         
+         <div class="outer-heading pb-0 mb-3">Most Rejected Reasons</div>
+         <!-- <div class="inner-heading">fregergergegregrg</div> -->
+         
+         <div class="progress-group" *ngFor="let reason of data_count?.CountList">
+            <div class="progress-group-header align-items-end">
+               <!-- <i class="icon-globe progress-group-icon"></i> -->
+               <div>{{reason.reason}}</div>
+               <div class="ml-auto font-weight-bold mr-2">{{reason.count}}</div>
+               <div class="text-muted small">{{(reason.count/total_reason_count)*100 | round}} %</div>
+               <!-- {{this.Math.round((score.num/score.den)*100)}} % -->
+            </div>
+            <div class="progress-group-bars">
+               <div class="progress progress-xs">
+                  <div class="progress-bar bg-warning" role="progressbar" [style.width]="(reason.count/total_reason_count)*100+'%'"></div>
+               </div>
+            </div>
+         </div>
+
+      </div>
+      <div class="col-sm-12 col-lg-6">
+         <div class="outer-heading pb-0">Gaps Status Graph</div>
+         <form action="" class="form-inline" autocomplete="off">
+            <select  [(ngModel)]="auditstatusdate.year" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-6"  name="year" (change)="checkMonth(auditstatusdate.year,'auditstatusgraph');getAuditStatusCount()">
+               <option  value="">Select year</option>
+               <option [selected]="year == current_year" *ngFor="let year of years" [value]="year">{{year}}</option>
+            </select>
+            <select [(ngModel)]="auditstatusdate.month"   class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-6"  name="month" (change)="formatDate('auditstatusgraph');getAuditStatusCount()">
+               <option  value="">Select Month</option>
+               <option  *ngFor="let month of months" [value]="month.value" >
+                  {{ month.full }}
+               </option>
+            </select>
+         </form>
+         <div class="">
+            <div class="card-body">
+               <div class="chart-wrapper">
+                  <!-- *ngIf="showHealthplangraph" -->
+                  <canvas baseChart class="chart" *ngIf="showHealthplangraph"
+                  [colors]="colors"
+                  [datasets]="graph_data"
+                  [labels]="barChartLabels"
+                  [options]="barChartOptions"
+                  [legend]="barChartLegend"
+                  [chartType]="barChartType"
+                  (chartHover)="chartHovered($event)"
+                  ></canvas>
+               </div>
+            </div>         </div>
+      </div>
+   </div>
+</div>
+<div class="d-container  my-2 gaps-block">
+   <div class="row">
+      <div class="col-sm-12 col-lg-8 bg-white">
+         <div class="outer-heading pb-0">Gaps Summary</div>
+         
+         
+         <form autocomplete="off" class="form-inline" #providerScorecard="ngForm" style="display: -webkit-box;">
+
+            <div class=" mb-2 mr-sm-2 mb-sm-0" style="position: relative;padding: 0;">
+               <!-- [ngClass]="{'input-loading': searching}" -->
+               <input   [(ngModel)]="provider_name" (keyup)="searchProvider()" class="form-control " name="provider_name" placeholder="Search Provider" type="text" required style="width:100%" >
+               <img *ngIf="searching"  class="input-loading-img" src="assets/img/input-spinner.gif">
+               <div  *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="min-width:100%">
+                  <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+                  <div *ngFor="let member of members"><a *ngIf="member.FirstName" href="javascript:void(0)"   class="dropdown-item" (click)="getInsurance(member)">
+                     {{member.FirstName}} {{member.LastName}}  <span *ngIf="member.email"> | {{member.email}} </span>
+                  </a>
+               </div>
+            </div>
+            <div  *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+               <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+               <div ><a  href="javascript:void(0)"   class="dropdown-item" >
+                  No provider found
+               </a>
+            </div>
+         </div>
+         <p style="color:red;position:absolute" *ngIf="insurance_list?.length ==0 ">No healthplan associated with this provider</p>
+      </div>
+
+<!-- this.provider.healthplanName = $event.target.selectedOptions[0].label" -->
+      <select [(ngModel)]="provider.healthplanid" *ngIf="currentRole !== 'healthplan'"  class="form-control mb-2 mr-sm-2 mb-sm-0"  name="insurance"  required>
+         <option [selected]="true" value="">Select Healthplan</option>
+         <option  *ngFor="let insurance of insurance_list" [value]="insurance.healthplan_id" [label]="insurance.health_Name">
+            {{ insurance.health_Name }}
+         </option>
+         <option value="0">All</option>
+      </select>
+
+
+            <select  [(ngModel)]="provider.docsubmittedby" class="form-control mb-2 mr-sm-2 mb-sm-0"  name="docsubmittedby" >
+               <option  value="">Select assurance</option>
+               <option  *ngFor="let user of assuranceUsers" [value]="user.userid">{{user.firstname}} {{user.lastname}}</option>
+               <option value="">All</option>
+            </select>
+            <select  [(ngModel)]="provider.year" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2"  name="pyear" (change)="checkMonth(provider.year,'provider')" required>
+               <option  value="">Select year</option>
+               <option *ngFor="let year of years" [value]="year">{{year}}</option>
+            </select>
+            <select  [(ngModel)]="provider.month"   class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2"  name="pmonth" (change)="formatDate('provider')" required>
+               <option  value="">Select Month</option>
+               <option *ngFor="let month of months3" [value]="month.value" >
+                  {{ month.full }}
+               </option>
+            </select>
+            <i (click)="getGapsCount()" class="material-icons" style="vertical-align:middle;cursor:pointer;">search</i>
+         </form>
+         
+         <p *ngIf="loading" class="section-loader"><img src="assets/img/input-spinner.gif"></p>
+         <table *ngIf="!loading" class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+            <thead>
+               <tr>
+                  <th>Measure Name</th>
+                  <th>Total Submitted</th>
+                  <th>Total Approved</th>
+                  <th>Total Pending</th>
+                  <th>Total Rejected</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr *ngFor="let gap of gaps_data">
+                  <td data-label="Measure Name" *ngIf="gap?.submitted !==0"><a href="javascript:void(0)" (click)="storeGapScorecard(gap)" [routerLink]="['/gap-closure/gap-audit']">{{gap?.measurename?.toLowerCase()}}</a></td>
+
+                  <td data-label="Measure Name" *ngIf="gap?.submitted ==0">{{gap?.measurename?.toLowerCase()}}</td>
+
+                  <td data-label="Total Submitted">{{gap?.submitted}}</td>
+                  <td data-label="Total Approved" >{{gap?.approved}}</td>
+                  <td data-label="Total Pending">{{gap?.pending}}</td>
+                  <td data-label="Total Rejected">
+                     <span class="">{{gap?.rejected}}</span>
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+      </div>
+      <div class="col-sm-12 col-lg-4 ">
+         <div class="card">
+            <div class="card-body p-3 clearfix  orange-box">
+               <!-- <canvas id="do"></canvas> -->
+               <div class="h5 text-primary mb-0 mt-2 round-bx orange-col">{{total_submitted}}</div>
+               <div class="circle-text">Total Submitted</div>
+            </div>
+         </div>
+         <div class="card">
+            <div class="card-body p-3 clearfix yellow-box">
+               <!-- <canvas id="do"></canvas> -->
+               <div class="h5 text-primary mb-0 mt-2 round-bx yellow-col">{{total_approved}}</div>
+               <div class="circle-text">Total Approved</div>
+            </div>
+         </div>
+         <div class="card">
+            <div class="card-body p-3 clearfix green-box">
+               <div class="h5 text-primary mb-0 mt-2 round-bx green-col">{{total_pending}}</div>
+               <div class="circle-text">Total Pending</div>
+            </div>
+         </div>
+         <div class="card">
+            <div class="card-body p-3 clearfix blue-box">
+               <div class="h5 text-primary mb-0 mt-2 round-bx blue-col">{{total_rejected}}</div>
+               <div class="circle-text">Total Rejected</div>
+            </div>
+         </div>
+      </div>
+
+      </div></div>
+
+
+<div class="assurance-performance-area">
+   <div class="row">
+            <div class="col">
+            <div class="card my-1">
+              <div class="card-header">Top 10 Performers 
+               <div class="float-right">
+                  <span class="badge badge-primary badge-pill">Compliant %</span> 
+                  <span class="badge badge-success badge-pill">Measures</span>
+               </div>
+                  
+               </div>
+              <div class="card-body" style="padding-top:10px;">
+                <p *ngIf="!assurance_list?.top?.length">There are  no top assurance present</p>
+                <ul class="list-group list-group-flush" *ngIf="assurance_list?.top?.length > 0">
+                  <li *ngFor="let item of assurance_list?.top" class="list-group-item d-flex list-group-item-action justify-content-between align-items-center text-capitalize"> {{item.AssuranceLastName?.toLowerCase()}}, {{item.AssuranceFirstName?.toLowerCase()}}
+                  <div class="float-right"> 
+                     <span class="badge badge-primary badge-pill">{{item.CompliancePercent | round}}</span> 
+                     <span class="badge badge-success badge-pill">{{item.TotalPoints}}</span>
+                  </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="card my-1">
+              <div class="card-header">Bottom 10 Performers
+              <div class="float-right">
+                  <span class="badge badge-primary badge-pill">Compliant %</span> 
+                  <span class="badge badge-success badge-pill">Measures</span>
+               </div></div>
+              <div class="card-body" style="padding-top:10px;">
+                <p *ngIf="!assurance_list?.bottom?.length">There are no bottom assurance present</p>
+                <ul class="list-group list-group-flush" *ngIf="assurance_list?.bottom?.length > 0">
+                  <li *ngFor="let item of assurance_list?.bottom" class="list-group-item d-flex list-group-item-action justify-content-between align-items-center text-capitalize"> {{item.AssuranceLastName?.toLowerCase()}}, {{item.AssuranceFirstName?.toLowerCase()}}
+                  <div class="float-right"> 
+                     <span class="badge badge-primary badge-pill">{{item.CompliancePercent | round}}</span> 
+                     <span class="badge badge-success badge-pill">{{item.TotalPoints}}</span>
+                  </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+         </div>
+</div>
+   </div>

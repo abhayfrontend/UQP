@@ -1,0 +1,22 @@
+.bulk-mail-container {    background: #fff;padding: 10px 15px; margin: 0 15px 15px;}
+.mailer-active {background-color:#c9c9c9;}
+.Bulk-mail-selection {    height: 35px;border: 1px solid #c9c9c9; display: block;margin: 0px;line-height: 30px; cursor: pointer; text-transform: uppercase;}
+.select-all{padding:15px 0px;float:left;}
+.select-all span {padding-right: 20px;}
+.mail-subject {padding: 15px 0px;}
+.mail-subject input[type="text"]{  height: 35px;border: 1px solid #c9c9c9;display: block; margin: 0 15px;line-height: 30px; width: 100%;margin: 0;}
+.upload-doc {padding: 10px 0px 0px;}
+
+.selectplan { position: relative; top: 10px;}
+.mail-button{ background-color:#63ae68;color: #fff;padding: 10px 15px;border: none;border-radius: 2px;}
+.mail-button i{font-size: 16px;position: relative;
+    top: 2px;}
+.mail-label{
+	clear:both;padding:0px 0px; overflow:hidden; width:100%;font-size: 16px;cursor: pointer; font-weight: bold;
+}
+.bc-p{
+	 background-image: url(/assets/img/provider-b.png); background-repeat: no-repeat;background-size: contain;
+}
+.bc-m{
+	 background-image: url(/assets/img/member-b.png); background-repeat: no-repeat;background-size: contain;
+}

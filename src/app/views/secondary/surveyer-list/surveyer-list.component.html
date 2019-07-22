@@ -1,0 +1,172 @@
+<app-help class="d-none"></app-help>
+<!-- <div *ngIf="spinner" class="loading">Loading&#8230;</div> -->
+<div class="u-heading">
+  <h2>Surveyor Productivity</h2>
+  <!-- <div class="pull-right">
+    <div class="u-search searchmd">
+      <div>
+        <input type="text" name="search" class="form-control col-12 prosearch" [(ngModel)]="params.name" type="text"
+          placeholder="Search..">
+      </div>
+      <div>
+        <i class="material-icons shifticon" (click)="searchAssurance()">search</i>
+      </div>
+    </div>
+
+
+  </div> -->
+</div>
+<div class="filter-bar">
+  <div class="download-option mt-0" *ngIf="surveyer_list?.length">
+    <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span
+        class="download-text">Download Pdf</span></span>
+    <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span
+        class="download-text">Download Excel Sheet</span></span>
+  </div>
+  <form action="" class="form-inline" autocomplete="off">
+    <!-- <div class="form-group col-2  p-0 mr-sm-2" style="position: relative;padding: 0;">
+      <input [(ngModel)]="provider_name" (keyup)="searchProvider()" class="form-control col-12" name="provider_name"
+        placeholder="Search Provider" type="text" required style="width:100%">
+      <div *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="left: auto;">
+        <div *ngFor="let member of members">
+          <a *ngIf="member.FirstName" href="javascript:void(0)" (click)="getInsurance(member)"
+            class="dropdown-item text-capitalize">
+            {{member.FirstName}} {{member.LastName}}
+            <span class="text-lowercase" *ngIf="member.email"> | {{member.email}} </span>
+          </a>
+        </div>
+      </div>
+      <div *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+        <div>
+          <a href="javascript:void(0)" class="dropdown-item">
+            No provider found
+          </a>
+        </div>
+      </div>
+    </div> -->
+    <!-- <div class="form-group col-2  p-0 mr-sm-2" *ngIf="insurance_list?.length >0" (change)="getAllIPA()"> -->
+    <!-- <div class="form-group   p-0 mr-sm-2">
+      <label class="sr-only" for="if-password">Healthplan</label>
+      <select [(ngModel)]="params.healthplanid" class="form-control  mb-sm-0" name="insurance" required>
+        <option [selected]="true" value="">Select Healthplan</option>
+        <option *ngFor="let insurance of insurance_list" [value]="insurance.healthplan_id"
+          [label]="insurance.health_Name">
+          {{ insurance.health_Name }}
+        </option>
+        <option value="0">All</option>
+      </select>
+    </div> -->
+
+    <div class="form-group mr-sm-2 p-0 ">
+      <label class="sr-only" for="if-password">Select survey type</label>
+      <select [(ngModel)]="params.type" class="form-control mb-sm-0" name="type" required>
+        <option [selected]="true" value="">Select survey type</option>
+        <option value="cahps">CAHPS</option>
+        <option value="hos">HOS</option>
+
+
+      </select>
+    </div>
+
+    <div class="form-group   p-0 ">
+      <label class="sr-only" for="if-password">Quarter</label>
+      <select [(ngModel)]="params.quarter" class="form-control mb-sm-0" name="quarter"
+        (change)="getMonthDateRange(current_year, params.quarter)" required>
+        <option [selected]="true" value="">Select Quarter</option>
+        <option value="1">Quarter 1</option>
+        <option value="4">Quarter 2</option>
+        <option value="7">Quarter 3</option>
+        <option value="10">Quarter 4</option>
+
+      </select>
+    </div>
+
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary btn-sm ml-2 mr-1" (click)="getSurveyerProductivity(true)"><span><i
+            class="fa fa-user"></i></span>View members</button>
+
+      <!-- <button type="button" class="btn btn-reset btn-sm ml-1 mr-2" (click)="resetFilter()"><span><i
+            class="fa fa-refresh"></i>
+        </span>Reset</button> -->
+    </div>
+  </form>
+</div>
+<nav *ngIf="total_pages>15" aria-label="Page navigation example" class="top-paging">
+  <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+    <li class="page-item  mr-2">
+      <a class="page-link" href="javascript:void(0)" *ngIf="page !== 1" [class.disabled]="page === 1"
+        (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+        <!-- <i class="fa fa-arrow-circle-left" aria-hidden="true"></i> -->
+        <i class="fa fa-angle-left" aria-hidden="true"></i>
+      </a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="javascript:void(0)" *ngIf="pager.currentPage !== pager.total_pages"
+        [class.disabled]="next_page === 'total_pages'" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+        <i class="fa fa-angle-right" aria-hidden="true"></i>
+      </a>
+    </li>
+  </ul>
+</nav>
+<div class="custom-container">
+  <div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+
+
+    <thead>
+      <tr>
+
+
+        <th>S.No.</th>
+        <th>Surveyor Name</th>
+        <th>Total Provider</th>
+        <th>Total Survey Taken</th>
+        <th>Total Question Asked</th>
+        <th>Total Time</th>
+
+
+      </tr>
+    </thead>
+
+
+
+    <tbody>
+      <tr *ngFor="let surveyer of surveyer_list; let i = 'index'">
+        <td data-label="S.No." *ngIf="page == 1">{{i+1}}</td>
+        <td data-label="S.No." *ngIf="page > 1">{{(i+1)+(page-1)*params.pageSize}}</td>
+        <td data-label="Surveyer Name">{{surveyer.surveytakerlastname?.toLowerCase()}},
+          {{surveyer.surveytakerfirstname?.toLowerCase()}} </td>
+        <td data-label="Total Provider">{{surveyer.totalprovider}}</td>
+        <td data-label="Total Survey Taken">{{surveyer.totalsurveytaken}}</td>
+        <td data-label="Total Question Asked">{{surveyer.totalquestionasked}}</td>
+        <td data-label="Total Time">{{surveyer.minutes}} min {{surveyer.seconds}} sec</td>
+
+
+      </tr>
+
+    </tbody>
+
+  </table>
+</div>
+
+
+<nav *ngIf="total_pages>15" aria-label="Page navigation example" style="    margin-top: 25px;">
+  <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+    <li class="page-item">
+      <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1"
+        (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+        <span class="sr-only">Previous</span>
+      </a>
+    </li>
+    <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item"><a href="javascript:void(0)"
+        (click)="loadByPage(p)" class="page-link">{{p}}</a></li>
+    <li class="page-item">
+      <a class="page-link" href="javascript:void(0)" [class.disabled]="next_page === 'total_pages'"
+        (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+        <span class="sr-only">Next</span>
+      </a>
+    </li>
+  </ul>
+</nav>

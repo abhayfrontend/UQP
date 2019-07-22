@@ -1,0 +1,252 @@
+<div class="u-heading">
+   <h2 class="heading-vt-line"> CAHPS Survey (version 3.0)</h2>
+
+</div>
+<div class="filter-bar" *ngIf="!(memberoption && !showsave)">
+   <form action="" class="form-inline" autocomplete="off">
+      <div class="form-group col-2  p-0 mr-sm-2" style="position: relative;padding: 0;">
+         <input [(ngModel)]="provider_name" (keyup)="searchProvider()" class="form-control col-12" name="provider_name"
+            placeholder="Search Provider" type="text" required style="width:100%">
+         <div *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="left: auto;">
+            <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+            <div *ngFor="let member of members">
+               <a *ngIf="member.FirstName" href="javascript:void(0)" (click)="getInsurance(member)"
+                  class="dropdown-item text-capitalize">
+                  {{member.FirstName}} {{member.LastName}}
+                  <span class="text-lowercase" *ngIf="member.email"> | {{member.email}} </span>
+               </a>
+            </div>
+         </div>
+         <div *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+            <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+            <div>
+               <a href="javascript:void(0)" class="dropdown-item">
+                  No provider found
+               </a>
+            </div>
+         </div>
+         <!-- <p style="color:red;position:absolute" *ngIf="insurance_list?.length ==0 ">No healthplan associated with this provider</p> -->
+      </div>
+      <!-- <div class="form-group col-2  p-0 mr-sm-2" *ngIf="insurance_list?.length >0" (change)="getAllIPA()"> -->
+      <div class="form-group   p-0 mr-sm-2">
+         <label class="sr-only" for="if-password">Healthplan</label>
+         <select [(ngModel)]="params.healthplanid" class="form-control  mb-sm-0" name="insurance" required>
+            <option [selected]="true" value="">Select Healthplan</option>
+            <option *ngFor="let insurance of insurance_list" [value]="insurance.healthplan_id"
+               [label]="insurance.health_Name">
+               {{ insurance.health_Name }}
+            </option>
+            <option value="0">All</option>
+         </select>
+      </div>
+
+      <div class="form-group   p-0 ">
+         <label class="sr-only" for="if-password">Quarter</label>
+         <select [(ngModel)]="params.quarter" class="form-control mb-sm-0" name="quarter"
+            (change)="getMonthDateRange(current_year, params.quarter)" required>
+            <option [selected]="true" value="">Select Quarter</option>
+            <option value="1">Quarter 1</option>
+            <option value="4">Quarter 2</option>
+            <option value="7">Quarter 3</option>
+            <option value="10">Quarter 4</option>
+
+         </select>
+      </div>
+
+      <div class="form-group">
+         <button type="submit" class="btn btn-primary btn-sm ml-2 mr-1" (click)="memberlist()"><span><i
+                  class="fa fa-user"></i></span>View members</button>
+
+         <button type="button" class="btn btn-reset btn-sm ml-1 mr-2" (click)="resetFilter()"><span><i
+                  class="fa fa-refresh"></i>
+            </span>Reset</button>
+      </div>
+   </form>
+</div>
+<div class="custom-container" *ngIf="!memberoption">
+   <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob report-table blur">
+      <thead>
+         <tr>
+            <th>S.No.</th>
+            <th>Member Name</th>
+            <!--         <th>Billing Provider Address</th> -->
+            <th>PCP Name</th>
+            <th>Subscriber ID</th>
+            <th>Phone no.</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr *ngFor="let member of member_list; let i = 'index'">
+            <td data-label="S.No.">{{i+1}}</td>
+            <td data-label="Member Name" *ngIf="(check(member))==false"><a (click)='opengapmodal(member)'
+                  href="javascript:void(0)">{{member.lastname?.toLowerCase()}}, {{member.firstname?.toLowerCase()}}</a>
+            </td>
+            <td data-label="Member Name" *ngIf="(check(member))==true">{{member.lastname?.toLowerCase()}},
+               {{member.firstname?.toLowerCase()}}</td>
+            <td data-label="PCP Name" *ngIf="member?.Provider_FirstName"><span>Dr.
+               </span>{{member?.Provider_LastName?.toLowerCase()}}, {{member.Provider_FirstName?.toLowerCase()}}</td>
+            <td data-label="PCP Name" *ngIf="!member?.Provider_FirstName">NA</td>
+            <td data-label="Subscriber ID">{{member.subscriberid}}</td>
+            <td data-label="Phone no.">{{member.phoneno}}</td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+<div class="custom-container survey" *ngIf="memberoption && !showsave"
+   style="background-color: white;margin-top: 40px;font-size:large;margin:50px;">
+   <div class="timer">
+      <h6> Time(mm:ss): <b> {{min}}min : {{ticks}}sec</b></h6>
+   </div>
+   <div class="pull-right survey-icons member_details">
+      <span><i class="fa fa-user" aria-hidden="true"></i> {{membername}}</span>
+      <span><i class="fa fa-id-card" aria-hidden="true"></i> {{subscriberid}}</span>
+   </div>
+   <br>
+   <div *ngIf="memberoption">
+      <div class="question"><b>{{result?.question}}</b></div>
+      <div *ngIf="!freetext">
+         <p *ngFor="let x of answers"><input type="radio" [(ngModel)]="params.response" [value]=x.answer
+               [id]="x.answerid"> <label [for]="x.answerid">{{x.answer}}</label></p>
+      </div>
+      <p *ngIf="freetext"><input type="text" [(ngModel)]="params.response" name="hpname"
+            placeholder="Enter healthplan name"></p>
+   </div>
+   <div class="survey-icons" style="margin-top:20px;text-align:center;" *ngIf="memberoption">
+      <button type="submit" (click)="questionnext(result.questionid)" *ngIf="memberoption && !showsave"
+         class="btn btn-success">&nbsp;Save & Next </button>
+      <button type="submit" *ngIf="memberoption && !showsave" (click)="questionnext(result.questionid,'last')"
+         class="btn btn-danger">&nbsp;Exit </button>
+   </div>
+</div>
+<div bsModal #userModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog"
+   [config]="{backdrop: 'static'}" aria-labelledby="userModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h4 class="modal-title">Summary Overall </h4>
+            <button type="button" class="close" (click)="userModal.hide()" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+         <div class="modal-body">
+            <form action="" class="form-horizontal" autocomplete="off">
+               <div class="form-group row spanpadding ">
+                  <div class="col">
+                     <div class="icon-class">
+                        <i class="fa fa-user" aria-hidden="true"
+                           style="color:#F57454;font-size: xx-large !important;"></i>
+                     </div>
+                     <div style="display: inline-block;">
+                        <b>Member Name</b>
+                        <h6>{{name}}</h6>
+                     </div>
+                  </div>
+                  <div class="col">
+                     <div class="icon-class">
+                        <i class="fa fa-calculator" aria-hidden="true"
+                           style="color:#6697CF;font-size: xx-large !important;"></i>
+                     </div>
+                     <div class="name-block">
+                        <b>Subscriber Id</b>
+                        <h6>{{subscriberidshow}}</h6>
+                     </div>
+                  </div>
+                  <div class="col">
+                     <div class="icon-class">
+                        <i class="fa fa-calendar" aria-hidden="true"
+                           style="color:#48C2C3;font-size: xx-large !important;"></i>
+                     </div>
+                     <div class="name-block">
+                        <b>DOB</b>
+                        <h6>{{datea | date}}</h6>
+                     </div>
+                  </div>
+                  <div clas="col">
+                     <div class="icon-class">
+                        <i class="fa fa-clock-o" aria-hidden="true"
+                           style="color:#48C2C3;font-size: xx-large !important;"></i>
+                     </div>
+                     <div class="name-block">
+                        <b>Time(mm:ss)</b>
+                        <h6>{{showminutes}}:{{showseconds}}</h6>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group row spanpadding">
+                  <div class="col">
+                     <div class="icon-class">
+                        <i class="fa fa-heart" aria-hidden="true"
+                           style="color:#FF0000;font-size: xx-large !important;"></i>
+                     </div>
+                     <div class="name-block">
+                        <b> Healthplan</b>
+                        <h6>{{healthplanname}}</h6>
+                     </div>
+                  </div>
+                  <div class="col">
+                     <div class="icon-class">
+                        <i class="fa fa-question-circle" aria-hidden="true"
+                           style="color:#F57454;font-size: xx-large !important;"></i>
+                     </div>
+                     <div class="name-block">
+                        <b>Total Question Answered</b>
+                        <h6>{{questionsanswered}}</h6>
+                     </div>
+                  </div>
+                  <div class="col">
+                     <div class="icon-class">
+                        <i class="fa fa-question" aria-hidden="true"
+                           style="color:#F89D82;font-size: xx-large !important;"></i>
+                     </div>
+                     <div class="name-block">
+                        <b>Total Question</b>
+                        <h6>38</h6>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group row spanpadding">
+
+
+
+                  <textarea [(ngModel)]="commentshow" name="comment" class="textbox-area"
+                     placeholder="Enter comment"></textarea>
+
+
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <button type="submit" class="btn btn-success" (click)="savecomment()"><i
+                           class="fa fa-check"></i>&nbsp;Save Comment</button>
+                  </div>
+               </div>
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+<div bsModal #user="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel"
+   aria-hidden="true" [config]="{backdrop: 'static'}">
+   <div class="modal-dialog modal-md" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h4 class="modal-title">Thank You</h4>
+            <button type="button" class="close" (click)="modals.hide()" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+
+         </div>
+         <div class="modal-body">
+
+            <div class="col-md-12">
+               <label>Thank you for your time,Wish you a good day!</label>
+            </div>
+
+            <div class="col-md-12">
+               <button type="submit" class="btn btn-success" (click)="showCommentBox()"><i
+                     class="fa fa-check"></i>&nbsp;View summary</button>
+            </div>
+         </div>
+
+      </div>
+   </div>
+</div>

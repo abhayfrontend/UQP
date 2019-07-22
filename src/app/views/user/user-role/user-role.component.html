@@ -1,0 +1,140 @@
+<app-help class="d-none"></app-help>
+<!-- <div *ngIf="spinner" class="loading">Loading&#8230;</div> -->
+<div class="u-heading">
+   <h2>User Role List</h2>
+   <div class="pull-right">
+      <div class="u-search">
+         <div style="position:relative !important;padding-right: 50px;">
+            <input type="text" class="form-control" [(ngModel)]="search_text" type="text" placeholder="Search..">
+            <div class="search_icon" style="    position: absolute;
+    right: 60px;">
+               <i class="material-icons" (click)="search()">search</i>
+            </div>
+         </div>
+      </div>
+      <!-- <input [(ngModel)]="search_text" type="text" (keyup)="search()"> -->
+      <span *ngIf="userRolePerm?.add" class="add-text d-none d-md-inline-block">Add User Role </span>
+      <span *ngIf="userRolePerm?.add" class="add-more" data-toggle="modal" (click)="createRole()">
+         <a><i class="material-icons">add</i></a>
+      </span>
+   </div>
+</div>
+<div class="custom-container">
+   <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+      <thead>
+         <tr>
+            <th>S.No.</th>
+            <th>Role Name</th>
+            <th>Role Description</th>
+            <th>Status</th>
+            <th *ngIf="userRolePerm?.edit">Edit</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr *ngFor="let role of user_role; let i = 'index'">
+            <td data-label="S.No.">
+               {{i+1}}
+            </td>
+            <td data-label="Role Name">
+               {{role.User_Role_Name}}
+
+            </td>
+            <td data-label="Role Description" *ngIf="role?.User_Role_Description">
+               {{role.User_Role_Description}}
+
+            </td>
+            <td data-label="Description" *ngIf="!role?.User_Role_Description">
+               -
+
+            </td>
+            <td data-label="Status">
+               <label class="switch switch-icon switch-pill switch-success">
+                  <input [disabled]="!userRolePerm?.edit" checked="role.Status"
+                     (click)="updateUserRoleStatus(role.User_Role_ID, role.Status, role.User_Role_Name)"
+                     [(ngModel)]="role.Status" class="switch-input" type="checkbox">
+                  <span class="switch-label" data-off="" data-on=""></span>
+                  <span class="switch-handle"></span>
+               </label>
+            </td>
+            <td *ngIf="userRolePerm?.edit" data-label="Edit">
+               <a href="javascript:void(0)" (click)="editRole(role.User_Role_ID)"><i class="fa fa-edit"
+                     style="font-size:24px"></i></a>
+
+            </td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+<div bsModal #userModal="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog"
+   [config]="{backdrop: 'static'}" aria-labelledby="userModalLabel" aria-hidden="true">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+
+            <h4 *ngIf="save_add_form" class="modal-title">Add User Role</h4>
+            <h4 *ngIf="!save_add_form" class="modal-title">Edit User Role</h4>
+            <button type="button" class="close" (click)="userModal.hide()" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+
+         </div>
+         <div class="modal-body">
+            <form action="" class="form-horizontal" autocomplete="off" #UserRole="ngForm">
+               <!--             <div class="form-group row">
+               <div class="col-md-12">
+                  <select class="form-control" id="select" name="select" [(ngModel)]="user_role.type">
+                     <option [selected]="true" value="Internal">Internal</option>
+                     <option value="External">External</option>
+                  </select>
+               </div>
+            </div> -->
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>User Role Name</label>
+                     <input (focusout)="checkUserRoleName(add_user_role.User_Role_Name)" class="form-control"
+                        name="rolename" placeholder="User Role Name" type="text"
+                        [(ngModel)]="add_user_role.User_Role_Name" required #name="ngModel" maxlength="50"
+                        pattern="[a-zA-Z][a-zA-Z ]+">
+                     <div *ngIf="name.errors" [hidden]="name.valid || (name.pristine && !UserRole.submitted)">
+                        <small class="text-danger" *ngIf="name.errors.required && fSubmitted">Role Name is
+                           required</small>
+                        <small class="text-danger" *ngIf="name.errors.pattern && fSubmitted">Role Name format is not
+                           valid</small>
+                     </div>
+                     <small class="text-danger" *ngIf="role_name_exist">Name already exist</small>
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <label>User Role Description</label>
+                     <textarea #description="ngModel" class="form-control" name="textarea-input"
+                        placeholder="User Role Description" rows="9"
+                        style="margin-top: 0px; margin-bottom: 0px; height: 104px;"
+                        [(ngModel)]="add_user_role.User_Role_Description"></textarea>
+                     <!-- <div *ngIf="description.errors" [hidden]="description.valid || (description.pristine && !UserRole.submitted)">
+                     <small class="text-danger" *ngIf="description.errors.required">Description is required</small>
+                     <small class="text-danger" *ngIf="description.errors.minlength">The minimum length should be 5 characters</small>
+                  </div> -->
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <button *ngIf="!save_add_form"
+                        (click)="updateUserRole((UserRole.valid) && !role_name_exist, add_user_role.User_Role_ID, add_user_role)"
+                        type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Update</button>
+                     <button *ngIf="save_add_form" (click)="addUserRole((UserRole.valid) && !role_name_exist)"
+                        type="submit" class="btn btn-success"><i class="fa fa-check"></i>&nbsp;Save</button>
+
+                     <!-- <button type="button" class="btn btn-danger" (click)="userModal.hide()"><i class="fa fa-times"></i>&nbsp;Close</button> -->
+                  </div>
+               </div>
+            </form>
+         </div>
+         <div class="modal-footer">
+         </div>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

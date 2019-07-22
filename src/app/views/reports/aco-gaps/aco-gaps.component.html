@@ -1,0 +1,1021 @@
+<app-help class="d-none"></app-help>
+<div class="aco_gaps">
+<div class="u-heading">
+  <h2 style="top:8px" *ngIf="!aco_audit_route">ACO Gaps</h2>
+  <h2 style="top:8px" *ngIf="aco_audit_route">ACO Audit</h2>
+  
+  <div class="pull-right member-listing" style="margin-top:0px;">
+
+    <form action="" class="form-inline" autocomplete="off">
+
+      <label class="f-14 mx-1">Search By</label>
+      <div class="form-group p-1 ">
+        <label class="sr-only" for="if-password">Category</label>
+        <select [(ngModel)]="search_category" class="form-control col-12" name="gender">
+          <option [selected]="true" value="">Select category</option>
+          <option value="hicn">MBI</option>
+          <option value="subscribername">Name</option>
+          <option value='dob'>DOB</option>
+        </select>
+      </div>
+      <div class="form-group p-1">
+        <label class="sr-only" for="if-password">Search</label>
+        <input type="text" name="search" [disabled]="!search_category" class="form-control col-12"
+          (keyup)="search_value(term.value)" type="text" placeholder="Search.." #term>
+      </div>
+      <i class="material-icons" (click)="search(term.value)">search</i>
+    </form>
+  </div>
+</div>
+<div class="filter-bar">
+   <div class="download-option mt-0"  *ngIf="member_list?.length && !aco_audit_route">
+      <span class="pdf-icon" (click)="getReport('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Download Pdf</span></span>
+      <span class="excel-icon" (click)="getReport('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span  class="download-text">Download Excel Sheet</span></span>
+      </div>
+      <div class="download-option mt-0"  *ngIf="member_list?.length && aco_audit_route">
+        <span class="pdf-icon" (click)="getReportAudit('pdf')"><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Download Pdf</span></span>
+        <span class="excel-icon" (click)="getReportAudit('excel')"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span  class="download-text">Download Excel Sheet</span></span>
+        </div>
+
+  <form action="" class="form-inline" autocomplete="off">
+    <div class="form-group   p-0 mr-sm-2" style="position: relative;padding: 0;" *ngIf="rolename!='provider'">
+      <input [(ngModel)]="provider_name" (keyup)="searchProvider()" class="form-control col-12" name="provider_name"
+        placeholder="Search Provider" type="text" required style="width:100%">
+      <div *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%">
+        <div *ngFor="let member of members">
+          <a *ngIf="member.FirstName" href="javascript:void(0)" (click)="getInsurance(member)" class="dropdown-item">
+            {{member.LastName}} {{member.FirstName}}
+            <!-- <span *ngIf="member.email"> | {{member.email}} </span> -->
+          </a>
+        </div>
+      </div>
+      <div *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+        <div>
+          <a href="javascript:void(0)" class="dropdown-item">
+            No provider found
+          </a>
+        </div>
+      </div>
+    </div>
+    <select [(ngModel)]="params.groupid" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-1" name="groupid" (change)="GroupName=$event.target.selectedOptions[0].label"
+    >
+      <option value="0">Select group</option>
+      <option *ngFor="let group of ACO_groups" [value]="group.GroupID" [label]="group.GroupName">
+        {{ group.GroupName }}
+      </option>
+      <option value="">All</option>
+    </select>
+   
+    <angular2-multiselect name="items" [data]="dropdownList" [(ngModel)]="selectedItems"
+      style="padding:0px 5px; padding-right:10px;" [settings]="dropdownSettings" (onSelect)="onItemSelect($event)"
+      (onDeSelect)="OnItemDeSelect($event)" (onSelectAll)="onSelectAll($event)" (onDeSelectAll)="onDeSelectAll($event)">
+    </angular2-multiselect>
+    <span class="text-danger" style="padding-right:4px;bottom:10px;position:relative;right:8px;font-size:20px;" >*</span>
+    <select [(ngModel)]="date.year" class="form-control mb-2 mr-sm-2 mb-sm-0" name="year"
+      (change)="checkMonth(date.year)">
+      <option value="">Select year</option>
+      <option [selected]="year == current_year" *ngFor="let year of years" [value]="year">{{year}}</option>
+    </select>
+    <select [(ngModel)]="date.month" class="form-control mb-2 mr-sm-2 mb-sm-0" name="month" (change)="formatDate()">
+      <option value="">Select Month</option>
+      <option *ngFor="let month of months" [value]="month.value">
+        {{ month.full }}
+      </option>
+    </select>
+    
+    <select [(ngModel)]="type" class="form-control mb-2 mr-sm-2 mb-sm-0" name="type"  *ngIf="!aco_audit_route">
+      <option value="">Select Type</option>
+      <option value="Numerator">Numerator</option>
+      <option value="Denominator">Denominator</option>
+      <option value="Exclusion">Exclusion</option>
+      <option value="Gaps">Gaps</option>
+    </select>
+
+    <select [(ngModel)]="type" class="form-control mb-2 mr-sm-2 mb-sm-0" name="type"  *ngIf="aco_audit_route">
+      <option value="">Select Type</option>
+      <option value="pending">Pending</option>
+      <option value="approved">Approved</option>
+      <option value="rejected">Rejected</option>
+      <option value="all">All</option>
+    </select>
+
+    <span class="text-danger" style="padding-right:4px;bottom:10px;position:relative;right:8px;font-size:20px;" >*</span>
+    <div class="form-group">
+      <button type="submit" [disabled]="this.selectedItems.length == 0 || this.type==''" class="btn btn-primary btn-sm ml-2 mr-1" (click)="getACOMeasures(true)"><span><i
+            class="fa fa-user"></i></span>View members</button>
+      <button type="button" class="btn btn-reset btn-sm ml-1 mr-2" (click)="resetFilters()"><span><i
+            class="fa fa-refresh"></i>
+        </span>Reset</button>
+    </div>
+  </form>
+</div>
+<nav *ngIf="total_pages>15" aria-label="Page navigation example" class="top-paging">
+  <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+    <li class="page-item  mr-2">
+      <a class="page-link" href="javascript:void(0)" *ngIf="page !== 1" [class.disabled]="page === 1"
+        (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+        <!-- <i class="fa fa-arrow-circle-left" aria-hidden="true"></i> -->
+        <i class="fa fa-angle-left" aria-hidden="true"></i>
+      </a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="javascript:void(0)" *ngIf="pager.currentPage !== pager.total_pages"
+        [class.disabled]="next_page === 'total_pages'" (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+        <i class="fa fa-angle-right" aria-hidden="true"></i>
+      </a>
+    </li>
+  </ul>
+</nav>
+<div class="custom-container">
+  <div class="te float-right f-14"><span><b>Total Entries : {{total_pages}}</b></span></div>
+  <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob report-table blur">
+    <thead>
+      <tr>
+        <th>S.No.</th>
+        <th>Member</th>
+        <th>Provider</th>
+        <th>DOB</th>
+        <th>MBI</th>
+        <th>Gender</th>
+        <th>Age</th>
+        <th width="300">Measures</th>
+        <th *ngIf="!aco_audit_route">Source Type</th>
+        <th *ngIf="aco_audit_route">Submitted By</th>
+        <th *ngIf="aco_audit_route">Submitted Date</th>
+        <th *ngIf="aco_audit_route">Audited By</th>
+        <th *ngIf="aco_audit_route">Audited Date</th>
+        <th *ngIf="aco_audit_route">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let member of member_list; let i = 'index'">
+        <td data-label="S.No." *ngIf="page == 1">{{i+1}}</td>
+        <td data-label="S.No." *ngIf="page > 1">{{(i+1)+(page-1)*params.pageSize}}</td>
+        <td data-label="Member Name" *ngIf="!aco_audit_route"> <a href="javascript:void(0)"
+            (click)="tab_id=null;this.reviewModal.show();modalmember=member;">{{member?.subscriberlastname?.toLowerCase()}},{{member?.subscriberfirstname?.toLowerCase()}}</a>
+        </td>
+
+        <td data-label="Member Name" *ngIf="aco_audit_route"> <a href="javascript:void(0)"
+          (click)="tab_id=null;openAuditFlowModal(member);">{{member?.subscriberlastname?.toLowerCase()}},{{member?.subscriberfirstname?.toLowerCase()}}</a>
+        </td>
+        
+
+        <td data-label="Provider" *ngIf="member?.providerlastname==null || member?.providerlastname=='NA' ">
+          NA</td>
+          <td data-label="Provider" *ngIf="member?.providerlastname!=null &&  member?.providerlastname!='NA'">Dr.
+            {{member?.providerlastname?.toLowerCase()}},{{member?.providerfirstname?.toLowerCase()}}</td>
+        <td data-label="DOB">{{member?.dob | date}}</td>
+        <td data-label="MBI">{{member?.hicn}}</td>
+        <td data-label="Gender">{{member?.gender}}</td>
+        <td data-label="Age">{{calculateAge(member?.dob)}}</td>
+        <td data-label="Measures">{{member?.measurename}}</td>
+        <td data-label="Source Type" *ngIf="!aco_audit_route && member?.sourcetype == 'byclaim'">By Claim</td>
+        <td data-label="Source Type" *ngIf="!aco_audit_route && member?.sourcetype == 'byupload'">By Upload</td>
+        <td data-label="Submitted By" *ngIf="aco_audit_route">{{member?.assurancelastname}} {{member?.assurancefirstname}} </td>
+        <td data-label="Submitted Date" *ngIf="aco_audit_route">{{member?.assurancedate | date}}</td>
+
+        <td data-label="Audited By" *ngIf="aco_audit_route">{{member?.auditorlastname}} {{member?.auditorfirstname}} </td>
+        <td data-label="Audit Date" *ngIf="aco_audit_route">{{member?.auditdate | date}}</td>
+
+        <td data-label="Status" *ngIf="aco_audit_route && member?.documentstatus == 'approved'"  style="color:green">Approved</td>
+        <td data-label="Status" *ngIf="aco_audit_route && member?.documentstatus == 'pending'"  style="color:blue">Pending</td>
+        <td data-label="Status" *ngIf="aco_audit_route && member?.documentstatus == 'rejected'"  style="color:red">Rejected</td>
+
+        
+
+
+      </tr>
+    </tbody>
+  </table>
+  <nav *ngIf="total_pages > 15" aria-label="Page navigation example" style="margin-top: 25px;">
+    <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+      <li class="page-item">
+        <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1"
+          (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+          <span class="sr-only">Previous</span>
+        </a>
+      </li>
+      <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item">
+        <a href="javascript:void(0)" (click)="loadByPage(p)" class="page-link">{{p}}</a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="javascript:void(0)" [class.disabled]="page === total_pages"
+          (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+          <span class="sr-only">Next</span>
+        </a>
+      </li>
+      <li class="custom_page"><input type="number" onkeypress="return event.charCode != 45" min="1" #pgno>
+        <button class="btn  btn-primary" (click)="loadByPage(pgno.value)">goto page</button>
+      </li>
+    </ul>
+  </nav>
+  <!--   <button type="submit" class="btn btn-primary btn-sm" (click)="getProviderMembers()" >View members</button> -->
+</div>
+<div class="modal fade  u-modal" bsModal #reviewModal="bs-modal" tabindex="-1" [config]="{backdrop: 'static'}"
+  role="dialog">
+  <div class="modal-dialog ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="dialog-static-name" class="modal-title pull-left">Review</h4>
+        <button type="button" class="close" (click)="reviewModal.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+
+        </button>
+      </div>
+      <div class="modal-body f-14">
+        <div class="col">
+          <div class="form-group p-1 ">
+            <label>Medical Record Found</label>
+            <select [(ngModel)]="reason" class="form-control col-12" name="gender">
+              <option [selected]="true" value="">Select category</option>
+              <option value="yes">Yes - Medical record found</option>
+              <option value="No">No – Medical record not found </option>
+              <option value='Not qualified'>Not qualified for sample</option>
+            </select>
+          </div>
+          <div class="col" *ngIf="reason=='Not qualified'">
+            <div class="form-group p-1 ">
+              <label>Select Reason</label>
+              <select [(ngModel)]="reasondropdown" class="form-control col-12" name="gender">
+                <option [selected]="true" value="">Select category</option>
+                <option value="Hospice">Hospice</option>
+                <option value="Moved out of country">Moved out of country</option>
+                <option value="Deceased ">Deceased </option>
+                <option value='No FFS as primary payer'>No FFS as primary payer</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success" (click)="showpopup()"
+            [disabled]="(reason=='')||(reason=='Not qualified' && reasondropdown=='')">&nbsp;Save </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade  u-modal " bsModal #gapModal="bs-modal" [config]="{backdrop: 'static'}" tabindex="-1"
+  role="dialog">
+  <div class="modal-dialog modal-xxl ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" *ngIf="!aco_audit_route">Gap Closure</h4>
+        <h4 class="modal-title" *ngIf="aco_audit_route">Gap Audit</h4>
+        <button type="button" class="close" (click)="gapModal.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body f-14  ACO_gaps">
+        <ul class="aco-patient-info" *ngIf="!aco_audit_route">
+
+          <li style="margin-left:0px;">
+            <div class="square bg-i-orange"></div>
+            <div class="square_text">Exclusion</div>
+          </li>
+          <li>
+            <div class="square bg-i-green"></div>
+            <div class="square_text">Numerator</div>
+          </li>
+          <li>
+            <div class=" square bg-i-yellow"></div>
+            <div class="square_text">Pending</div>
+          </li>
+          <li>
+            <div class=" square bg-i-blue"></div>
+            <div class="square_text">Active Tab</div>
+          </li>
+          <li>
+            <div style="color:red;position: absolute;margin-right: 10px;">*</div>
+            <div class="square_text ml-2">Gap</div>
+          </li>
+        </ul>
+
+        <ul class="aco-patient-info">
+          <li style="margin-left:0px;">
+            <h5><b>Patient Name : </b> {{modalmember?.subscriberlastname}},{{modalmember?.subscriberfirstname}}</h5>
+          </li>
+          <li>
+            <h5><b>Gender : </b> {{modalmember?.gender}}</h5>
+          </li>
+          <li>
+            <h5><b>MBI :</b>{{modalmember?.hicn}}</h5>
+          </li>
+          <li>
+            <h5><b>DOB : </b> {{modalmember?.dob | date}}</h5>
+          </li>
+        </ul>
+
+        <tabset type="pills" #staticTabs>
+          <!-- <<<<<<<<<<<<<<<<<< 1.Care-2 >>>>>>>>>>>>>>>>>>>>> -->
+          <tab heading="Care 2 - Falls" id="1" (select)="onSelectMeasure($event)" [customClass]="tabClass(1)" *ngIf="showTabs">
+            <div class="tab-pane fade show " id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+              <div class="">
+                <div class="">
+                  <b>Patient qualified for measures</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" [(ngModel)]="gapSubmit.care2_qualifiedformeasure"
+                    name="care2_qualifiedformeasure">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No </option>
+                  </select>
+                </div>
+              </div>
+              <div class="" *ngIf="gapSubmit.care2_qualifiedformeasure=='No'">
+                <div class="">
+                  <b>Reason</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" [(ngModel)]="gapSubmit.care2_qualifiedformeasurereason"
+                    name="care2_qualifiedformeasurereason">
+                    <option value="">Select category</option>
+                    <option value="Denominator Exclusion">Denominator Exclusion</option>
+                    <option value="Other CMS approved reason">Other CMS approved reason</option>
+                  </select>
+                  <input type="text" placeholder="text" [(ngModel)]="gapSubmit.othercmsreason"
+                    *ngIf="gapSubmit.care2_qualifiedformeasurereason == 'Other CMS approved reason'">
+                </div>
+              </div>
+              <div class="" *ngIf="gapSubmit.care2_qualifiedformeasure == 'Yes'">
+                <div class="">
+                  <b>Was patient screened for fall risk between 01/01/2019-12/31/2019?</b>
+                </div>
+                <div class="">
+                  <select [(ngModel)]="gapSubmit.care2_patientscreened" class="form-control col-12"
+                    name="care2_patientscreened">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </tab>
+          <!-- <<<<<<<<<<<<<<<<<< 2.DM-2 >>>>>>>>>>>>>>>>>>>>> -->
+          <tab heading="DM2" id="2" (select)="onSelectMeasure($event)" [customClass]="tabClass(2)" *ngIf="showTabs">
+            <div class="tab-pane fade show " id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+              <div class="">
+                <div class="">
+                  <b>Does the patient have a documented history of diabetes or a current diagnosis?</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" [(ngModel)]="gapSubmit.dm2_patientdocumentedhistory"
+                    name="dm2_patientdocumentedhistory">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="Not Confirmed - Diagnosis">Not Confirmed - Diagnosis </option>
+                    <option value='No - Other cons Approved Reason'>No - Other CMS Approved Reason</option>
+                  </select>
+                </div>
+              </div>
+              <div class="" *ngIf="gapSubmit.dm2_patientdocumentedhistory == 'Yes'">
+                <div class="">
+                  <b>Did the patient have an HBA1C test performed between 01/01/2019-12/31/2019?</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" [(ngModel)]="gapSubmit.dm2_HbA1Cperformed"
+                    name="dm2_HbA1Cperformed">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No </option>
+                  </select>
+                </div>
+                <div class="inner-block" *ngIf="gapSubmit.dm2_HbA1Cperformed == 'Yes'">
+                  <div class="">
+                    <b>HBA1C date</b>
+                  </div>
+                  <div class="">
+
+                    <input [(ngModel)]="gapSubmit.dm2_hba1cdate" class=""  bsDatepicker [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }" type="text"  [(bsValue)]="bsValue" placeholder="Enter date"
+                      name="dm2_hba1cdate" >
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </tab>
+          <!-- <<<<<<<<<<<<<<<<<< 3.HTN >>>>>>>>>>>>>>>>>>>>> -->
+          <tab heading="HTN2" id="3" (select)="onSelectMeasure($event)" [customClass]="tabClass(3)" *ngIf="showTabs">
+            <div class="tab-pane fade show " id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+              <div class="">
+                <div class="">
+                  <b>Does the patient have documented diagnosis of Hypertension anytime in their history until
+                    06/30/2019?</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" [(ngModel)]="gapSubmit.htn_hypertensiondiagnosis"
+                    name="htn_hypertensiondiagnosis">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="Not confirmed Diagnosis">Not confirmed Diagnosis</option>
+                    <option value="Denominator Exclusion">Denominator Exclusion</option>
+                    <option value="No other CMS Approved Reason">No - other CMS Approved Reason</option>
+                  </select>
+                  <input type="text" placeholder="text" [(ngModel)]="gapSubmit.othercmsreason"
+                    *ngIf="gapSubmit.htn_hypertensiondiagnosis == 'No other CMS Approved Reason'">
+                  <select class="form-control col-12" [(ngModel)]="gapSubmit.htn_hypertensiondiagnosisreason"
+                    *ngIf="gapSubmit.htn_hypertensiondiagnosis=='Denominator Exclusion'"
+                    name="htn_hypertensiondiagnosisreason">
+                    <option value="">Select category</option>
+                    <option value="ESRD">ESRD</option>
+                    <option value="Dialysis">Dialysis</option>
+                    <option value="Renal transplant">Renal transplant</option>
+                    <option value="Pregnancy">Pregnancy</option>
+                    <option value="Institutional Special needs Plans">Institutional Special needs Plans</option>
+                  </select>
+                </div>
+              </div>
+              <div class="" *ngIf="gapSubmit.htn_hypertensiondiagnosis=='Yes'">
+                <div class="">
+                  <b>Most recent BP documented during the measurement period?</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" [(ngModel)]="gapSubmit.htn_bpdocumented" name="htn_bpdocumented">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No- End Abstraction</option>
+                  </select>
+                  <div *ngIf="gapSubmit.htn_bpdocumented=='Yes'">
+                    <input type="number" placeholder="Systolic" [(ngModel)]="gapSubmit.htn_bpsystolic"
+                      onkeypress="return event.charCode != 45" min="1">
+                    <input type="number" placeholder="Diastolic" [(ngModel)]="gapSubmit.htn_bpdystolic"
+                      onkeypress="return event.charCode != 45" min="1">
+                    <input [(ngModel)]="gapSubmit.htn_bpdate" class=""  bsDatepicker [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }" type="text"  [(bsValue)]="bsValue" placeholder="Enter date"
+                      name="htn_bpdate" >
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </tab>
+          <!-- <<<<<<<<<<<<<<<<<< 4.MH >>>>>>>>>>>>>>>>>>>>> -->
+          <tab heading="MH1" id="4" (select)="onSelectMeasure($event)" [customClass]="tabClass(4)" *ngIf="showTabs">
+            <div class="tab-pane fade show " id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+              <div class="">
+                <div class="">
+                  <b>Did the patient have an active diagnosis of major depression or dysythymia between
+                    11/01/2017-10/31/2018? </b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" [(ngModel)]="gapSubmit.mh1_majordepressiondiagnosis"
+                    name="mh1_majordepressiondiagnosis">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No - Not confirmed Diagnosis">No - Not confirmed Diagnosis</option>
+                    <option value="Denominator Exclusion">Denominator Exclusion</option>
+                  </select>
+                  <select [(ngModel)]="gapSubmit.mh1_majordepressiondiagnosisreason" class="form-control col-12"
+                    *ngIf="gapSubmit.mh1_majordepressiondiagnosis == 'Denominator Exclusion'"
+                    name="mh1_majordepressiondiagnosisreason">
+                    <option value="">Select category</option>
+                    <option value="Bipolar disorder">Bipolar disorder</option>
+                    <option value="Personality disorder">Personality disorder</option>
+                    <option value="Schizophrenia or psychotic disorder">Schizophrenia or psychotic disorder</option>
+                    <option value="Pervasive development disorder">Pervasive development disorder</option>
+                    <option value="Permanent Nursing Home Residents">Permanent Nursing Home Residents</option>
+                  </select>
+                </div>
+              </div>
+              <div class="" *ngIf="gapSubmit.mh1_majordepressiondiagnosis == 'Yes'">
+                <div class="">
+                  <b>One or more PHQ-9 completed during 11/01/2017 - 10/31/2018?</b>
+                </div>
+                <div class="">
+                  <select [(ngModel)]="gapSubmit.mh1_phq9completed" class="form-control col-12"
+                    name="mh1_phq9completed">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No-End Abstraction</option>
+                  </select>
+                </div>
+                <div class="inner-block" *ngIf="gapSubmit.mh1_phq9completed == 'Yes'">
+                  <div class="">
+                    <b>Was the PHQ score greater than 9?</b>
+                  </div>
+                  <div class="">
+                    <select class="form-control col-12" [(ngModel)]="gapSubmit.mh1_phq9greater" name="mh1_phq9greater">
+                      <option value="">Select category</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No-End Abstraction</option>
+                    </select>
+                    <div *ngIf="gapSubmit.mh1_phq9greater=='Yes'">
+                      <input [(ngModel)]="gapSubmit.mh1_phq9greaterdate" class=""  bsDatepicker [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }" type="text"  [(bsValue)]="bsValue" placeholder="Enter Date"
+                        name="mh1_phq9greaterdate" >
+                      <input type="number" [(ngModel)]="gapSubmit.mh1_phq9greaterscore" onkeypress="return event.charCode != 45" min="1"  placeholder="Enter Score" name="mh1_phq9greaterscore">
+                    </div>
+                  </div>
+                  <div class="inner-block" *ngIf="gapSubmit.mh1_phq9greater=='Yes'">
+                    <div class="">
+                      <b>Did the patient have a PHQ-9 completed during the measurement assesement period(10-14 months
+                        from the index event date)?</b>
+                    </div>
+                    <div class="">
+                      <select class="form-control col-12" name="mh1_phq9measurementperiodcompleted"
+                        [(ngModel)]="gapSubmit.mh1_phq9measurementperiodcompleted">
+                        <option value="">Select category</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No-End Abstraction</option>
+                      </select>
+                      <div *ngIf="gapSubmit.mh1_phq9measurementperiodcompleted == 'Yes'">
+
+                        <input [(ngModel)]="gapSubmit.mh1_phq9measurementperiodcompleteddate" class=""  bsDatepicker [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }" type="text"   placeholder="Enter Date" 
+                          [(bsValue)]="bsValue1" name="mh1_phq9measurementperiodcompleteddate" 
+                          >
+
+
+                      </div>
+                    </div>
+                    <div class="inner-block" *ngIf="gapSubmit.mh1_phq9measurementperiodcompleted == 'Yes'">
+                      <div class="">
+                        <b>Was the PHQ-9 score less than 5?</b>
+                      </div>
+                      <div class="">
+                        <select class="form-control col-12" [(ngModel)]="gapSubmit.mh1_phq9less" name="mh1_phq9less">
+                          <option value="">Select category</option>
+                          <option value="Yes">Yes</option>
+                          <option value="No">No-End Abstraction</option>
+                        </select>
+                        <div *ngIf="gapSubmit.mh1_phq9less=='Yes'">
+                          <input [(ngModel)]="gapSubmit.mh1_phq9lessdate" class=""  bsDatepicker [bsConfig]="{ dateInputFormat: 'YYYY-MM-DD' }" type="text"  [(bsValue)]="bsValue2"  placeholder="Enter Date"
+                            name="mh1_phq9lessdate" >
+
+                          <input type="number" [(ngModel)]="gapSubmit.mh1_phq9lessscore" onkeypress="return event.charCode != 45" min="1" placeholder="Enter Score" name="mh1_phq9lessscore">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </tab>
+          <!-- <<<<<<<<<<<<<<<<<< 5.BCS >>>>>>>>>>>>>>>>>>>>> -->
+          <tab heading="Prev 5 – BCS" id="5" (select)="onSelectMeasure($event)" [customClass]="tabClass(5)" *ngIf="showTabs">
+            <div class="tab-pane fade show " id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+              <div class="">
+                <div class="">
+                  <b>Patient is qualified for sample?</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" [(ngModel)]="gapSubmit.bcs_qualifiedforsample"
+                    name="bcs_qualifiedforsample">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No - Denominator Exclusion</option>
+                    <option value="No other CMS approved">No other CMS approved reason</option>
+                  </select>
+                  <input type="text" placeholder="text" [(ngModel)]="gapSubmit.othercmsreason"
+                    *ngIf="gapSubmit.bcs_qualifiedforsample == 'No other CMS approved'">
+                  <select class="form-control col-12" [(ngModel)]="gapSubmit.bcs_qualifiedforsamplereason"
+                    *ngIf="gapSubmit.bcs_qualifiedforsample == 'No'" name="bcs_qualifiedforsamplereason">
+                    <option value="">Select category</option>
+                    <option value="Bilateral Mastectomy">Bilateral Mastectomy</option>
+                    <option value="Unilateral Mastectomy-left ">Unilateral Mastectomy-left</option>
+                    <option value="Unilateral Mastectomy-right">Unilateral Mastectomy-right</option>
+                  </select>
+
+                </div>
+              </div>
+              <div class="" *ngIf="gapSubmit.bcs_qualifiedforsample == 'Yes'">
+                <div class="">
+                  <b>Did the patient have a mammogram completed between 10/01/2017 - 12/31/2019? </b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" name="bcs_mamogramcompleted"
+                    [(ngModel)]="gapSubmit.bcs_mamogramcompleted">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes-End Abstraction</option>
+                    <option value="No">No-End Abstraction</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </tab>
+          <!-- <<<<<<<<<<<<<<<<<< 6.Colorectal Cancer Screening >>>>>>>>>>>>>>>>>>>>> -->
+          <tab heading="Prev 6 – Colon CA" id="6" (select)="onSelectMeasure($event)" [customClass]="tabClass(6)" *ngIf="showTabs">
+            <div class="tab-pane fade show " id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+              <div class="">
+                <div class="">
+                  <b>Patient is qualified for sample?</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" [(ngModel)]="gapSubmit.cc_qualifiedforsample"
+                    name="cc_qualifiedforsample">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No - Denominator Exclusion</option>
+                    <option value="No - other CMS reason approved ">No - other CMS approved reason </option>
+                  </select>
+                  <input type="text" placeholder="text" [(ngModel)]="gapSubmit.othercmsreason"
+                    *ngIf="gapSubmit.cc_qualifiedforsample == 'No - other CMS reason approved '">
+                  <select class="form-control col-12" [(ngModel)]="gapSubmit.cc_qualifiedforsamplereason"
+                    *ngIf="gapSubmit.cc_qualifiedforsample=='No'" name="cc_qualifiedforsamplereason">
+                    <option value="">Select category</option>
+                    <option value="History of total colectomy">History of total colectomy</option>
+                    <option value="Current or history of colorectal cancer ">Current or history of colorectal cancer
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="" *ngIf="gapSubmit.cc_qualifiedforsample=='Yes'">
+                <div class="">
+                  <b>Did the patient have a current screening for colorectal cancer between 1/1/2019-12/31/2019? </b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" name="cc_currentscreening"
+                    [(ngModel)]="gapSubmit.cc_currentscreening">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes-End Abstraction</option>
+                    <option value="No">No-End Abstraction</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </tab>
+          <!-- <<<<<<<<<<<<<<<<<< 7.FLU SHOT GAP >>>>>>>>>>>>>>>>>>>>> -->
+          <tab heading="Prev 7 – Flu Vac" id="7" (select)="onSelectMeasure($event)" [customClass]="tabClass(7)" *ngIf="showTabs">
+            <div class="tab-pane fade show " id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+              <div class="">
+                <div class="">
+                  <b>Patient is qualified for sample?</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" name="flu_qualifiedforsample"
+                    [(ngModel)]="gapSubmit.flu_qualifiedforsample">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No-Other CMS approved reason</option>
+                  </select>
+                  <input type="text" placeholder="text" [(ngModel)]="gapSubmit.othercmsreason"
+                    *ngIf="gapSubmit.flu_qualifiedforsample == 'No'">
+                </div>
+              </div>
+              <div class="" *ngIf="gapSubmit.flu_qualifiedforsample=='Yes'">
+                <div class="">
+                  <b>Did the patient receive a flu shot between 08/01/2018-03/31/2019? </b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" name="flu_receivedflushot"
+                    [(ngModel)]="gapSubmit.flu_receivedflushot">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes-End Abstraction</option>
+                    <option value="No">No-End Abstraction</option>
+                    <option value='Denominator Exception-Medical reasons'>Denominator Exception-Medical reasons</option>
+                    <option value='Denominator Exception-Patient reasons'>Denominator Exception-Patient reasons</option>
+                    <option value='Denominator Exception-System reasons'>Denominator Exception-System reasons</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </tab>
+          <!-- <<<<<<<<<<<<<<<<<< 8.TOBACCO SC GAP >>>>>>>>>>>>>>>>>>>>> -->
+          <tab heading="Prev 10 – Tob. Use" id="8" (select)="onSelectMeasure($event)" [customClass]="tabClass(8)" *ngIf="showTabs">
+            <div class="tab-pane fade show " id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+              <div class="">
+                <div class="">
+                  <b>Patient is qualified for measure?</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" [(ngModel)]="gapSubmit.tobacco_qualified"
+                    name="tobacco_qualified">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No - other CMS approved reason </option>
+                  </select>
+                  <input type="text" placeholder="text" [(ngModel)]="gapSubmit.othercmsreason"
+                    *ngIf="gapSubmit.tobacco_qualified == 'No'">
+                </div>
+              </div>
+              <div class="" *ngIf="gapSubmit.tobacco_qualified == 'Yes'">
+                <div class="">
+                  <b>Was the patient screened for tobacco use?</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" name="tobacco_screened" [(ngModel)]="gapSubmit.tobacco_screened">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No - stop abstraction</option>
+                    <option value='Denominator Exception-Medical reasons'>Denominator Exception - Medical reasons
+                    </option>
+                  </select>
+                </div>
+                <div class="inner-block" *ngIf="gapSubmit.tobacco_screened == 'Yes'">
+                  <div class="">
+                    <b>Is the patient a tobacco user based on their most recent screening?</b>
+                  </div>
+                  <div class="">
+                    <select class="form-control col-12" name="tobacco_recentscreening"
+                      [(ngModel)]="gapSubmit.tobacco_recentscreening">
+                      <option value="">Select category</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No - stop abstraction</option>
+                    </select>
+                  </div>
+                  <div class="inner-block" *ngIf="gapSubmit.tobacco_recentscreening == 'Yes'">
+                    <div class="">
+                      <b>Did the patient receive tobacco cessation intervention?</b>
+                    </div>
+                    <div class="">
+                      <select class="form-control col-12" [(ngModel)]="gapSubmit.tobacco_cessatinintervention"
+                        name="tobacco_cessatinintervention">
+                        <option value="">Select category</option>
+                        <option value="Yes">Yes - End Abstraction</option>
+                        <option value="No">No - End Abstraction</option>
+                        <option value='Denominator Exclusion-Medical reasons'>Denominator Exclusion - Medical reasons
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </tab>
+          <!-- <<<<<<<<<<<<<<<<<< 9.PREV-12 >>>>>>>>>>>>>>>>>>>>> -->
+          <tab heading="Prev 12 – Depres. Scrn" id="9" (select)="onSelectMeasure($event)" [customClass]="tabClass(9)" *ngIf="showTabs">
+            <div class="tab-pane fade show " id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+              <div class="">
+                <div class="">
+                  <b>Patient is qualified for measure?</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" name="prev12_qualified" [(ngModel)]="gapSubmit.prev12_qualified">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No - Other CMS approved Reason</option>
+                    <option value='Denominator Exclusion-depression'>Denominator Exclusion-Depression</option>
+                    <option value='Denominator Exclusion-Bipolar Disorder'>Denominator Exclusion-Bipolar Disorder
+                    </option>
+                  </select>
+                  <input type="text" placeholder="text" [(ngModel)]="gapSubmit.othercmsreason"
+                    *ngIf="gapSubmit.prev12_qualified == 'No'">
+                </div>
+              </div>
+              <div class="" *ngIf="gapSubmit.prev12_qualified == 'Yes'">
+                <div class="">
+                  <b>Was the patient screened for depression?</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" name="prev12_depressionscreened"
+                    [(ngModel)]="gapSubmit.prev12_depressionscreened">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No - End Abstraction</option>
+                    <option value='Denominator Exception-Medical reasons'>Denominator Exception-Medical reasons</option>
+                    <option value='Denominator Exception-Patient reasons'>Denominator Exception-Patient reasons</option>
+                  </select>
+                </div>
+                <div class="inner-block" *ngIf="gapSubmit.prev12_depressionscreened == 'Yes'">
+                  <div class="">
+                    <b>Was the screening positive for depression?</b>
+                  </div>
+                  <div class="">
+                    <select class="form-control col-12" name="prev12_positivefordepression"
+                      [(ngModel)]="gapSubmit.prev12_positivefordepression">
+                      <option value="">Select category</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No - End Abstraction</option>
+                    </select>
+                  </div>
+                  <div class="inner-block" *ngIf="gapSubmit.prev12_positivefordepression == 'Yes'">
+                    <div class="">
+                      <b>Was a follow up plan completed for this patient?</b>
+                    </div>
+                    <div class="">
+                      <select class="form-control col-12" name="gender" [(ngModel)]="gapSubmit.prev12_followup">
+                        <option value="">Select category</option>
+                        <option value="Yes">Yes - End Abstraction</option>
+                        <option value="No">No - End Abstraction</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </tab>
+
+          <!-- <<<<<<<<<<<<<<<<<< 10.PREV-13 >>>>>>>>>>>>>>>>>>>>> -->
+          <tab heading="Prev 13 – ASCVD" id="10" (select)="onSelectMeasure($event)" [customClass]="tabClass(10)" *ngIf="showTabs">
+            <div class="tab-pane fade show " id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+              <div class="">
+                <div class="">
+                  <b>Patient is qualified for Sample?</b>
+                </div>
+                <div class="">
+                  <select class="form-control col-12" name="prev13_qualifiedsample" [(ngModel)]="gapSubmit.prev13_qualifiedsample">
+                    <option value="">Select category</option>
+                    <option value="Yes - 21 & older with ASCVD">Yes - 21 & older with ASCVD</option>
+                    <option value="Yes - 21 & older with Fasting LDL ≥ 190">Yes - 21 & older with Fasting LDL ≥ 190</option>
+                    <option value='Yes - Age 40-75 with diagnosis of diabetes'>Yes - Age 40-75 with diagnosis of diabetes</option>
+                    <option value='No - Diagnosis of pregnancy'>No - Diagnosis of pregnancy</option>
+                    <option value="No - breastfeeding">No - Breastfeeding</option>
+                    <option value="No - diagnosis of rhabdomyolysis">No - Diagnosis of rhabdomyolysis</option>
+                    
+                    
+                  </select>
+                  
+                </div>
+              </div>
+              <div class=""  *ngIf="gapSubmit.prev13_qualifiedsample == 'Yes - 21 & older with ASCVD' || 
+              gapSubmit.prev13_qualifiedsample == 'Yes - 21 & older with Fasting LDL ≥ 190' || gapSubmit.prev13_qualifiedsample == 'Yes - Age 40-75 with diagnosis of diabetes'">
+                <div class="" *ngIf="gapSubmit.prev13_qualifiedsample == 'Yes - 21 & older with ASCVD' || gapSubmit.prev13_qualifiedsample == 'Yes - 21 & older with Fasting LDL ≥ 190'">
+                  <b>Did the patient receive statin treatment in current measurement year?</b>
+                </div>
+                <div class="" *ngIf="gapSubmit.prev13_qualifiedsample == 'Yes - 21 & older with ASCVD'  || gapSubmit.prev13_qualifiedsample == 'Yes - 21 & older with Fasting LDL ≥ 190'">
+                  <select class="form-control col-12" name="prev13_statintreatement"
+                    [(ngModel)]="gapSubmit.prev13_statintreatement">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No - denominator exception">No - denominator exception</option>
+                    <option value="No - measure not met">No - Measure not met</option>
+                  </select>
+
+                </div>
+
+                <div class="" *ngIf="gapSubmit.prev13_qualifiedsample == 'Yes - Age 40-75 with diagnosis of diabetes'">
+                  <b>Does the patient have an LDL-C level between 70 – 189 mg/dL during 2017, 2018, or 2019?</b>
+                </div>
+                <div class="" *ngIf="gapSubmit.prev13_qualifiedsample == 'Yes - Age 40-75 with diagnosis of diabetes'">
+                  <select class="form-control col-12" name="prev13_LDLC"
+                    [(ngModel)]="gapSubmit.prev13_LDLC">
+                    <option value="">Select category</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    
+                  </select>
+                </div>
+                
+                <div class="inner-block" *ngIf="gapSubmit.prev13_statintreatement == 'No - denominator exception'">
+                  <div class="">
+                    <b>Medical Reason</b>
+                  </div>
+                  <div class="">
+                    <select class="form-control col-12" name="gender" [(ngModel)]="gapSubmit.prev13_medreason">
+                      <option value="">Select category</option>
+                      <option value="Adverse effect, allergy, or intolerance to statin medication">Adverse effect, allergy, or intolerance to statin medication</option>
+                      <option value="Active liver disease or hepatic disease or insufficiency">Active liver disease or hepatic disease or insufficiency</option>
+                      <option value="End stage renal disease (ESRD">End stage renal disease (ESRD)</option>
+                      <option value="Diabetes patient with most recent fasting LDL < 70 mg/dL">Diabetes patient with most recent fasting LDL < 70 mg/dL</option>
+
+                    </select>
+                  </div>
+                </div>
+                <div class="inner-block" *ngIf="gapSubmit.prev13_LDLC == 'Yes'">
+                  <div class="">
+                    <b>Did the patient receive statin therapy in the current measurement year?</b>
+                  </div>
+                  <div class="">
+                    <select class="form-control col-12" name="prev13_statintherapy"
+                      [(ngModel)]="gapSubmit.prev13_statintherapy">
+                      <option value="">Select category</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No - denominator exception">No - denominator exception</option>
+                      <option value="No - measure not met">No - Measure not met</option>
+                    </select>
+                  </div>
+
+                  <div class="inner-block" *ngIf="gapSubmit.prev13_statintherapy == 'No - denominator exception'">
+                    <div class="">
+                      <b>Medical Reason</b>
+                    </div>
+                    <div class="">
+                      <select class="form-control col-12" name="gender" [(ngModel)]="gapSubmit.prev13_medreason">
+                        <option value="">Select category</option>
+                        <option value="Adverse effect, allergy, or intolerance to statin medication">Adverse effect, allergy, or intolerance to statin medication</option>
+                        <option value="Active liver disease or hepatic disease or insufficiency">Active liver disease or hepatic disease or insufficiency</option>
+                        <option value="End stage renal disease (ESRD">End stage renal disease (ESRD)</option>
+                        <option value="Diabetes patient with most recent fasting LDL < 70 mg/dL">Diabetes patient with most recent fasting LDL < 70 mg/dL</option>
+
+                      </select>
+                    </div>
+                  </div>
+                  
+                </div>
+
+                
+              </div>
+            </div>
+          </tab>
+
+
+
+
+          <div class="ACO_docs">
+            <div class=""  *ngIf="!aco_audit_route">
+              <div class="">
+                <!-- <b>Attach document<span class="text-danger">*</span></b> -->
+                <b>Attach document</b>
+
+              </div>
+              <div class="">
+                <div class=" upload-doc">
+
+                  <div>
+                    <!-- alert('Reminder:  All documents uploaded must contain the following components:\n · Date of service of the procedure \n · Rendering provider has signed the note/procedure \n · Documentation submitted includes, at a minimum, two patient identifiers') -->
+                    <label class="upload-button">
+
+                      <input type="file" id="upload-file" ngFileSelect [options]="options" 
+                        (uploadOutput)="onUploadOutput($event,'video')" [uploadInput]="uploadInput" multiple
+                        #fileUpload>
+                    </label>
+                    <div class="upload-items">
+                      <div class="upload-item" *ngFor="let f of videofiles; let i = 'index';">
+                        <span class="filename">
+                          <span>{{ f.name }} - {{ f.progress?.data?.percentage }}%</span>
+                          <span>uploading with {{ f.progress?.data?.speedHuman }}</span>
+                          <span class="fa fa-close" (click)="removeFile(f.id)"></span>
+                        </span>
+                        <div class="progress progress mb-0">
+                          <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25"
+                            class="progress-bar bg-success progress-bar-animated progress" role="progressbar"
+                            [style.width]="f?.progress?.data?.percentage + '%'"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row upload-doc" *ngIf="gapSubmit?.docs">
+
+              <div class="">
+                <b>Uploaded Documents List</b>
+              </div>
+              <div class="">
+                <ol>
+                  <li *ngFor="let d of gapSubmit?.docs; let i = 'index';" class="f-14">
+                    {{d.filename}} <a target="_blank" [href]="CONTENT_BASE+d.filepath"><i
+                        class="fa fa-file-pdf-o text-danger pl-2"></i></a>
+                    <a href="javascript:void(0)" (click)="removeACOGapDoc(d)" *ngIf="!aco_audit_route" ><i
+                        class="fa fa-times text-danger pl-2"></i></a>
+                  </li>
+                </ol>
+              </div>
+
+
+
+            </div>
+            <div class="">
+              <div class="" style="vertical-align: top;">
+                <b>Comment</b>
+              </div>
+              <div class="">
+                <textarea class="txt" placeholder="Type your comments here" [(ngModel)]="gapSubmit.comment"></textarea>
+              </div>
+            </div>
+
+            <div class="" *ngIf="gapSubmit?.commentlist?.length" style="border-top: 1px solid #ddd;
+            margin-top: 15px;
+            padding-top: 15px;">
+              <div class="" style="vertical-align: top;">
+                <b>History</b>
+              </div>
+              <div class="comment-list" >
+
+                <ol>
+                  <li *ngFor="let c of gapSubmit?.commentlist; let i = 'index';" class="f-14" (click)="comment_data(c)" style="cursor: pointer;"
+                  [ngClass]="{'history_active': gapSubmit.gapsid == c.gapid && c.Documentstatus != 'approved' && c.Documentstatus != 'rejected',
+                              'restrict_pointer': c.Documentstatus == 'approved' || c.Documentstatus == 'rejected'}"
+                  >
+                    <b>{{c.username}} <span class="badge badge-warning">{{c.Documentstatus}}</span>
+                      <span
+                        class="badge badge-success ml-1">{{c.rolename}}</span><span
+                        class="float-right">{{c.createdate | date}}</span></b> <span>{{c.comment}}</span>
+                    <div *ngIf="c?.documentlist?.length">
+                      <b>Docs uploaded</b>
+                      <span class="box-style" *ngFor="let d of c?.documentlist; let i = 'index';">{{d.filename}}</span>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+            </div>
+
+          </div>
+        </tabset>
+
+        <!-- [disabled]="disableBtn || !(videofiles?.length > 0  || gapSubmit?.gapdoc?.length > 0) || !disclaimer" -->
+
+        <!-- //Save button for ACO gaps -->
+        <div *ngIf="!aco_audit_route">
+          <button
+          *ngIf="!(gapSubmit?.type == 'exclusion' || gapSubmit?.type == 'numerator' || gapSubmit?.type == 'pending')"
+          type="submit" class="btn btn-success" (click)="ACOGapSubmit()"
+         >&nbsp;Save </button>
+          <button *ngIf="gapSubmit?.type == 'exclusion' || gapSubmit?.type == 'numerator' || gapSubmit?.type == 'pending'"
+          type="submit" class="btn btn-success" (click)="ACOGapSubmit()" [disabled]="true">&nbsp;Save </button>
+        </div>
+
+        <!-- //Save button for ACO audit listing -->
+        <div *ngIf="aco_audit_route && gapSubmit?.type == 'pending' ">
+          <button type="submit" class="btn btn-success" (click)="ACOAuditUpdate('approved')">&nbsp;Approve </button>
+          <button type="submit" class="btn btn-danger" (click)="ACOAuditUpdate('rejected')">&nbsp;Reject </button>
+  
+        </div>
+        
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>

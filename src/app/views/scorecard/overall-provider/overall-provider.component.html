@@ -1,0 +1,426 @@
+<app-help class="d-none"></app-help>
+<div class="u-heading">
+   <h2>Overall Provider Scorecard</h2>
+   <div class="pull-right">
+      <span class="add-text d-none d-md-inline-block" *ngIf="showevrything">Add Note </span>
+      <span class="add-more" data-toggle="modal" *ngIf="showevrything" (click)="addnote()">
+         <a><i class="material-icons">add</i></a>
+      </span>
+   </div>
+</div>
+<div class="p-s-search">
+   <!--<div class="download-option" *ngIf="showevrything">
+      <span class="pdf-icon" ><i class="fa fa-file-pdf-o" aria-hidden="true"> </i><span class="download-text">Download Pdf</span></span>
+      <span class="excel-icon" ><i class="fa fa-file-excel-o" aria-hidden="true"></i><span  class="download-text">Download Excel Sheet</span></span>
+      </div>-->
+   <form autocomplete="off" class="form-inline" #providerScorecard="ngForm">
+      <div class="col-md-3 mb-2 mr-sm-2 mb-sm-0" style="position: relative;padding: 0;" *ngIf="rolename!='provider'">
+         <!-- [ngClass]="{'input-loading': searching}" -->
+         <input [(ngModel)]="provider_name" (keyup)="searchProvider()" (focus)="showPanel = true"
+            (focusout)="hidePanel()" class="form-control " name="provider_name" placeholder="Search Provider"
+            type="text" required style="width:100%;">
+         <img *ngIf="searching" class="input-loading-img" src="assets/img/input-spinner.gif">
+         <div *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="min-width:100%">
+            <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+            <div *ngFor="let member of members"><a *ngIf="member.FirstName" href="javascript:void(0)"
+                  class="dropdown-item" (click)="getInsurance(member)">
+                  {{member?.LastName}} {{member?.FirstName}} <span *ngIf="member.email"> | {{member.email}} </span>
+               </a>
+            </div>
+         </div>
+         <div *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show" style="left: auto;width:100%;">
+            <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+            <div><a href="javascript:void(0)" class="dropdown-item">
+                  No provider found
+               </a>
+            </div>
+         </div>
+         <p class="error-bx" *ngIf="insurance_list?.length ==0 ">No healthplan associated with this provider</p>
+      </div>
+      <!--<select [(ngModel)]="provider.healthplanid" *ngIf="insurance_list?.length >0 && rolename !== 'healthplan'"  class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2"  name="insurance" (change)="showDates = true;setHealthplan()" required>
+         <option [selected]="true" value="">Select Healthplan</option>
+         <option  *ngFor="let insurance of insurance_list" [value]="insurance.healthplan_id">
+            {{ insurance.health_Name }}
+         </option>
+         <option value="0">All</option>
+         </select>-->
+      <select *ngIf="insurance_list?.length >0" [(ngModel)]="provider.year"
+         class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2" name="year"
+         (change)="checkMonth(provider.year) && showDates = true" required>
+         <option [selected]="true" value="">Select year</option>
+         <option *ngFor="let year of years" [value]="year">{{year}}</option>
+      </select>
+      <select *ngIf="provider.year" [(ngModel)]="provider.month" class="form-control mb-2 mr-sm-2 mb-sm-0 col-md-2"
+         name="month" (change)="formatDate()" required>
+         <option [selected]="true" value="">Select Month</option>
+         <option *ngFor="let month of months" [value]="month.value">
+            {{ month.full }}
+         </option>
+      </select>
+      <button type="submit" class="btn btn-primary btn-sm" (click)="getScorecard()"
+         [disabled]="providerScorecard.form.invalid || !checkvalidity"><span><i class="fa fa-file"></i></span>View
+         Report</button>
+   </form>
+</div>
+<div class="custom-container" *ngIf="showevrything">
+   <div class="row mx-0">
+      <div class="col-sm-6 col-md-4 p-0">
+         <div class="info-box">
+            <span class="info-box-icon silver-bg"><i class="fa fa-medkit"></i></span>
+            <div class="info-box-content">
+               <span class="info-box-text">Provider Name</span>
+               <span class="info-box-number">Dr. {{provider_label}}</span>
+            </div>
+            <!-- /.info-box-content -->
+         </div>
+      </div>
+      <div class="col-sm-6 col-md-4 p-0">
+         <div class="info-box">
+            <span class="info-box-icon green-bg"><i class="fa fa-address-card"></i></span>
+            <div class="info-box-content">
+               <span class="info-box-text">Total Healthplan </span>
+               <span class="info-box-number">{{response?.totalhealthplancount}}</span>
+               <!-- <span class="info-box-number" *ngIf="scorecard?.totalmember">{{scorecard?.totalmember}}</span> -->
+            </div>
+            <!-- /.info-box-content -->
+         </div>
+      </div>
+      <!-- <div class="col-sm-6 col-md-4 p-0">
+         <div class="info-box">
+            <span class="info-box-icon darker-blue-bg"><i class="fa fa-calendar"></i></span>
+            <div class="info-box-content">
+               <span class="info-box-text">HEDIS Year</span>
+               <span class="info-box-number" *ngIf="scorecard">{{provider.year}} <small>Date of Service</small></span>
+            </div>
+         </div>
+         </div> -->
+      <div class="col-sm-6 col-md-4 p-0">
+         <div class="info-box">
+            <span class="info-box-icon darker-blue-bg"><i class="fa fa-calendar"></i></span>
+            <div class="info-box-content">
+               <span class="info-box-text">Total Membership</span>
+               <!--     
+                  <span class="info-box-number" *ngIf="scorecard" [routerLink]="['/reports/mra/gaps']" (click)="storeMraHpGaps('CurrentMissingCondition')">{{scorecard?.CurrentMissingConditions}}</span> -->
+               <span class="info-box-number">{{response?.totalmembercount}}</span>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row mx-0">
+      <div class="col-sm-6 col-md-4 p-0">
+         <div class="info-box">
+            <span class="info-box-icon light-blue-bg"><i class="fa fa-refresh"></i></span>
+            <div class="info-box-content">
+               <span class="info-box-text">Mra Open Conditions</span>
+
+               <span class="info-box-number"></span>
+            </div>
+            <!-- /.info-box-content -->
+         </div>
+      </div>
+      <div class="col-sm-6 col-md-4 p-0">
+         <div class="info-box">
+            <span class="info-box-icon light-ornage-bg"><i class="fa fa-refresh"></i></span>
+            <div class="info-box-content">
+               <span class="info-box-text">Current Hedis Gap</span>
+               <!-- <span class="info-box-number" *ngIf="scorecard">{{scorecard?.ProjectedScore | round}}</span> -->
+
+               <span class="info-box-number">{{response?.currenthedisgaps}}</span>
+            </div>
+            <!-- /.info-box-content -->
+         </div>
+      </div>
+      <div class="col-sm-6 col-md-4 p-0">
+         <div class="info-box">
+            <span class="info-box-icon dark-silver-bg"><i class="fa fa-refresh"></i></span>
+            <div class="info-box-content">
+               <span class="info-box-text">Current Aco Gaps</span>
+               <!--  
+                  <span class="info-box-number" *ngIf="scorecard" [routerLink]="['/reports/mra/gaps']" (click)="storeMraHpGaps('ProjectedMissingCondition')">{{scorecard?.ProjectedMissingConditions}}</span> -->
+               <span class="info-box-number"></span>
+            </div>
+            <!-- /.info-box-content -->
+         </div>
+      </div>
+   </div>
+</div>
+<div class="row mx-0 gap-section" id="mra" *ngIf="showevrything">
+   <div class="col col1">
+      <div class="card border-warning my-1">
+         <div class="card-header border-warning">HEDIS</div>
+         <div class="card-body" style="padding-top:10px;">
+            <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+               <thead>
+                  <tr>
+                     <th> S.no</th>
+                     <th>Insurance Name</th>
+                     <th>Combined Overall</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr *ngFor="let healthplan of ipa_data; let i = 'index'">
+                     <td data-label="S.No.">{{i+1}}</td>
+                     <!-- //When normal role users -->
+                     <td data-label="Insurance Name"><a href="javascript:void(0)" target="_blank"
+                           (click)="storeHpScorecard(healthplan)"
+                           [routerLink]="['/scorecard/provider']">{{healthplan?.plancard.healthplan?.toLowerCase()}}</a>
+                     </td>
+                     <td data-label="Total Score">
+                        <span class="">{{healthplan?.plancard.totalscore | round}}</span>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
+   <div class="col">
+      <div class="card border-warning my-1">
+         <div class="card-header border-warning">MRA</div>
+         <div class="card-body" style="padding-top:10px;">
+            <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+               <thead class="thead-gray">
+                  <tr>
+                     <th> S.no</th>
+                     <th>Insurance name</th>
+                     <th>Current Score </th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr *ngFor="let x of healthplan_data; let i = 'index'">
+                     <td data-label="S.No.">{{i+1}}</td>
+                     <td data-label="Insurance Name"><a href="javascript:void(0)" target="_blank"
+                           (click)="storeMraHpScorecard(x)"
+                           [routerLink]="['/scorecard/mra/healthplan']">{{x?.HealthplanName?.toLowerCase()}}</a></td>
+                     <td data-label="current score"> {{x?.CurrentScore | round}} </td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
+   <div class="col col2">
+      <div class="card border-warning my-1 col3">
+         <div class="card-header border-warning ">ACO</div>
+         <div class="card-body" style="padding-top:10px;">
+            <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob">
+               <thead class="thead-gray">
+                  <tr>
+                     Once ACO calculations are finalized,score would appear here.
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
+</div>
+<div class="gaps-table" style="margin:12px;">
+   <div class="u-heading" *ngIf="showevrything && notes_list?.length>0">
+      <h2>
+         Notes list
+      </h2>
+   </div>
+   <table class="table table-responsive-sm table-hover table-outline mb-0 bg-white mob "
+      *ngIf="showevrything&& notes_list?.length>0">
+      <thead>
+         <tr>
+            <th>Notes</th>
+            <th>Date Entered</th>
+            <th>Author</th>
+            <th>Importance</th>
+            <th>Service Type</th>
+            <th>Communicated With</th>
+            <th>Follow up date</th>
+            <th>Assigned To</th>
+
+
+            <th>Follow up time</th>
+            <th>Follow-up Note</th>
+            <th>Edit</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr *ngFor="let x of notes_list;">
+            <td data-label="Notes" id="notestooltip" [tooltip]=x.notes>{{x.notes| truncate:[50, '...']}}</td>
+            <td data-label="Date Entered">{{x.dateentered | date}}</td>
+            <td data-label="Author">{{x.lastname}},{{x.firstname}}</td>
+            <td data-label="Importance">{{x.importance}}</td>
+            <td data-label="Service Type">{{x.procedure_performed}}</td>
+            <td data-label="Communicated with">{{x.discussion_with}}</td>
+            <td data-label="Follow Up date">{{x.followupdate | date}}</td>
+            <td data-label="Assigned To">{{x.assignedto}}</td>
+            <td data-label="Follow up time">{{x.followupminutes}}</td>
+
+            <td data-label="Follow-up Note" [tooltip]=x.followupnote>{{x.followupnote| truncate:[50, '...']}}</td>
+            <td data-label="edit">
+               <a href="javascript:void(0)" (click)="openfollow(x)"><i class="fa fa-edit"
+                     style="font-size:24px"></i></a>
+            </td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+<nav *ngIf="total_pages > 15" aria-label="Page navigation example" style="margin-top: 25px;">
+   <ul *ngIf="pager.pages && pager.pages.length && showPagination" class="pagination justify-content-center">
+      <li class="page-item">
+         <a class="page-link" href="javascript:void(0)" [class.disabled]="page === 1"
+            (click)="loadByPage(pager.currentPage - 1)" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+            <span class="sr-only">Previous</span>
+         </a>
+      </li>
+      <li [class.active]="p==page" *ngFor="let p of pager.pages" class="page-item">
+         <a href="javascript:void(0)" (click)="loadByPage(p)" class="page-link">{{p}}</a>
+      </li>
+      <li class="page-item">
+         <a class="page-link" href="javascript:void(0)" [class.disabled]="page === total_pages"
+            (click)="loadByPage(pager.currentPage + 1)" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Next</span>
+         </a>
+      </li>
+      <li class="custom_page"><input type="number" min="1" onkeypress="return event.charCode != 45" #pgno>
+         <button class="btn  btn-primary" (click)="loadByPage(pgno.value)">goto page</button>
+      </li>
+   </ul>
+</nav>
+<div bsModal #healthcard="bs-modal" class="modal fade u-modal" tabindex="-1" role="dialog"
+   aria-labelledby="healthcardLabel" [config]="{backdrop: 'static'}" aria-hidden="true">
+   <div class="modal-dialog modal-xl health-card" role="document">
+      <div class="modal-content " id="healthcard">
+         <div class="modal-header app-header navbar" style="position: static;padding:14px;">
+            <a class="navbar-brand" href="#" style="height:30px;border-bottom: none;"></a>
+            <h4 class="modal-title text-center" *ngIf="!openfollowupnote" style="margin:0 auto;">Add Note</h4>
+            <h4 class="modal-title text-center" *ngIf="openfollowupnote" style="margin:0 auto;">Add Follow up Note</h4>
+            <button type="button" class="close" (click)="healthcard.hide()" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+         <div class="modal-body">
+            <form action="" class="form-horizontal" #MRAReviewForm="ngForm" autocomplete="off">
+               <div class="form-group row">
+
+                  <div class="col">
+                     <label>Service Type</label>
+                     <select class="form-control" id="select" name="select" [(ngModel)]="params.procedure_performed"
+                        [disabled]="openfollowupnote" required>
+                        <option [selected]="true" value="null">Select category</option>
+                        <option value="MRA Review">MRA Review</option>
+                        <option value="MRA Discussion">MRA Discussion</option>
+                        <option value="Monthly Ops Visit">Monthly Ops Visit</option>
+                        <option value="Phone Encounter">Phone Encounter</option>
+                        <option value="Customer Service issue">Customer Service issue</option>
+                        <option value="Pulled reports">Pulled reports</option>
+                        <option value="other">Other</option>
+                     </select>
+                  </div>
+                  <div class="col">
+                     <label>Communicated With</label>
+                     <select class="form-control" id="team" name="discussionwith" [(ngModel)]="params.discussion_with"
+                        [disabled]="openfollowupnote" required>
+                        <option [selected]="true" value="null">Select Type</option>
+                        <option value="Team lead/OM">Team lead/OM</option>
+                        <option value="Physician">Physician</option>
+                        <option value="APRN/PA">APRN/PA</option>
+                        <option value="Physician & APRN/PA">Physician & APRN/PA</option>
+                        <option value="Physician & Team lead/OM">Physician & Team lead/OM</option>
+                        <option value="APRN/PA & Team lead/OM">APRN/PA & Team lead/OM</option>
+                     </select>
+                  </div>
+                  <div class="col">
+                     <label>Level Of Importance</label>
+                     <select class="form-control" id="abh" name="importancea" [(ngModel)]="params.importance"
+                        [disabled]="openfollowupnote" required>
+                        <option [selected]="true" value="null">Select Type</option>
+                        <option value="Moderate">Moderate</option>
+                        <option value="Critical">Critical</option>
+                        <option value="High">High</option>
+                        <option value="Low">Low</option>
+                     </select>
+                  </div>
+                  <div class="col">
+                     <label>Followup</label>
+                     <select class="form-control" id="flwup" name="update" [(ngModel)]="params.followupdays"
+                        [disabled]="openfollowupnote" (change)="folowupDate()" required>
+                        <option value="null">Select time frame</option>
+                        <option value="30">30</option>
+                        <option value="60">60</option>
+                        <option value="90">90</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="form-group row">
+                  <div class="col">
+                     <label>Assign To</label>
+                     <div class="form-control" style="position: relative;padding: 0;" *ngIf="rolename!='provider'">
+                        <!-- [ngClass]="{'input-loading': searching}" -->
+                        <input [(ngModel)]="provider_name" (keyup)="searchProvider()" (focus)="showPanel = true"
+                           (focusout)="hidePanel()" class="form-control " name="provider_name"
+                           placeholder="Search Provider" type="text" required style="width:100%;" disabled>
+                        <img *ngIf="searching" class="input-loading-img" src="assets/img/input-spinner.gif">
+                        <div *ngIf="members?.length>0 && showPanel" class="dropdown-menu show" style="min-width:100%">
+                           <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+                           <div *ngFor="let member of members"><a *ngIf="member.FirstName" href="javascript:void(0)"
+                                 class="dropdown-item" (click)="getInsurance(member)">
+                                 {{member?.LastName}} {{member?.FirstName}} <span *ngIf="member.email"> |
+                                    {{member.email}} </span>
+                              </a>
+                           </div>
+                        </div>
+                        <div *ngIf="members?.length == 0 && showPanel" class="dropdown-menu show"
+                           style="left: auto;width:100%;">
+                           <!-- <div class="dropdown-header text-center"><strong>Members associated with provider</strong></div> -->
+                           <div><a href="javascript:void(0)" class="dropdown-item">
+                                 No provider found
+                              </a>
+                           </div>
+                        </div>
+                        <p class="error-bx" *ngIf="insurance_list?.length ==0 ">No healthplan associated with this
+                           provider</p>
+                     </div>
+                  </div>
+                  <div class="col">
+                     <label>Time Spent(in minutes)</label>
+                     <input [(ngModel)]="params.minutes" class="form-control" onkeypress="return event.charCode != 45"
+                        name="timer" [disabled]="openfollowupnote" placeholder="Enter time" min="1" type="number"
+                        required>
+                  </div>
+                  <div class="col" *ngIf="openfollowupnote">
+                     <label>Follow-up Time Spent(in minutes)</label>
+                     <input [(ngModel)]="params.followuptime" class="form-control"
+                        onkeypress="return event.charCode != 45" name="ftimer" placeholder="Enter time" type="number"
+                        min="1" required>
+                  </div>
+
+               </div>
+               <div class="form-group row">
+                  <div class="col">
+                     <label>Notes</label>
+                     <textarea class="form-control" [(ngModel)]="params.notes" name="note" placeholder="Add note"
+                        type="text" [disabled]="openfollowupnote" required> </textarea>
+                  </div>
+               </div>
+               <div class="form-group row" *ngIf="openfollowupnote">
+                  <div class="col">
+                     <label>Follow-up Note</label>
+                     <textarea class="form-control" name="notes" [(ngModel)]="params.responsible_party"
+                        placeholder="Add note" type="text" required> </textarea>
+                  </div>
+
+               </div>
+               <div class="form-group row">
+                  <div class="col-md-12">
+                     <button type="submit" class="btn btn-success" *ngIf="!openfollowupnote" (click)="sendparam()"><i
+                           class="fa fa-check"></i>&nbsp;Save</button>
+                     <button type="submit" class="btn btn-success" *ngIf="openfollowupnote" (click)="addfolowup()"><i
+                           class="fa fa-check"></i>&nbsp;Save</button>
+                     <!-- <button type="button" class="btn btn-danger" (click)="MRAReviewModal.hide()"><i class="fa fa-times"></i>&nbsp;Close</button> -->
+                  </div>
+               </div>
+            </form>
+         </div>
+      </div>
